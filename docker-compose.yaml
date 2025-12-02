@@ -1,6 +1,25 @@
 version: '3.8'
 
 services:
+  api:
+    build: .
+    container_name: mlops_api
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    environment:
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
+    depends_on:
+      - mlflow
+      - redis
+
+  frontend:
+    build: ./frontend
+    container_name: mlops_frontend
+    ports:
+      - "3000:80"
+
   mlflow:
     image: ghcr.io/mlflow/mlflow:latest
     container_name: mlflow_server
@@ -9,6 +28,8 @@ services:
     command: mlflow server --backend-store-uri sqlite:///mlflow.db --default-artifact-root ./mlruns --host 0.0.0.0
     volumes:
       - ./mlflow_data:/mlflow
+      - ./mlruns:/mlruns
+      - ./mlflow.db:/mlflow.db
 
   nginx:
     image: nginx:latest
@@ -18,7 +39,8 @@ services:
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
-      - mlflow
+      - api
+      - frontend
 
   redis:
     image: redis:alpine
@@ -37,3 +59,4 @@ services:
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
     depends_on:
       - redis
+      - api
