@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mlops-config
+data:
+  config.yaml: |
+    database:
+      type: "postgres"
+      host: "postgres-service"
+      port: 5432
+      user: "user"
+      database: "ml_db"
+      training_table: "iris_train"
+      prediction_table: "iris_predictions"
+    
+    model:
+      name: "random_forest_classifier"
+      params:
+        n_estimators: 100
+        max_depth: 5
+        random_state: 42
+    
+    mlflow:
+      tracking_uri: "http://mlflow-service:5000"
+      experiment_name: "iris_classification"

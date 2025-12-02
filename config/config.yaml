@@ -1,0 +1,21 @@
+database:
+  database: alter_managment
+  host: localhost
+  password: root
+  port: 3306
+  prediction_table: orders_pred
+  training_table: smoke_detection_iot
+  type: mysql
+  user: root
+preprocessing:
+  script_path: src/features/preprocess.py
+mlflow:
+  experiment_name: dominose_order_v1
+  tracking_uri: http://localhost:5000
+model:
+  name: LinearRegression
+  params:
+    max_depth: 10
+    n_estimators: 100
+  target_col: Fire Alarm
+  task_type: regression

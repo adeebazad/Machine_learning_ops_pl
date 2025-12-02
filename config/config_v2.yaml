@@ -1,0 +1,19 @@
+database:
+  database: postgres
+  host: localhost
+  password: root
+  port: 5432
+  prediction_table: user_pred
+  training_table: users
+  type: postgres
+  user: postgres
+mlflow:
+  experiment_name: smoke_detection_iot_v2
+  tracking_uri: http://localhost:5000
+model:
+  name: random_forest_classifier
+  params:
+    max_depth: 5
+    n_estimators: 100
+    random_state: 42
+  target_col: Fire Alarm

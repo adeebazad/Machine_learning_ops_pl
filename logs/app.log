@@ -1,0 +1,877 @@
+2025-11-29 12:37:43,713 - src.api - INFO - Starting background training with config: config/test_verify.yaml
+2025-11-29 12:37:43,716 - src.models.train - INFO - Loading data...
+2025-11-29 12:37:43,718 - src.api - ERROR - Background training failed: 'training_table'
+2025-11-29 12:39:15,182 - src.api - INFO - Starting background training with config: config/test_verify.yaml
+2025-11-29 12:39:15,189 - src.models.train - INFO - Loading data...
+2025-11-29 12:39:15,190 - src.api - ERROR - Background training failed: 'training_table'
+2025-11-29 12:39:31,731 - src.api - INFO - Starting background training with config: config/test_verify.yaml
+2025-11-29 12:39:31,739 - src.models.train - INFO - Loading data...
+2025-11-29 12:39:31,743 - src.api - ERROR - Background training failed: 'training_table'
+2025-11-29 12:44:15,022 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 12:44:15,369 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 12:45:58,193 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 12:45:58,308 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 12:46:15,557 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 12:46:15,763 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 12:46:23,523 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 12:46:23,824 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 12:46:38,564 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 12:46:38,740 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 12:48:13,861 - src.api - INFO - Starting background training with config: config/config.yaml
+2025-11-29 12:48:13,870 - src.models.train - INFO - Loading data...
+2025-11-29 12:48:13,871 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 12:48:16,477 - src.data.mysql_connector - INFO - Fetched 62630 rows from MySQL.
+2025-11-29 12:48:16,479 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 12:48:16,480 - src.models.train - INFO - Preprocessing data...
+2025-11-29 12:48:16,480 - src.models.train - INFO - Using target column from config: Fire Alarm
+2025-11-29 12:48:16,480 - src.models.train - INFO - Selected target column: Fire Alarm
+2025-11-29 12:52:54,784 - src.api - ERROR - Background training failed: API request to http://localhost:5000/api/2.0/mlflow/experiments/get-by-name failed with exception HTTPConnectionPool(host='localhost', port=5000): Max retries exceeded with url: /api/2.0/mlflow/experiments/get-by-name?experiment_name=dominose_order_v1 (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x00000146C2ED8AF0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))
+2025-11-29 12:58:57,364 - src.api - INFO - Starting background training with config: config/
+2025-11-29 12:58:57,365 - src.api - ERROR - Background training failed: [Errno 13] Permission denied: 'config/'
+2025-11-29 12:59:07,711 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 12:59:08,038 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 13:00:24,561 - src.api - INFO - Starting background training with config: config/
+2025-11-29 13:00:24,563 - src.api - ERROR - Background training failed: [Errno 13] Permission denied: 'config/'
+2025-11-29 13:00:46,904 - src.api - INFO - Starting background training with config: config/config.yaml
+2025-11-29 13:00:46,909 - src.models.train - INFO - Loading data...
+2025-11-29 13:00:46,910 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 13:00:49,234 - src.data.mysql_connector - INFO - Fetched 62630 rows from MySQL.
+2025-11-29 13:00:49,236 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 13:00:49,237 - src.models.train - INFO - Preprocessing data...
+2025-11-29 13:00:49,237 - src.models.train - INFO - Using target column from config: Fire Alarm
+2025-11-29 13:00:49,237 - src.models.train - INFO - Selected target column: Fire Alarm
+2025-11-29 13:00:54,475 - src.models.train - INFO - Starting training...
+2025-11-29 13:00:54,476 - src.models.train - INFO - Logging dataset to MLflow...
+2025-11-29 13:00:56,432 - src.models.train - INFO - Task Type: regression, Model: LinearRegression
+2025-11-29 13:00:56,534 - src.models.train - INFO - MSE: 0.07468318193571653, R2: 0.6349764867995114
+2025-11-29 13:01:35,135 - src.models.train - INFO - Training complete and logged to MLflow.
+2025-11-29 13:01:35,437 - src.api - INFO - Background training completed. Run ID: e0757b643d374cca99954b611bb18212
+2025-11-29 13:02:52,591 - src.api - INFO - Loading model and preprocessor from runs:/e0757b643d374cca99954b611bb18212/model...
+2025-11-29 13:02:55,079 - src.api - ERROR - Preprocessing failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- feature1
+- feature2
+Feature names seen at fit time, yet now missing:
+- CNT
+- Humidity[%]
+- NC0.5
+- NC1.0
+- NC2.5
+- ...
+
+2025-11-29 13:02:55,079 - src.api - ERROR - Prediction failed: 400: Preprocessing failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- feature1
+- feature2
+Feature names seen at fit time, yet now missing:
+- CNT
+- Humidity[%]
+- NC0.5
+- NC1.0
+- NC2.5
+- ...
+
+2025-11-29 13:05:02,443 - src.api - ERROR - Preprocessing failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- feature1
+- feature2
+Feature names seen at fit time, yet now missing:
+- CNT
+- Humidity[%]
+- NC0.5
+- NC1.0
+- NC2.5
+- ...
+
+2025-11-29 13:05:02,443 - src.api - ERROR - Prediction failed: 400: Preprocessing failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- feature1
+- feature2
+Feature names seen at fit time, yet now missing:
+- CNT
+- Humidity[%]
+- NC0.5
+- NC1.0
+- NC2.5
+- ...
+
+2025-11-29 13:05:58,907 - src.api - INFO - Loading model and preprocessor from runs:/a0f1cb1318e1462a8e3801b2424e4c69/model...
+2025-11-29 13:06:01,201 - src.api - ERROR - Preprocessing failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- feature1
+- feature2
+Feature names seen at fit time, yet now missing:
+- CNT
+- Humidity[%]
+- NC0.5
+- NC1.0
+- NC2.5
+- ...
+
+2025-11-29 13:06:01,202 - src.api - ERROR - Prediction failed: 400: Preprocessing failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- feature1
+- feature2
+Feature names seen at fit time, yet now missing:
+- CNT
+- Humidity[%]
+- NC0.5
+- NC1.0
+- NC2.5
+- ...
+
+2025-11-29 13:08:00,093 - src.api - ERROR - Preprocessing failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- feature1
+- feature2
+Feature names seen at fit time, yet now missing:
+- CNT
+- Humidity[%]
+- NC0.5
+- NC1.0
+- NC2.5
+- ...
+
+2025-11-29 13:08:00,094 - src.api - ERROR - Prediction failed: 400: Preprocessing failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- feature1
+- feature2
+Feature names seen at fit time, yet now missing:
+- CNT
+- Humidity[%]
+- NC0.5
+- NC1.0
+- NC2.5
+- ...
+
+2025-11-29 13:15:04,027 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 13:15:04,190 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 13:15:40,709 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 13:15:41,024 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 13:16:00,912 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 13:16:01,130 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 13:16:06,881 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 13:16:07,018 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 13:16:34,446 - src.api - INFO - Loading model and preprocessor from runs:/e0757b643d374cca99954b611bb18212/model...
+2025-11-29 13:17:24,313 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 13:17:24,484 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 13:17:33,850 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 13:17:33,975 - src.data.postgres_connector - INFO - Successfully connected to PostgreSQL database.
+2025-11-29 13:17:33,988 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 13:17:34,390 - src.data.postgres_connector - INFO - PostgreSQL connection closed.
+2025-11-29 13:30:43,023 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 13:30:43,236 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 13:53:31,047 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 13:53:35,775 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 13:53:35,870 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 13:53:36,029 - src.data.mysql_connector - ERROR - Error fetching row count from MySQL table 'smoke_detection_iot': Not an executable object: 'SELECT COUNT(*) FROM smoke_detection_iot'
+2025-11-29 13:53:36,032 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 14:47:37,461 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 14:47:41,495 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 14:48:14,008 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 14:48:14,609 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 14:48:19,309 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 14:48:19,569 - src.data.mysql_connector - ERROR - Error fetching row count from MySQL table 'smoke_detection_iot': Not an executable object: 'SELECT COUNT(*) FROM smoke_detection_iot'
+2025-11-29 14:48:19,585 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 14:49:24,736 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 14:49:24,995 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 14:50:22,136 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 14:50:22,309 - src.data.mysql_connector - ERROR - Error fetching row count from MySQL table 'smoke_detection_iot': Not an executable object: 'SELECT COUNT(*) FROM smoke_detection_iot'
+2025-11-29 14:50:22,312 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 14:55:21,989 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 14:55:22,493 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 14:56:34,552 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 14:56:35,020 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 14:56:42,801 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 14:56:43,386 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 14:59:13,428 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 14:59:13,692 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 15:00:05,180 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 15:00:05,502 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 15:00:14,723 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 15:00:14,896 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 15:00:19,326 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 15:00:19,546 - src.data.mysql_connector - ERROR - Error fetching row count from MySQL table 'smoke_detection_iot': Not an executable object: 'SELECT COUNT(*) FROM smoke_detection_iot'
+2025-11-29 15:00:19,548 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 15:00:28,394 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 15:00:28,631 - src.data.mysql_connector - ERROR - Error fetching row count from MySQL table 'smoke_detection_iot': Not an executable object: 'SELECT COUNT(*) FROM smoke_detection_iot'
+2025-11-29 15:00:28,633 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 15:01:07,969 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 15:01:08,161 - src.data.mysql_connector - ERROR - Error fetching row count from MySQL table 'smoke_detection_iot': Not an executable object: 'SELECT COUNT(*) FROM smoke_detection_iot'
+2025-11-29 15:01:08,164 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 15:01:16,011 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 15:01:16,204 - src.data.mysql_connector - ERROR - Error fetching row count from MySQL table 'smoke_detection_iot': Not an executable object: 'SELECT COUNT(*) FROM smoke_detection_iot'
+2025-11-29 15:01:16,208 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 15:01:19,623 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 15:01:19,919 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 15:04:19,331 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 15:04:19,565 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 15:28:40,056 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 15:28:41,512 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 15:28:45,327 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 15:28:45,697 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 15:28:50,982 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 15:28:51,242 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 15:29:08,847 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 15:29:09,016 - src.data.mysql_connector - ERROR - Error fetching row count from MySQL table 'smoke_detection_iot': Not an executable object: 'SELECT COUNT(*) FROM smoke_detection_iot'
+2025-11-29 15:29:09,019 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 15:30:00,843 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 15:30:01,084 - src.data.mysql_connector - ERROR - Error fetching row count from MySQL table 'smoke_detection_iot': Not an executable object: 'SELECT COUNT(*) FROM smoke_detection_iot'
+2025-11-29 15:30:01,087 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 15:30:40,378 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 15:30:40,714 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 15:30:54,798 - src.data.postgres_connector - INFO - Successfully connected to PostgreSQL database.
+2025-11-29 15:30:55,237 - src.data.postgres_connector - INFO - PostgreSQL connection closed.
+2025-11-29 15:39:27,603 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 15:39:27,899 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 15:39:31,709 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 15:39:31,883 - src.data.mysql_connector - ERROR - Error fetching row count from MySQL table 'smoke_detection_iot': Not an executable object: 'SELECT COUNT(*) FROM smoke_detection_iot'
+2025-11-29 15:39:31,913 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 15:52:50,801 - src.models.train - INFO - Loading data...
+2025-11-29 15:52:52,931 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 15:53:09,681 - src.data.mysql_connector - INFO - Fetched 62630 rows from MySQL.
+2025-11-29 15:53:09,693 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 15:53:09,697 - src.models.train - INFO - Preprocessing data...
+2025-11-29 15:53:09,706 - src.models.train - INFO - Using target column from config: Fire Alarm
+2025-11-29 15:53:09,709 - src.models.train - INFO - Selected target column: Fire Alarm
+2025-11-29 15:53:09,721 - src.models.train - INFO - Loading preprocessor from: src/features/dummy_preprocess.py
+2025-11-29 15:53:17,390 - src.models.train - INFO - Starting training...
+2025-11-29 15:53:17,391 - src.models.train - INFO - Logging dataset to MLflow...
+2025-11-29 15:53:19,337 - src.models.train - INFO - Task Type: classification, Model: RandomForestClassifier
+2025-11-29 15:53:19,889 - src.models.train - INFO - Model Accuracy: 1.0
+2025-11-29 15:54:11,983 - src.models.train - INFO - Logging preprocessing script: src/features/dummy_preprocess.py
+2025-11-29 15:54:11,988 - src.models.train - INFO - Training complete and logged to MLflow.
+2025-11-29 15:56:00,513 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 15:56:00,963 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 15:57:21,395 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 15:57:21,912 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 15:57:34,590 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 15:57:35,173 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 15:57:36,338 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 15:57:36,695 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 15:57:37,320 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 15:57:37,691 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 15:57:37,737 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 15:57:38,081 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 15:57:38,253 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 15:57:39,125 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 15:57:41,399 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 15:57:54,416 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 15:57:54,962 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 15:58:02,796 - src.data.mysql_connector - ERROR - Error fetching tables from MySQL: (mysql.connector.errors.ConnectionTimeoutError) 2003: Can't connect to MySQL server on 'host.docker.internal:3306' (Errno 10060: A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond)
+(Background on this error at: https://sqlalche.me/e/20/dbapi)
+2025-11-29 15:58:02,797 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 15:58:11,307 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 15:58:11,566 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 15:58:12,151 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 15:58:12,392 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 15:58:13,182 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 15:58:13,475 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 15:58:13,722 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 15:58:14,048 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 15:58:16,673 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 15:58:17,293 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 15:59:22,844 - src.data.postgres_connector - INFO - Successfully connected to PostgreSQL database.
+2025-11-29 15:59:24,653 - src.data.postgres_connector - INFO - PostgreSQL connection closed.
+2025-11-29 16:02:43,655 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 16:02:45,571 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 16:02:58,498 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 16:02:59,201 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 16:23:12,659 - src.api - INFO - Starting background training for Job 1 (Config: Test Config)
+2025-11-29 16:23:12,681 - src.models.train - INFO - Loading data...
+2025-11-29 16:23:13,064 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 16:23:13,277 - src.data.mysql_connector - ERROR - Error fetching data from MySQL: (mysql.connector.errors.ProgrammingError) 1045 (28000): Access denied for user 'root'@'localhost' (using password: YES)
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-11-29 16:23:13,498 - src.api - ERROR - Background training failed: (mysql.connector.errors.ProgrammingError) 1045 (28000): Access denied for user 'root'@'localhost' (using password: YES)
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-11-29 16:23:58,636 - src.api - INFO - Starting background training for Job 2 (Config: Test Config)
+2025-11-29 16:23:58,661 - src.models.train - INFO - Loading data...
+2025-11-29 16:23:58,662 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 16:24:01,252 - src.data.mysql_connector - INFO - Fetched 62630 rows from MySQL.
+2025-11-29 16:24:01,255 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 16:24:01,255 - src.models.train - INFO - Preprocessing data...
+2025-11-29 16:24:01,255 - src.models.train - INFO - Using target column from config: Fire Alarm
+2025-11-29 16:24:01,255 - src.models.train - INFO - Selected target column: Fire Alarm
+2025-11-29 16:24:01,255 - src.models.train - INFO - Loading preprocessor from: src/features/preprocess.py
+2025-11-29 16:24:12,705 - src.models.train - INFO - Starting training...
+2025-11-29 16:24:12,705 - src.models.train - INFO - Logging dataset to MLflow...
+2025-11-29 16:24:14,360 - src.models.train - INFO - Task Type: classification, Model: RandomForestClassifier
+2025-11-29 16:24:20,460 - src.models.train - INFO - Model Accuracy: 1.0
+2025-11-29 16:25:01,843 - src.models.train - INFO - Logging preprocessing script: src/features/preprocess.py
+2025-11-29 16:25:01,847 - src.models.train - INFO - Training complete and logged to MLflow.
+2025-11-29 16:25:02,280 - src.api - INFO - Background training completed. Run ID: 16a88fef94a04ad5a6a7fe2e6c25d894
+2025-11-29 16:26:17,892 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 16:26:18,283 - src.data.mysql_connector - ERROR - Error fetching tables from MySQL: (mysql.connector.errors.ProgrammingError) 1045 (28000): Access denied for user 'root'@'localhost' (using password: YES)
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-11-29 16:26:18,284 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 16:26:21,395 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 16:26:21,624 - src.data.mysql_connector - ERROR - Error fetching tables from MySQL: (mysql.connector.errors.ProgrammingError) 1045 (28000): Access denied for user 'root'@'localhost' (using password: YES)
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-11-29 16:26:21,624 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 16:27:33,219 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 16:27:33,551 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 16:28:13,962 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 16:28:14,435 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 16:28:33,900 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 16:28:34,332 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 16:28:59,164 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 16:28:59,371 - src.data.mysql_connector - ERROR - Error fetching row count from MySQL table 'smoke_detection_iot': Not an executable object: 'SELECT COUNT(*) FROM smoke_detection_iot'
+2025-11-29 16:28:59,372 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 16:31:27,283 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 16:31:27,493 - src.data.mysql_connector - ERROR - Error fetching tables from MySQL: (mysql.connector.errors.ProgrammingError) 1045 (28000): Access denied for user 'root'@'localhost' (using password: YES)
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-11-29 16:31:27,493 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 16:31:46,602 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 16:31:46,986 - src.data.mysql_connector - ERROR - Error fetching tables from MySQL: (mysql.connector.errors.ProgrammingError) 1045 (28000): Access denied for user 'root'@'localhost' (using password: YES)
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-11-29 16:31:46,986 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 16:31:51,233 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 16:31:51,463 - src.data.mysql_connector - ERROR - Error fetching tables from MySQL: (mysql.connector.errors.ProgrammingError) 1045 (28000): Access denied for user 'root'@'localhost' (using password: YES)
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-11-29 16:31:51,464 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 16:31:57,531 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 16:31:57,777 - src.data.mysql_connector - ERROR - Error fetching tables from MySQL: (mysql.connector.errors.ProgrammingError) 1045 (28000): Access denied for user 'root'@'localhost' (using password: YES)
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-11-29 16:31:57,779 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 16:32:04,700 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 16:32:04,926 - src.data.mysql_connector - ERROR - Error fetching tables from MySQL: (mysql.connector.errors.ProgrammingError) 1045 (28000): Access denied for user 'root'@'localhost' (using password: YES)
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-11-29 16:32:04,927 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 16:32:34,898 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 16:32:35,022 - src.data.mysql_connector - ERROR - Error fetching tables from MySQL: (mysql.connector.errors.ProgrammingError) 1045 (28000): Access denied for user 'root'@'localhost' (using password: YES)
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-11-29 16:32:35,023 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 16:34:32,515 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 16:34:32,608 - src.data.mysql_connector - ERROR - Error fetching tables from MySQL: (mysql.connector.errors.ProgrammingError) 1045 (28000): Access denied for user 'root'@'localhost' (using password: YES)
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-11-29 16:34:32,609 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 16:35:06,658 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 16:35:06,838 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 16:35:13,414 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 16:35:13,511 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 16:35:23,651 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 16:35:23,830 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 16:35:34,617 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 16:35:34,846 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 16:38:51,989 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 16:38:52,261 - src.data.mysql_connector - ERROR - Error fetching tables from MySQL: (mysql.connector.errors.ProgrammingError) 1045 (28000): Access denied for user 'root'@'localhost' (using password: YES)
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-11-29 16:38:52,261 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 16:38:53,871 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 16:38:54,150 - src.data.mysql_connector - ERROR - Error fetching tables from MySQL: (mysql.connector.errors.ProgrammingError) 1045 (28000): Access denied for user 'root'@'localhost' (using password: YES)
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-11-29 16:38:54,151 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 21:35:05,637 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 21:35:05,892 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 21:35:11,536 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 21:35:11,786 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 21:37:07,042 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 21:37:07,293 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 21:49:14,976 - src.api - INFO - Starting background training for Job 3 (Config: newpredconf)
+2025-11-29 21:49:15,031 - src.models.train - INFO - Loading data...
+2025-11-29 21:49:15,360 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 21:49:19,540 - src.data.mysql_connector - INFO - Fetched 62630 rows from MySQL.
+2025-11-29 21:49:19,541 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 21:49:19,541 - src.models.train - INFO - Preprocessing data...
+2025-11-29 21:49:19,541 - src.models.train - INFO - Using target column from config: Fire Alarm
+2025-11-29 21:49:19,542 - src.models.train - INFO - Selected target column: Fire Alarm
+2025-11-29 21:49:19,542 - src.models.train - INFO - Loading preprocessor from: src/features/newpreprocess.py
+2025-11-29 21:49:20,228 - src.api - ERROR - Background training failed: 'mlflow'
+2025-11-29 21:51:27,178 - src.api - INFO - Starting background training for Job 4 (Config: newpredconf)
+2025-11-29 21:51:27,187 - src.models.train - INFO - Loading data...
+2025-11-29 21:51:27,188 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-29 21:51:30,823 - src.data.mysql_connector - INFO - Fetched 62630 rows from MySQL.
+2025-11-29 21:51:30,826 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-29 21:51:30,826 - src.models.train - INFO - Preprocessing data...
+2025-11-29 21:51:30,826 - src.models.train - INFO - Using target column from config: Fire Alarm
+2025-11-29 21:51:30,826 - src.models.train - INFO - Selected target column: Fire Alarm
+2025-11-29 21:51:30,827 - src.models.train - INFO - Loading preprocessor from: src/features/newpreprocess.py
+2025-11-29 21:51:31,233 - src.api - ERROR - Background training failed: 'mlflow'
+2025-11-30 11:38:01,689 - src.api - INFO - Starting background training for Job 1 (Config: Initial Config)
+2025-11-30 11:38:02,329 - src.models.train - INFO - Loading data...
+2025-11-30 11:38:05,391 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-30 11:38:08,264 - src.data.mysql_connector - ERROR - Error fetching data from MySQL: (mysql.connector.errors.ProgrammingError) 1045 (28000): Access denied for user 'root'@'localhost' (using password: YES)
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-11-30 11:38:08,544 - src.api - ERROR - Background training failed: (mysql.connector.errors.ProgrammingError) 1045 (28000): Access denied for user 'root'@'localhost' (using password: YES)
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-11-30 11:39:21,849 - src.api - INFO - Starting background training for Job 2 (Config: Initial Config)
+2025-11-30 11:39:22,414 - src.models.train - INFO - Loading data...
+2025-11-30 11:39:22,744 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-30 11:39:23,622 - src.data.mysql_connector - ERROR - Error fetching data from MySQL: (mysql.connector.errors.ProgrammingError) 1045 (28000): Access denied for user 'root'@'localhost' (using password: YES)
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-11-30 11:39:23,901 - src.api - ERROR - Background training failed: (mysql.connector.errors.ProgrammingError) 1045 (28000): Access denied for user 'root'@'localhost' (using password: YES)
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-11-30 11:40:48,202 - src.api - INFO - Starting background training for Job 3 (Config: Initial Config)
+2025-11-30 11:40:48,321 - src.models.train - INFO - Loading data...
+2025-11-30 11:40:48,322 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-30 11:40:55,722 - src.data.mysql_connector - INFO - Fetched 62630 rows from MySQL.
+2025-11-30 11:40:55,723 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-30 11:40:55,724 - src.models.train - INFO - Preprocessing data...
+2025-11-30 11:40:55,724 - src.models.train - INFO - Using target column from config: Fire Alarm
+2025-11-30 11:40:55,724 - src.models.train - INFO - Selected target column: Fire Alarm
+2025-11-30 11:40:55,724 - src.models.train - INFO - Loading preprocessor from: src/features/preprocess.py
+2025-11-30 11:46:05,117 - src.api - ERROR - Background training failed: API request to http://localhost:5000/api/2.0/mlflow/experiments/get-by-name failed with exception HTTPConnectionPool(host='localhost', port=5000): Max retries exceeded with url: /api/2.0/mlflow/experiments/get-by-name?experiment_name=Fresh_Start_Exp (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x0000012D655418C0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))
+2025-11-30 11:46:47,372 - src.api - INFO - Starting background training for Job 4 (Config: Initial Config)
+2025-11-30 11:46:47,382 - src.models.train - INFO - Loading data...
+2025-11-30 11:46:47,383 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-30 11:47:00,567 - src.data.mysql_connector - INFO - Fetched 62630 rows from MySQL.
+2025-11-30 11:47:00,569 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-30 11:47:00,569 - src.models.train - INFO - Preprocessing data...
+2025-11-30 11:47:00,570 - src.models.train - INFO - Using target column from config: Fire Alarm
+2025-11-30 11:47:00,570 - src.models.train - INFO - Selected target column: Fire Alarm
+2025-11-30 11:47:00,570 - src.models.train - INFO - Loading preprocessor from: src/features/preprocess.py
+2025-11-30 11:51:25,608 - src.api - INFO - Starting background training for Job 5 (Config: Initial Config)
+2025-11-30 11:51:25,632 - src.models.train - INFO - Loading data...
+2025-11-30 11:51:25,633 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-30 11:51:29,172 - src.data.mysql_connector - INFO - Fetched 62630 rows from MySQL.
+2025-11-30 11:51:29,173 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-30 11:51:29,173 - src.models.train - INFO - Preprocessing data...
+2025-11-30 11:51:29,173 - src.models.train - INFO - Using target column from config: Fire Alarm
+2025-11-30 11:51:29,174 - src.models.train - INFO - Selected target column: Fire Alarm
+2025-11-30 11:51:29,174 - src.models.train - INFO - Loading preprocessor from: src/features/preprocess.py
+2025-11-30 11:51:44,802 - src.models.train - INFO - Starting training...
+2025-11-30 11:51:44,802 - src.models.train - INFO - Logging dataset to MLflow...
+2025-11-30 11:51:46,612 - src.models.train - INFO - Task Type: classification, Model: RandomForestClassifier
+2025-11-30 11:51:48,945 - src.models.train - INFO - Starting training...
+2025-11-30 11:51:48,945 - src.models.train - INFO - Logging dataset to MLflow...
+2025-11-30 11:51:50,612 - src.models.train - INFO - Task Type: classification, Model: RandomForestClassifier
+2025-11-30 11:51:56,639 - src.models.train - INFO - Model Accuracy: 1.0
+2025-11-30 11:51:58,855 - src.models.train - INFO - Model Accuracy: 1.0
+2025-11-30 11:53:04,983 - src.models.train - INFO - Logging preprocessing script: src/features/preprocess.py
+2025-11-30 11:53:04,984 - src.models.train - INFO - Logging preprocessing script: src/features/preprocess.py
+2025-11-30 11:53:05,029 - src.models.train - INFO - Training complete and logged to MLflow.
+2025-11-30 11:53:05,033 - src.models.train - INFO - Training complete and logged to MLflow.
+2025-11-30 11:53:05,886 - src.api - INFO - Background training completed. Run ID: bfc46576ed0f41c3a4a27b1156caf605
+2025-11-30 11:53:06,163 - src.api - INFO - Background training completed. Run ID: e0b5208b71a24b99b84313aca7fe2f78
+2025-11-30 12:04:41,059 - src.api - INFO - Starting background training for Job 6 (Config: Browser Test Conf)
+2025-11-30 12:04:41,267 - src.models.train - INFO - Loading data...
+2025-11-30 12:04:41,542 - src.api - ERROR - Background training failed: 'database'
+2025-11-30 12:07:16,868 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-30 12:07:20,007 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-30 12:07:52,383 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-30 12:07:54,132 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-30 12:13:28,770 - src.api - INFO - Starting background training for Job 7 (Config: Browser Test Conf)
+2025-11-30 12:13:28,805 - src.models.train - INFO - Loading data...
+2025-11-30 12:13:28,805 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-30 12:13:36,458 - src.data.mysql_connector - INFO - Fetched 62630 rows from MySQL.
+2025-11-30 12:13:36,461 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-30 12:13:36,461 - src.models.train - INFO - Preprocessing data...
+2025-11-30 12:13:36,462 - src.models.train - INFO - Using target column from config: Fire Alarm
+2025-11-30 12:13:36,462 - src.models.train - INFO - Selected target column: Fire Alarm
+2025-11-30 12:13:36,462 - src.models.train - INFO - Loading preprocessor from: src/features/preprocess.py
+2025-11-30 12:13:40,659 - src.models.train - INFO - Starting training...
+2025-11-30 12:13:40,659 - src.models.train - INFO - Logging dataset to MLflow...
+2025-11-30 12:13:42,898 - src.models.train - INFO - Task Type: classification, Model: RandomForestClassifier
+2025-11-30 12:13:52,473 - src.models.train - INFO - Model Accuracy: 1.0
+2025-11-30 12:14:31,624 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-30 12:14:31,991 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-30 12:14:33,721 - src.models.train - INFO - Logging preprocessing script: src/features/preprocess.py
+2025-11-30 12:14:33,751 - src.models.train - INFO - Training complete and logged to MLflow.
+2025-11-30 12:14:34,178 - src.api - INFO - Background training completed. Run ID: 0880424657c54c6ba234cdf9b92bc99d
+2025-11-30 12:14:36,745 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-30 12:14:37,451 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-30 12:14:59,842 - src.api - INFO - Loading model and preprocessor from runs:/0880424657c54c6ba234cdf9b92bc99d/model...
+2025-11-30 12:15:02,790 - src.api - INFO - Downloaded custom preprocessing script to: C:\Users\hp\AppData\Local\Temp\tmptpjo3v0k\preprocess.py
+2025-11-30 12:15:03,147 - src.api - INFO - Generating forecast for 9 days...
+2025-11-30 12:15:14,235 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-30 12:15:14,579 - src.data.mysql_connector - ERROR - Error fetching row count from MySQL table 'smoke_detection_iot': Not an executable object: 'SELECT COUNT(*) FROM smoke_detection_iot'
+2025-11-30 12:15:14,581 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-30 12:15:25,098 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-30 12:15:25,825 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-30 12:15:31,710 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-30 12:15:32,153 - src.data.mysql_connector - ERROR - Error fetching row count from MySQL table 'smoke_detection_iot': Not an executable object: 'SELECT COUNT(*) FROM smoke_detection_iot'
+2025-11-30 12:15:32,158 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-30 12:15:38,108 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-30 12:15:38,832 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-30 12:15:46,042 - src.api - INFO - Loading model and preprocessor from runs:/bfc46576ed0f41c3a4a27b1156caf605/model...
+2025-11-30 12:15:47,043 - src.api - INFO - Downloaded custom preprocessing script to: C:\Users\hp\AppData\Local\Temp\tmpsmpois_o\preprocess.py
+2025-11-30 12:16:21,879 - src.api - INFO - Generating forecast for 11 days...
+2025-11-30 12:38:56,670 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-30 12:39:00,690 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-30 12:39:19,785 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-30 12:39:20,019 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-30 12:39:23,649 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-30 12:39:23,852 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-30 12:39:26,536 - src.api - INFO - Loading model and preprocessor from runs:/bfc46576ed0f41c3a4a27b1156caf605/model...
+2025-11-30 12:39:39,260 - src.api - INFO - Downloaded custom preprocessing script to: C:\Users\hp\AppData\Local\Temp\tmpf70egkzm\preprocess.py
+2025-11-30 12:39:43,709 - src.api - INFO - Loading model and preprocessor from runs:/0880424657c54c6ba234cdf9b92bc99d/model...
+2025-11-30 12:39:44,647 - src.api - INFO - Downloaded custom preprocessing script to: C:\Users\hp\AppData\Local\Temp\tmp9rgjiudn\preprocess.py
+2025-11-30 12:39:45,336 - src.api - INFO - Generating forecast for 10 days...
+2025-11-30 12:44:55,955 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-30 12:44:57,112 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-30 12:49:11,233 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-30 12:49:11,642 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-30 12:49:57,990 - src.api - INFO - Generating forecast for 1 days...
+2025-11-30 12:51:56,885 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-30 12:51:57,697 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-30 12:52:02,330 - src.api - INFO - Generating forecast for 1 days...
+2025-11-30 12:55:28,551 - src.api - INFO - Starting background training for Job 8 (Config: Browser Test Conf)
+2025-11-30 12:55:28,662 - src.models.train - INFO - Loading data...
+2025-11-30 12:55:29,162 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-30 12:55:34,131 - src.data.mysql_connector - INFO - Fetched 62630 rows from MySQL.
+2025-11-30 12:55:34,134 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-30 12:55:34,139 - src.models.train - INFO - Preprocessing data...
+2025-11-30 12:55:34,141 - src.models.train - INFO - Using target column from config: Fire Alarm
+2025-11-30 12:55:34,142 - src.models.train - INFO - Selected target column: Fire Alarm
+2025-11-30 12:55:34,143 - src.models.train - INFO - Loading preprocessor from: src/features/preprocess.py
+2025-11-30 12:55:42,045 - src.models.train - INFO - Starting training...
+2025-11-30 12:55:42,046 - src.models.train - INFO - Logging dataset to MLflow...
+2025-11-30 12:55:44,552 - src.models.train - INFO - Task Type: classification, Model: RandomForestClassifier
+2025-11-30 12:55:55,522 - src.models.train - INFO - Model Accuracy: 1.0
+2025-11-30 12:57:02,506 - src.models.train - INFO - Logging preprocessing script: src/features/preprocess.py
+2025-11-30 12:57:02,542 - src.models.train - INFO - Training complete and logged to MLflow.
+2025-11-30 12:57:03,168 - src.api - INFO - Background training completed. Run ID: abc79ebd28d24b5da41ac94d68ba043b
+2025-11-30 12:58:34,474 - src.api - INFO - Loading model and preprocessor from runs:/abc79ebd28d24b5da41ac94d68ba043b/model...
+2025-11-30 12:58:38,688 - src.api - INFO - Downloaded custom preprocessing script to: C:\Users\hp\AppData\Local\Temp\tmp4hkf5tzn\preprocess.py
+2025-11-30 12:58:39,220 - src.api - INFO - Generating forecast for 18 days...
+2025-11-30 13:03:41,434 - src.api - INFO - Loading model and preprocessor from runs:/abc79ebd28d24b5da41ac94d68ba043b/model...
+2025-11-30 13:03:42,736 - src.api - INFO - Downloaded custom preprocessing script to: C:\Users\hp\AppData\Local\Temp\tmptvnj318y\preprocess.py
+2025-11-30 13:03:43,655 - src.api - INFO - Saving predictions to table: smoke_detection_pred
+2025-11-30 13:03:44,169 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-30 13:03:45,394 - src.data.mysql_connector - INFO - Saved 1 rows to MySQL table 'smoke_detection_pred'.
+2025-11-30 13:03:45,399 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-30 13:06:28,163 - src.api - INFO - Generating forecast for 18 days...
+2025-11-30 13:06:29,369 - src.api - INFO - Saving predictions to table: smoke_detection_pred
+2025-11-30 13:06:29,399 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-30 13:06:31,297 - src.data.mysql_connector - INFO - Saved 18 rows to MySQL table 'smoke_detection_pred'.
+2025-11-30 13:06:31,342 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-30 13:12:51,216 - src.api - INFO - Starting background training for Job 9 (Config: Browser Test Conf)
+2025-11-30 13:12:51,250 - src.models.train - INFO - Loading data...
+2025-11-30 13:12:51,251 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-30 13:12:57,829 - src.data.mysql_connector - INFO - Fetched 62630 rows from MySQL.
+2025-11-30 13:12:57,831 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-30 13:12:57,832 - src.models.train - INFO - Preprocessing data...
+2025-11-30 13:12:57,832 - src.models.train - INFO - Using target column from config: Fire Alarm
+2025-11-30 13:12:57,833 - src.models.train - INFO - Selected target column: Fire Alarm
+2025-11-30 13:12:57,833 - src.models.train - INFO - Loading preprocessor from: src/features/preprocess.py
+2025-11-30 13:13:01,102 - src.models.train - INFO - Starting training...
+2025-11-30 13:13:01,106 - src.models.train - INFO - Logging dataset to MLflow...
+2025-11-30 13:13:02,680 - src.models.train - INFO - Task Type: classification, Model: RandomForestClassifier
+2025-11-30 13:13:08,762 - src.models.train - INFO - Model Accuracy: 1.0
+2025-11-30 13:13:41,979 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-30 13:13:42,211 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-30 13:13:45,738 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-30 13:13:45,936 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-30 13:14:42,361 - src.api - INFO - Loading model and preprocessor from runs:/6032f2ade0f6491fbfba5aa86a2e6ad0/model...
+2025-11-30 13:14:42,871 - src.api - ERROR - Prediction failed: Failed to download artifacts from path 'model', please ensure that the path is correct.
+2025-11-30 13:14:56,568 - src.models.train - INFO - Logging preprocessing script: src/features/preprocess.py
+2025-11-30 13:14:56,574 - src.models.train - INFO - Training complete and logged to MLflow.
+2025-11-30 13:14:57,218 - src.api - INFO - Background training completed. Run ID: 6032f2ade0f6491fbfba5aa86a2e6ad0
+2025-11-30 13:15:10,088 - src.api - INFO - Loading model and preprocessor from runs:/6032f2ade0f6491fbfba5aa86a2e6ad0/model...
+2025-11-30 13:15:23,954 - src.api - INFO - Downloaded custom preprocessing script to: C:\Users\hp\AppData\Local\Temp\tmpmk6005t5\preprocess.py
+2025-11-30 13:15:24,380 - src.api - INFO - Generating forecast for 10 days...
+2025-11-30 13:15:24,500 - src.api - INFO - Saving predictions to table: smoke_detection_pred
+2025-11-30 13:15:24,503 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-30 13:15:24,910 - src.data.mysql_connector - INFO - Saved 10 rows to MySQL table 'smoke_detection_pred'.
+2025-11-30 13:15:24,927 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-30 13:18:05,624 - src.api - INFO - Generating forecast for 10 days...
+2025-11-30 13:18:05,773 - src.api - INFO - Saving predictions to table: smoke_detection_pred
+2025-11-30 13:18:05,788 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-30 13:18:06,319 - src.data.mysql_connector - INFO - Saved 10 rows to MySQL table 'smoke_detection_pred'.
+2025-11-30 13:18:06,321 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-12-01 11:37:50,346 - src.pipeline_engine - INFO - Executing step: Extraction (extraction)
+2025-12-01 11:37:53,037 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 11:37:56,628 - src.data.mysql_connector - INFO - Fetched 100 rows from MySQL.
+2025-12-01 11:37:56,718 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-12-01 11:37:56,984 - src.pipeline_engine - INFO - Extracted 100 rows.
+2025-12-01 11:37:57,440 - src.pipeline_engine - INFO - Executing step: Preprocessing (preprocessing)
+2025-12-01 11:37:57,911 - src.pipeline_engine - INFO - Preprocessing completed (Train/Test split).
+2025-12-01 11:37:58,305 - src.pipeline_engine - INFO - Executing step: Training (training)
+2025-12-01 11:38:34,684 - src.pipeline_engine - INFO - Model Accuracy: 1.0
+2025-12-01 11:39:42,457 - src.pipeline_engine - INFO - Training completed. Run ID: 6bb346d9ccbf47ebab823d8bc47a402d
+2025-12-01 11:39:43,082 - src.pipeline_engine - INFO - Pipeline execution completed successfully.
+2025-12-01 11:59:59,893 - src.pipeline_engine - INFO - Executing step: Extraction (extraction)
+2025-12-01 12:00:00,776 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 12:00:02,096 - src.data.mysql_connector - INFO - Fetched 100 rows from MySQL.
+2025-12-01 12:00:02,099 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-12-01 12:00:02,100 - src.pipeline_engine - INFO - Extracted 100 rows.
+2025-12-01 12:00:02,294 - src.pipeline_engine - INFO - Executing step: Preprocessing (preprocessing)
+2025-12-01 12:00:02,661 - src.pipeline_engine - INFO - Preprocessing completed (Train/Test split).
+2025-12-01 12:00:02,835 - src.pipeline_engine - INFO - Executing step: Training (training)
+2025-12-01 12:00:12,696 - src.pipeline_engine - INFO - Model Accuracy: 1.0
+2025-12-01 12:00:53,062 - src.pipeline_engine - INFO - Training completed. Run ID: 0adf25b02169480d8e4720304755ce36
+2025-12-01 12:00:53,731 - src.pipeline_engine - INFO - Pipeline execution completed successfully.
+2025-12-01 12:42:04,656 - src.pipeline_engine - INFO - Executing step: Extraction (extraction)
+2025-12-01 12:42:11,231 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 12:42:13,584 - src.data.mysql_connector - INFO - Fetched 100 rows from MySQL.
+2025-12-01 12:42:13,587 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-12-01 12:42:13,589 - src.pipeline_engine - INFO - Extracted 100 rows.
+2025-12-01 12:42:13,855 - src.pipeline_engine - INFO - Executing step: Extraction (extraction)
+2025-12-01 12:42:13,962 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 12:42:14,187 - src.pipeline_engine - INFO - Executing step: Preprocessing (preprocessing)
+2025-12-01 12:42:15,059 - src.data.mysql_connector - INFO - Fetched 100 rows from MySQL.
+2025-12-01 12:42:15,067 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-12-01 12:42:15,062 - src.pipeline_engine - INFO - Preprocessing completed (Train/Test split).
+2025-12-01 12:42:15,071 - src.pipeline_engine - INFO - Extracted 100 rows.
+2025-12-01 12:42:15,198 - src.pipeline_engine - INFO - Executing step: Training (training)
+2025-12-01 12:42:15,615 - src.pipeline_engine - INFO - Executing step: Preprocessing (preprocessing)
+2025-12-01 12:42:15,807 - src.pipeline_engine - INFO - Preprocessing completed (Train/Test split).
+2025-12-01 12:42:16,085 - src.pipeline_engine - INFO - Executing step: Training (training)
+2025-12-01 12:42:40,925 - src.pipeline_engine - INFO - Model Accuracy: 1.0
+2025-12-01 12:42:43,138 - src.pipeline_engine - INFO - Model Accuracy: 1.0
+2025-12-01 12:43:13,942 - src.pipeline_engine - INFO - Training completed. Run ID: 3d2ba8d1fd3d49aaa99201806f245a47
+2025-12-01 12:43:14,601 - src.pipeline_engine - INFO - Pipeline execution completed successfully.
+2025-12-01 12:43:24,965 - src.pipeline_engine - INFO - Training completed. Run ID: 5c91620bbeac488bacb443b823d0415e
+2025-12-01 12:43:25,761 - src.pipeline_engine - INFO - Pipeline execution completed successfully.
+2025-12-01 12:54:00,515 - src.pipeline_engine - INFO - Executing step: Extraction (extraction)
+2025-12-01 12:54:01,240 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 12:54:02,190 - src.data.mysql_connector - INFO - Fetched 100 rows from MySQL.
+2025-12-01 12:54:02,192 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-12-01 12:54:02,193 - src.pipeline_engine - INFO - Extracted 100 rows.
+2025-12-01 12:54:02,410 - src.pipeline_engine - INFO - Executing step: Preprocessing (preprocessing)
+2025-12-01 12:54:02,671 - src.pipeline_engine - INFO - Preprocessing completed (Train/Test split).
+2025-12-01 12:54:02,843 - src.pipeline_engine - INFO - Executing step: Training (training)
+2025-12-01 12:54:14,014 - src.pipeline_engine - INFO - Model Accuracy: 1.0
+2025-12-01 12:54:37,423 - src.pipeline_engine - INFO - Training completed. Run ID: 7f12e19e2d4c4f9da6f38dee8bffc16c
+2025-12-01 12:54:37,860 - src.pipeline_engine - INFO - Pipeline execution completed successfully.
+2025-12-01 13:06:27,389 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 13:06:28,112 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-12-01 13:07:44,540 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 13:07:44,896 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-12-01 13:10:55,271 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 13:10:55,532 - src.data.mysql_connector - ERROR - Error fetching row count from MySQL table 'smoke_detection_iot': Not an executable object: 'SELECT COUNT(*) FROM smoke_detection_iot'
+2025-12-01 13:10:55,569 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-12-01 13:10:58,421 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 13:10:58,697 - src.data.mysql_connector - ERROR - Error fetching row count from MySQL table 'smoke_detection_iot': Not an executable object: 'SELECT COUNT(*) FROM smoke_detection_iot'
+2025-12-01 13:10:58,702 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-12-01 13:11:47,535 - src.pipeline_engine - INFO - Executing step: Extraction (extraction)
+2025-12-01 13:11:47,635 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 13:11:48,214 - src.data.mysql_connector - INFO - Fetched 100 rows from MySQL.
+2025-12-01 13:11:48,221 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-12-01 13:11:48,255 - src.pipeline_engine - INFO - Extracted 100 rows.
+2025-12-01 13:11:48,434 - src.pipeline_engine - INFO - Executing step: Preprocessing (preprocessing)
+2025-12-01 13:11:48,670 - src.pipeline_engine - INFO - Preprocessing completed (Train/Test split).
+2025-12-01 13:11:48,812 - src.pipeline_engine - INFO - Executing step: Training (training)
+2025-12-01 13:11:52,211 - src.pipeline_engine - INFO - Model Accuracy: 1.0
+2025-12-01 13:12:06,843 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 13:12:07,352 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-12-01 13:12:14,058 - src.pipeline_engine - INFO - Training completed. Run ID: d489adf88e02436082a58e737a778d0a
+2025-12-01 13:12:14,337 - src.pipeline_engine - INFO - Pipeline execution completed successfully.
+2025-12-01 13:21:49,216 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 13:21:51,538 - src.data.mysql_connector - INFO - Fetched 100 rows from MySQL.
+2025-12-01 13:21:51,611 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-12-01 13:21:51,765 - src.pipeline_engine - INFO - Extracted 100 rows.
+2025-12-01 13:22:06,834 - src.pipeline_engine - INFO - Preprocessing completed (Train/Test split).
+2025-12-01 13:22:34,536 - src.pipeline_engine - INFO - Model Accuracy: 1.0
+2025-12-01 13:23:44,861 - src.pipeline_engine - INFO - Training completed. Run ID: 39190ee37434430fbf1af44fbd13fb7a
+2025-12-01 13:49:36,483 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 13:49:37,524 - src.data.mysql_connector - INFO - Fetched 100 rows from MySQL.
+2025-12-01 13:49:37,527 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-12-01 13:49:37,527 - src.pipeline_engine - INFO - Extracted 100 rows.
+2025-12-01 13:49:41,094 - src.pipeline_engine - INFO - Preprocessing completed (Train/Test split).
+2025-12-01 13:49:57,586 - src.pipeline_engine - INFO - Model Accuracy: 1.0
+2025-12-01 13:50:26,403 - src.pipeline_engine - INFO - Training completed. Run ID: 43af2324fe1f4b6dba988e141110cfdc
+2025-12-01 13:53:10,366 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 13:53:10,634 - src.data.mysql_connector - ERROR - Error saving data to MySQL: (mysql.connector.errors.ProgrammingError) 1054 (42S22): Unknown column 'Serial Number' in 'field list'
+[SQL: INSERT INTO predictions (`Serial Number`, `UTC`, `Temperature[C]`, `Humidity[%]`, `TVOC[ppb]`, `eCO2[ppm]`, `Raw H2`, `Raw Ethanol`, `Pressure[hPa]`, `PM1.0`, `PM2.5`, `NC0.5`, `NC1.0`, `NC2.5`, `CNT`, `Fire Alarm`) VALUES (%(Serial_Number)s, %(UTC)s, %(Temperature_C_)s, %(Humidity_P_)s, %(TVOC_ppb_)s, %(eCO2_ppm_)s, %(Raw_H2)s, %(Raw_Ethanol)s, %(Pressure_hPa_)s, %(PM1_0)s, %(PM2_5)s, %(NC0_5)s, %(NC1_0)s, %(NC2_5)s, %(CNT)s, %(Fire_Alarm)s)]
+[parameters: [{'Serial_Number': 0, 'UTC': 1654733331, 'Temperature_C_': 20.0, 'Humidity_P_': 57.36, 'TVOC_ppb_': 0, 'eCO2_ppm_': 400, 'Raw_H2': 12306, 'Raw_Ethanol': 18520, 'Pressure_hPa_': 939.735, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 0, 'Fire_Alarm': 0}, {'Serial_Number': 1, 'UTC': 1654733332, 'Temperature_C_': 20.015, 'Humidity_P_': 56.67, 'TVOC_ppb_': 0, 'eCO2_ppm_': 400, 'Raw_H2': 12345, 'Raw_Ethanol': 18651, 'Pressure_hPa_': 939.744, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 1, 'Fire_Alarm': 0}, {'Serial_Number': 2, 'UTC': 1654733333, 'Temperature_C_': 20.029, 'Humidity_P_': 55.96, 'TVOC_ppb_': 0, 'eCO2_ppm_': 400, 'Raw_H2': 12374, 'Raw_Ethanol': 18764, 'Pressure_hPa_': 939.738, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 2, 'Fire_Alarm': 0}, {'Serial_Number': 3, 'UTC': 1654733334, 'Temperature_C_': 20.044, 'Humidity_P_': 55.28, 'TVOC_ppb_': 0, 'eCO2_ppm_': 400, 'Raw_H2': 12390, 'Raw_Ethanol': 18849, 'Pressure_hPa_': 939.736, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 3, 'Fire_Alarm': 0}, {'Serial_Number': 4, 'UTC': 1654733335, 'Temperature_C_': 20.059, 'Humidity_P_': 54.69, 'TVOC_ppb_': 0, 'eCO2_ppm_': 400, 'Raw_H2': 12403, 'Raw_Ethanol': 18921, 'Pressure_hPa_': 939.744, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 4, 'Fire_Alarm': 0}, {'Serial_Number': 5, 'UTC': 1654733336, 'Temperature_C_': 20.073, 'Humidity_P_': 54.12, 'TVOC_ppb_': 0, 'eCO2_ppm_': 400, 'Raw_H2': 12419, 'Raw_Ethanol': 18998, 'Pressure_hPa_': 939.725, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 5, 'Fire_Alarm': 0}, {'Serial_Number': 6, 'UTC': 1654733337, 'Temperature_C_': 20.088, 'Humidity_P_': 53.61, 'TVOC_ppb_': 0, 'eCO2_ppm_': 400, 'Raw_H2': 12432, 'Raw_Ethanol': 19058, 'Pressure_hPa_': 939.738, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 6, 'Fire_Alarm': 0}, {'Serial_Number': 7, 'UTC': 1654733338, 'Temperature_C_': 20.103, 'Humidity_P_': 53.2, 'TVOC_ppb_': 0, 'eCO2_ppm_': 400, 'Raw_H2': 12439, 'Raw_Ethanol': 19114, 'Pressure_hPa_': 939.758, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 7, 'Fire_Alarm': 0}  ... displaying 10 of 100 total bound parameter sets ...  {'Serial_Number': 98, 'UTC': 1654733429, 'Temperature_C_': 21.362, 'Humidity_P_': 54.52, 'TVOC_ppb_': 19, 'eCO2_ppm_': 418, 'Raw_H2': 12529, 'Raw_Ethanol': 19626, 'Pressure_hPa_': 939.799, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 1, 'NC2_5': 0, 'CNT': 98, 'Fire_Alarm': 0}, {'Serial_Number': 99, 'UTC': 1654733430, 'Temperature_C_': 21.375, 'Humidity_P_': 54.74, 'TVOC_ppb_': 14, 'eCO2_ppm_': 405, 'Raw_H2': 12533, 'Raw_Ethanol': 19624, 'Pressure_hPa_': 939.784, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 99, 'Fire_Alarm': 0}]]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-12-01 13:55:15,767 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 13:55:16,135 - src.data.mysql_connector - INFO - Fetched 100 rows from MySQL.
+2025-12-01 13:55:16,138 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-12-01 13:55:16,139 - src.pipeline_engine - INFO - Extracted 100 rows.
+2025-12-01 13:55:19,747 - src.pipeline_engine - INFO - Preprocessing completed (Train/Test split).
+2025-12-01 13:55:33,367 - src.pipeline_engine - INFO - Model Accuracy: 1.0
+2025-12-01 13:56:08,810 - src.pipeline_engine - INFO - Training completed. Run ID: 8fab561e21fd4b138e67beb4babd8bcc
+2025-12-01 13:56:18,837 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 13:56:19,135 - src.data.mysql_connector - ERROR - Error saving data to MySQL: (mysql.connector.errors.ProgrammingError) 1054 (42S22): Unknown column 'Serial_Number' in 'field list'
+[SQL: INSERT INTO predictions (`Serial_Number`, `UTC`, `Temperature_C_`, `Humidity_P_`, `TVOC_ppb_`, `eCO2_ppm_`, `Raw_H2`, `Raw_Ethanol`, `Pressure_hPa_`, `PM1.0`, `PM2.5`, `NC0.5`, `NC1.0`, `NC2.5`, `CNT`, `Fire_Alarm`) VALUES (%(Serial_Number)s, %(UTC)s, %(Temperature_C_)s, %(Humidity_P_)s, %(TVOC_ppb_)s, %(eCO2_ppm_)s, %(Raw_H2)s, %(Raw_Ethanol)s, %(Pressure_hPa_)s, %(PM1_0)s, %(PM2_5)s, %(NC0_5)s, %(NC1_0)s, %(NC2_5)s, %(CNT)s, %(Fire_Alarm)s)]
+[parameters: [{'Serial_Number': 0, 'UTC': 1654733331, 'Temperature_C_': 20.0, 'Humidity_P_': 57.36, 'TVOC_ppb_': 0, 'eCO2_ppm_': 400, 'Raw_H2': 12306, 'Raw_Ethanol': 18520, 'Pressure_hPa_': 939.735, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 0, 'Fire_Alarm': 0}, {'Serial_Number': 1, 'UTC': 1654733332, 'Temperature_C_': 20.015, 'Humidity_P_': 56.67, 'TVOC_ppb_': 0, 'eCO2_ppm_': 400, 'Raw_H2': 12345, 'Raw_Ethanol': 18651, 'Pressure_hPa_': 939.744, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 1, 'Fire_Alarm': 0}, {'Serial_Number': 2, 'UTC': 1654733333, 'Temperature_C_': 20.029, 'Humidity_P_': 55.96, 'TVOC_ppb_': 0, 'eCO2_ppm_': 400, 'Raw_H2': 12374, 'Raw_Ethanol': 18764, 'Pressure_hPa_': 939.738, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 2, 'Fire_Alarm': 0}, {'Serial_Number': 3, 'UTC': 1654733334, 'Temperature_C_': 20.044, 'Humidity_P_': 55.28, 'TVOC_ppb_': 0, 'eCO2_ppm_': 400, 'Raw_H2': 12390, 'Raw_Ethanol': 18849, 'Pressure_hPa_': 939.736, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 3, 'Fire_Alarm': 0}, {'Serial_Number': 4, 'UTC': 1654733335, 'Temperature_C_': 20.059, 'Humidity_P_': 54.69, 'TVOC_ppb_': 0, 'eCO2_ppm_': 400, 'Raw_H2': 12403, 'Raw_Ethanol': 18921, 'Pressure_hPa_': 939.744, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 4, 'Fire_Alarm': 0}, {'Serial_Number': 5, 'UTC': 1654733336, 'Temperature_C_': 20.073, 'Humidity_P_': 54.12, 'TVOC_ppb_': 0, 'eCO2_ppm_': 400, 'Raw_H2': 12419, 'Raw_Ethanol': 18998, 'Pressure_hPa_': 939.725, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 5, 'Fire_Alarm': 0}, {'Serial_Number': 6, 'UTC': 1654733337, 'Temperature_C_': 20.088, 'Humidity_P_': 53.61, 'TVOC_ppb_': 0, 'eCO2_ppm_': 400, 'Raw_H2': 12432, 'Raw_Ethanol': 19058, 'Pressure_hPa_': 939.738, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 6, 'Fire_Alarm': 0}, {'Serial_Number': 7, 'UTC': 1654733338, 'Temperature_C_': 20.103, 'Humidity_P_': 53.2, 'TVOC_ppb_': 0, 'eCO2_ppm_': 400, 'Raw_H2': 12439, 'Raw_Ethanol': 19114, 'Pressure_hPa_': 939.758, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 7, 'Fire_Alarm': 0}  ... displaying 10 of 100 total bound parameter sets ...  {'Serial_Number': 98, 'UTC': 1654733429, 'Temperature_C_': 21.362, 'Humidity_P_': 54.52, 'TVOC_ppb_': 19, 'eCO2_ppm_': 418, 'Raw_H2': 12529, 'Raw_Ethanol': 19626, 'Pressure_hPa_': 939.799, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 1, 'NC2_5': 0, 'CNT': 98, 'Fire_Alarm': 0}, {'Serial_Number': 99, 'UTC': 1654733430, 'Temperature_C_': 21.375, 'Humidity_P_': 54.74, 'TVOC_ppb_': 14, 'eCO2_ppm_': 405, 'Raw_H2': 12533, 'Raw_Ethanol': 19624, 'Pressure_hPa_': 939.784, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 99, 'Fire_Alarm': 0}]]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-12-01 14:03:19,684 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 14:03:19,982 - src.data.mysql_connector - INFO - Fetched 100 rows from MySQL.
+2025-12-01 14:03:19,983 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-12-01 14:03:19,984 - src.pipeline_engine - INFO - Extracted 100 rows.
+2025-12-01 14:03:22,973 - src.pipeline_engine - INFO - Preprocessing completed (Train/Test split).
+2025-12-01 14:03:32,097 - src.pipeline_engine - INFO - Model Accuracy: 1.0
+2025-12-01 14:03:49,419 - src.pipeline_engine - INFO - Training completed. Run ID: a52b22b150e44f43825156837eb9aa58
+2025-12-01 14:03:54,469 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 14:03:54,880 - src.data.mysql_connector - ERROR - Error saving data to MySQL: (mysql.connector.errors.ProgrammingError) 1054 (42S22): Unknown column 'Serial_Number' in 'field list'
+[SQL: INSERT INTO predictions (`Serial_Number`, `UTC`, `Temperature_C_`, `Humidity_P_`, `TVOC_ppb_`, `eCO2_ppm_`, `Raw_H2`, `Raw_Ethanol`, `Pressure_hPa_`, `PM1.0`, `PM2.5`, `NC0.5`, `NC1.0`, `NC2.5`, `CNT`, `Fire_Alarm`) VALUES (%(Serial_Number)s, %(UTC)s, %(Temperature_C_)s, %(Humidity_P_)s, %(TVOC_ppb_)s, %(eCO2_ppm_)s, %(Raw_H2)s, %(Raw_Ethanol)s, %(Pressure_hPa_)s, %(PM1_0)s, %(PM2_5)s, %(NC0_5)s, %(NC1_0)s, %(NC2_5)s, %(CNT)s, %(Fire_Alarm)s)]
+[parameters: [{'Serial_Number': 0, 'UTC': 1654733331, 'Temperature_C_': 20.0, 'Humidity_P_': 57.36, 'TVOC_ppb_': 0, 'eCO2_ppm_': 400, 'Raw_H2': 12306, 'Raw_Ethanol': 18520, 'Pressure_hPa_': 939.735, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 0, 'Fire_Alarm': 0}, {'Serial_Number': 1, 'UTC': 1654733332, 'Temperature_C_': 20.015, 'Humidity_P_': 56.67, 'TVOC_ppb_': 0, 'eCO2_ppm_': 400, 'Raw_H2': 12345, 'Raw_Ethanol': 18651, 'Pressure_hPa_': 939.744, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 1, 'Fire_Alarm': 0}, {'Serial_Number': 2, 'UTC': 1654733333, 'Temperature_C_': 20.029, 'Humidity_P_': 55.96, 'TVOC_ppb_': 0, 'eCO2_ppm_': 400, 'Raw_H2': 12374, 'Raw_Ethanol': 18764, 'Pressure_hPa_': 939.738, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 2, 'Fire_Alarm': 0}, {'Serial_Number': 3, 'UTC': 1654733334, 'Temperature_C_': 20.044, 'Humidity_P_': 55.28, 'TVOC_ppb_': 0, 'eCO2_ppm_': 400, 'Raw_H2': 12390, 'Raw_Ethanol': 18849, 'Pressure_hPa_': 939.736, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 3, 'Fire_Alarm': 0}, {'Serial_Number': 4, 'UTC': 1654733335, 'Temperature_C_': 20.059, 'Humidity_P_': 54.69, 'TVOC_ppb_': 0, 'eCO2_ppm_': 400, 'Raw_H2': 12403, 'Raw_Ethanol': 18921, 'Pressure_hPa_': 939.744, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 4, 'Fire_Alarm': 0}, {'Serial_Number': 5, 'UTC': 1654733336, 'Temperature_C_': 20.073, 'Humidity_P_': 54.12, 'TVOC_ppb_': 0, 'eCO2_ppm_': 400, 'Raw_H2': 12419, 'Raw_Ethanol': 18998, 'Pressure_hPa_': 939.725, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 5, 'Fire_Alarm': 0}, {'Serial_Number': 6, 'UTC': 1654733337, 'Temperature_C_': 20.088, 'Humidity_P_': 53.61, 'TVOC_ppb_': 0, 'eCO2_ppm_': 400, 'Raw_H2': 12432, 'Raw_Ethanol': 19058, 'Pressure_hPa_': 939.738, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 6, 'Fire_Alarm': 0}, {'Serial_Number': 7, 'UTC': 1654733338, 'Temperature_C_': 20.103, 'Humidity_P_': 53.2, 'TVOC_ppb_': 0, 'eCO2_ppm_': 400, 'Raw_H2': 12439, 'Raw_Ethanol': 19114, 'Pressure_hPa_': 939.758, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 7, 'Fire_Alarm': 0}  ... displaying 10 of 100 total bound parameter sets ...  {'Serial_Number': 98, 'UTC': 1654733429, 'Temperature_C_': 21.362, 'Humidity_P_': 54.52, 'TVOC_ppb_': 19, 'eCO2_ppm_': 418, 'Raw_H2': 12529, 'Raw_Ethanol': 19626, 'Pressure_hPa_': 939.799, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 1, 'NC2_5': 0, 'CNT': 98, 'Fire_Alarm': 0}, {'Serial_Number': 99, 'UTC': 1654733430, 'Temperature_C_': 21.375, 'Humidity_P_': 54.74, 'TVOC_ppb_': 14, 'eCO2_ppm_': 405, 'Raw_H2': 12533, 'Raw_Ethanol': 19624, 'Pressure_hPa_': 939.784, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 99, 'Fire_Alarm': 0}]]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-12-01 14:04:19,067 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 14:04:19,278 - src.data.mysql_connector - ERROR - Error saving data to MySQL: (mysql.connector.errors.ProgrammingError) 1054 (42S22): Unknown column 'Serial_Number' in 'field list'
+[SQL: INSERT INTO predictions (`Serial_Number`, `UTC`, `Temperature_C_`, `Humidity_P_`, `TVOC_ppb_`, `eCO2_ppm_`, `Raw_H2`, `Raw_Ethanol`, `Pressure_hPa_`, `PM1.0`, `PM2.5`, `NC0.5`, `NC1.0`, `NC2.5`, `CNT`, `Fire_Alarm`) VALUES (%(Serial_Number)s, %(UTC)s, %(Temperature_C_)s, %(Humidity_P_)s, %(TVOC_ppb_)s, %(eCO2_ppm_)s, %(Raw_H2)s, %(Raw_Ethanol)s, %(Pressure_hPa_)s, %(PM1_0)s, %(PM2_5)s, %(NC0_5)s, %(NC1_0)s, %(NC2_5)s, %(CNT)s, %(Fire_Alarm)s)]
+[parameters: [{'Serial_Number': 0, 'UTC': 1654733331, 'Temperature_C_': 20.0, 'Humidity_P_': 57.36, 'TVOC_ppb_': 0, 'eCO2_ppm_': 400, 'Raw_H2': 12306, 'Raw_Ethanol': 18520, 'Pressure_hPa_': 939.735, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 0, 'Fire_Alarm': 0}, {'Serial_Number': 1, 'UTC': 1654733332, 'Temperature_C_': 20.015, 'Humidity_P_': 56.67, 'TVOC_ppb_': 0, 'eCO2_ppm_': 400, 'Raw_H2': 12345, 'Raw_Ethanol': 18651, 'Pressure_hPa_': 939.744, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 1, 'Fire_Alarm': 0}, {'Serial_Number': 2, 'UTC': 1654733333, 'Temperature_C_': 20.029, 'Humidity_P_': 55.96, 'TVOC_ppb_': 0, 'eCO2_ppm_': 400, 'Raw_H2': 12374, 'Raw_Ethanol': 18764, 'Pressure_hPa_': 939.738, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 2, 'Fire_Alarm': 0}, {'Serial_Number': 3, 'UTC': 1654733334, 'Temperature_C_': 20.044, 'Humidity_P_': 55.28, 'TVOC_ppb_': 0, 'eCO2_ppm_': 400, 'Raw_H2': 12390, 'Raw_Ethanol': 18849, 'Pressure_hPa_': 939.736, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 3, 'Fire_Alarm': 0}, {'Serial_Number': 4, 'UTC': 1654733335, 'Temperature_C_': 20.059, 'Humidity_P_': 54.69, 'TVOC_ppb_': 0, 'eCO2_ppm_': 400, 'Raw_H2': 12403, 'Raw_Ethanol': 18921, 'Pressure_hPa_': 939.744, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 4, 'Fire_Alarm': 0}, {'Serial_Number': 5, 'UTC': 1654733336, 'Temperature_C_': 20.073, 'Humidity_P_': 54.12, 'TVOC_ppb_': 0, 'eCO2_ppm_': 400, 'Raw_H2': 12419, 'Raw_Ethanol': 18998, 'Pressure_hPa_': 939.725, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 5, 'Fire_Alarm': 0}, {'Serial_Number': 6, 'UTC': 1654733337, 'Temperature_C_': 20.088, 'Humidity_P_': 53.61, 'TVOC_ppb_': 0, 'eCO2_ppm_': 400, 'Raw_H2': 12432, 'Raw_Ethanol': 19058, 'Pressure_hPa_': 939.738, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 6, 'Fire_Alarm': 0}, {'Serial_Number': 7, 'UTC': 1654733338, 'Temperature_C_': 20.103, 'Humidity_P_': 53.2, 'TVOC_ppb_': 0, 'eCO2_ppm_': 400, 'Raw_H2': 12439, 'Raw_Ethanol': 19114, 'Pressure_hPa_': 939.758, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 7, 'Fire_Alarm': 0}  ... displaying 10 of 100 total bound parameter sets ...  {'Serial_Number': 98, 'UTC': 1654733429, 'Temperature_C_': 21.362, 'Humidity_P_': 54.52, 'TVOC_ppb_': 19, 'eCO2_ppm_': 418, 'Raw_H2': 12529, 'Raw_Ethanol': 19626, 'Pressure_hPa_': 939.799, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 1, 'NC2_5': 0, 'CNT': 98, 'Fire_Alarm': 0}, {'Serial_Number': 99, 'UTC': 1654733430, 'Temperature_C_': 21.375, 'Humidity_P_': 54.74, 'TVOC_ppb_': 14, 'eCO2_ppm_': 405, 'Raw_H2': 12533, 'Raw_Ethanol': 19624, 'Pressure_hPa_': 939.784, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 99, 'Fire_Alarm': 0}]]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-12-01 14:04:35,505 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 14:04:35,921 - src.data.mysql_connector - ERROR - Error saving data to MySQL: (mysql.connector.errors.ProgrammingError) 1054 (42S22): Unknown column 'Serial_Number' in 'field list'
+[SQL: INSERT INTO predictions (`Serial_Number`, `UTC`, `Temperature_C_`, `Humidity_P_`, `TVOC_ppb_`, `eCO2_ppm_`, `Raw_H2`, `Raw_Ethanol`, `Pressure_hPa_`, `PM1.0`, `PM2.5`, `NC0.5`, `NC1.0`, `NC2.5`, `CNT`, `Fire_Alarm`) VALUES (%(Serial_Number)s, %(UTC)s, %(Temperature_C_)s, %(Humidity_P_)s, %(TVOC_ppb_)s, %(eCO2_ppm_)s, %(Raw_H2)s, %(Raw_Ethanol)s, %(Pressure_hPa_)s, %(PM1_0)s, %(PM2_5)s, %(NC0_5)s, %(NC1_0)s, %(NC2_5)s, %(CNT)s, %(Fire_Alarm)s)]
+[parameters: [{'Serial_Number': 0, 'UTC': 1654733331, 'Temperature_C_': 20.0, 'Humidity_P_': 57.36, 'TVOC_ppb_': 0, 'eCO2_ppm_': 400, 'Raw_H2': 12306, 'Raw_Ethanol': 18520, 'Pressure_hPa_': 939.735, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 0, 'Fire_Alarm': 0}, {'Serial_Number': 1, 'UTC': 1654733332, 'Temperature_C_': 20.015, 'Humidity_P_': 56.67, 'TVOC_ppb_': 0, 'eCO2_ppm_': 400, 'Raw_H2': 12345, 'Raw_Ethanol': 18651, 'Pressure_hPa_': 939.744, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 1, 'Fire_Alarm': 0}, {'Serial_Number': 2, 'UTC': 1654733333, 'Temperature_C_': 20.029, 'Humidity_P_': 55.96, 'TVOC_ppb_': 0, 'eCO2_ppm_': 400, 'Raw_H2': 12374, 'Raw_Ethanol': 18764, 'Pressure_hPa_': 939.738, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 2, 'Fire_Alarm': 0}, {'Serial_Number': 3, 'UTC': 1654733334, 'Temperature_C_': 20.044, 'Humidity_P_': 55.28, 'TVOC_ppb_': 0, 'eCO2_ppm_': 400, 'Raw_H2': 12390, 'Raw_Ethanol': 18849, 'Pressure_hPa_': 939.736, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 3, 'Fire_Alarm': 0}, {'Serial_Number': 4, 'UTC': 1654733335, 'Temperature_C_': 20.059, 'Humidity_P_': 54.69, 'TVOC_ppb_': 0, 'eCO2_ppm_': 400, 'Raw_H2': 12403, 'Raw_Ethanol': 18921, 'Pressure_hPa_': 939.744, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 4, 'Fire_Alarm': 0}, {'Serial_Number': 5, 'UTC': 1654733336, 'Temperature_C_': 20.073, 'Humidity_P_': 54.12, 'TVOC_ppb_': 0, 'eCO2_ppm_': 400, 'Raw_H2': 12419, 'Raw_Ethanol': 18998, 'Pressure_hPa_': 939.725, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 5, 'Fire_Alarm': 0}, {'Serial_Number': 6, 'UTC': 1654733337, 'Temperature_C_': 20.088, 'Humidity_P_': 53.61, 'TVOC_ppb_': 0, 'eCO2_ppm_': 400, 'Raw_H2': 12432, 'Raw_Ethanol': 19058, 'Pressure_hPa_': 939.738, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 6, 'Fire_Alarm': 0}, {'Serial_Number': 7, 'UTC': 1654733338, 'Temperature_C_': 20.103, 'Humidity_P_': 53.2, 'TVOC_ppb_': 0, 'eCO2_ppm_': 400, 'Raw_H2': 12439, 'Raw_Ethanol': 19114, 'Pressure_hPa_': 939.758, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 7, 'Fire_Alarm': 0}  ... displaying 10 of 100 total bound parameter sets ...  {'Serial_Number': 98, 'UTC': 1654733429, 'Temperature_C_': 21.362, 'Humidity_P_': 54.52, 'TVOC_ppb_': 19, 'eCO2_ppm_': 418, 'Raw_H2': 12529, 'Raw_Ethanol': 19626, 'Pressure_hPa_': 939.799, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 1, 'NC2_5': 0, 'CNT': 98, 'Fire_Alarm': 0}, {'Serial_Number': 99, 'UTC': 1654733430, 'Temperature_C_': 21.375, 'Humidity_P_': 54.74, 'TVOC_ppb_': 14, 'eCO2_ppm_': 405, 'Raw_H2': 12533, 'Raw_Ethanol': 19624, 'Pressure_hPa_': 939.784, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 99, 'Fire_Alarm': 0}]]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-12-01 14:05:07,396 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 14:05:07,569 - src.data.mysql_connector - ERROR - Error saving data to MySQL: (mysql.connector.errors.ProgrammingError) 1054 (42S22): Unknown column 'Serial_Number' in 'field list'
+[SQL: INSERT INTO predictions (`Serial_Number`, `UTC`, `Temperature_C_`, `Humidity_P_`, `TVOC_ppb_`, `eCO2_ppm_`, `Raw_H2`, `Raw_Ethanol`, `Pressure_hPa_`, `PM1.0`, `PM2.5`, `NC0.5`, `NC1.0`, `NC2.5`, `CNT`, `Fire_Alarm`) VALUES (%(Serial_Number)s, %(UTC)s, %(Temperature_C_)s, %(Humidity_P_)s, %(TVOC_ppb_)s, %(eCO2_ppm_)s, %(Raw_H2)s, %(Raw_Ethanol)s, %(Pressure_hPa_)s, %(PM1_0)s, %(PM2_5)s, %(NC0_5)s, %(NC1_0)s, %(NC2_5)s, %(CNT)s, %(Fire_Alarm)s)]
+[parameters: [{'Serial_Number': 0, 'UTC': 1654733331, 'Temperature_C_': 20.0, 'Humidity_P_': 57.36, 'TVOC_ppb_': 0, 'eCO2_ppm_': 400, 'Raw_H2': 12306, 'Raw_Ethanol': 18520, 'Pressure_hPa_': 939.735, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 0, 'Fire_Alarm': 0}, {'Serial_Number': 1, 'UTC': 1654733332, 'Temperature_C_': 20.015, 'Humidity_P_': 56.67, 'TVOC_ppb_': 0, 'eCO2_ppm_': 400, 'Raw_H2': 12345, 'Raw_Ethanol': 18651, 'Pressure_hPa_': 939.744, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 1, 'Fire_Alarm': 0}, {'Serial_Number': 2, 'UTC': 1654733333, 'Temperature_C_': 20.029, 'Humidity_P_': 55.96, 'TVOC_ppb_': 0, 'eCO2_ppm_': 400, 'Raw_H2': 12374, 'Raw_Ethanol': 18764, 'Pressure_hPa_': 939.738, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 2, 'Fire_Alarm': 0}, {'Serial_Number': 3, 'UTC': 1654733334, 'Temperature_C_': 20.044, 'Humidity_P_': 55.28, 'TVOC_ppb_': 0, 'eCO2_ppm_': 400, 'Raw_H2': 12390, 'Raw_Ethanol': 18849, 'Pressure_hPa_': 939.736, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 3, 'Fire_Alarm': 0}, {'Serial_Number': 4, 'UTC': 1654733335, 'Temperature_C_': 20.059, 'Humidity_P_': 54.69, 'TVOC_ppb_': 0, 'eCO2_ppm_': 400, 'Raw_H2': 12403, 'Raw_Ethanol': 18921, 'Pressure_hPa_': 939.744, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 4, 'Fire_Alarm': 0}, {'Serial_Number': 5, 'UTC': 1654733336, 'Temperature_C_': 20.073, 'Humidity_P_': 54.12, 'TVOC_ppb_': 0, 'eCO2_ppm_': 400, 'Raw_H2': 12419, 'Raw_Ethanol': 18998, 'Pressure_hPa_': 939.725, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 5, 'Fire_Alarm': 0}, {'Serial_Number': 6, 'UTC': 1654733337, 'Temperature_C_': 20.088, 'Humidity_P_': 53.61, 'TVOC_ppb_': 0, 'eCO2_ppm_': 400, 'Raw_H2': 12432, 'Raw_Ethanol': 19058, 'Pressure_hPa_': 939.738, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 6, 'Fire_Alarm': 0}, {'Serial_Number': 7, 'UTC': 1654733338, 'Temperature_C_': 20.103, 'Humidity_P_': 53.2, 'TVOC_ppb_': 0, 'eCO2_ppm_': 400, 'Raw_H2': 12439, 'Raw_Ethanol': 19114, 'Pressure_hPa_': 939.758, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 7, 'Fire_Alarm': 0}  ... displaying 10 of 100 total bound parameter sets ...  {'Serial_Number': 98, 'UTC': 1654733429, 'Temperature_C_': 21.362, 'Humidity_P_': 54.52, 'TVOC_ppb_': 19, 'eCO2_ppm_': 418, 'Raw_H2': 12529, 'Raw_Ethanol': 19626, 'Pressure_hPa_': 939.799, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 1, 'NC2_5': 0, 'CNT': 98, 'Fire_Alarm': 0}, {'Serial_Number': 99, 'UTC': 1654733430, 'Temperature_C_': 21.375, 'Humidity_P_': 54.74, 'TVOC_ppb_': 14, 'eCO2_ppm_': 405, 'Raw_H2': 12533, 'Raw_Ethanol': 19624, 'Pressure_hPa_': 939.784, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 99, 'Fire_Alarm': 0}]]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-12-01 14:05:15,481 - src.pipeline_engine - INFO - Model Accuracy: 1.0
+2025-12-01 14:05:28,043 - src.pipeline_engine - INFO - Training completed. Run ID: 85a1e6151c184dcc9ab159a464abe923
+2025-12-01 14:05:33,585 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 14:05:34,050 - src.data.mysql_connector - ERROR - Error saving data to MySQL: (mysql.connector.errors.ProgrammingError) 1054 (42S22): Unknown column 'Serial_Number' in 'field list'
+[SQL: INSERT INTO predictions (`Serial_Number`, `UTC`, `Temperature_C_`, `Humidity_P_`, `TVOC_ppb_`, `eCO2_ppm_`, `Raw_H2`, `Raw_Ethanol`, `Pressure_hPa_`, `PM1.0`, `PM2.5`, `NC0.5`, `NC1.0`, `NC2.5`, `CNT`, `Fire_Alarm`) VALUES (%(Serial_Number)s, %(UTC)s, %(Temperature_C_)s, %(Humidity_P_)s, %(TVOC_ppb_)s, %(eCO2_ppm_)s, %(Raw_H2)s, %(Raw_Ethanol)s, %(Pressure_hPa_)s, %(PM1_0)s, %(PM2_5)s, %(NC0_5)s, %(NC1_0)s, %(NC2_5)s, %(CNT)s, %(Fire_Alarm)s)]
+[parameters: [{'Serial_Number': 0, 'UTC': 1654733331, 'Temperature_C_': 20.0, 'Humidity_P_': 57.36, 'TVOC_ppb_': 0, 'eCO2_ppm_': 400, 'Raw_H2': 12306, 'Raw_Ethanol': 18520, 'Pressure_hPa_': 939.735, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 0, 'Fire_Alarm': 0}, {'Serial_Number': 1, 'UTC': 1654733332, 'Temperature_C_': 20.015, 'Humidity_P_': 56.67, 'TVOC_ppb_': 0, 'eCO2_ppm_': 400, 'Raw_H2': 12345, 'Raw_Ethanol': 18651, 'Pressure_hPa_': 939.744, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 1, 'Fire_Alarm': 0}, {'Serial_Number': 2, 'UTC': 1654733333, 'Temperature_C_': 20.029, 'Humidity_P_': 55.96, 'TVOC_ppb_': 0, 'eCO2_ppm_': 400, 'Raw_H2': 12374, 'Raw_Ethanol': 18764, 'Pressure_hPa_': 939.738, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 2, 'Fire_Alarm': 0}, {'Serial_Number': 3, 'UTC': 1654733334, 'Temperature_C_': 20.044, 'Humidity_P_': 55.28, 'TVOC_ppb_': 0, 'eCO2_ppm_': 400, 'Raw_H2': 12390, 'Raw_Ethanol': 18849, 'Pressure_hPa_': 939.736, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 3, 'Fire_Alarm': 0}, {'Serial_Number': 4, 'UTC': 1654733335, 'Temperature_C_': 20.059, 'Humidity_P_': 54.69, 'TVOC_ppb_': 0, 'eCO2_ppm_': 400, 'Raw_H2': 12403, 'Raw_Ethanol': 18921, 'Pressure_hPa_': 939.744, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 4, 'Fire_Alarm': 0}, {'Serial_Number': 5, 'UTC': 1654733336, 'Temperature_C_': 20.073, 'Humidity_P_': 54.12, 'TVOC_ppb_': 0, 'eCO2_ppm_': 400, 'Raw_H2': 12419, 'Raw_Ethanol': 18998, 'Pressure_hPa_': 939.725, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 5, 'Fire_Alarm': 0}, {'Serial_Number': 6, 'UTC': 1654733337, 'Temperature_C_': 20.088, 'Humidity_P_': 53.61, 'TVOC_ppb_': 0, 'eCO2_ppm_': 400, 'Raw_H2': 12432, 'Raw_Ethanol': 19058, 'Pressure_hPa_': 939.738, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 6, 'Fire_Alarm': 0}, {'Serial_Number': 7, 'UTC': 1654733338, 'Temperature_C_': 20.103, 'Humidity_P_': 53.2, 'TVOC_ppb_': 0, 'eCO2_ppm_': 400, 'Raw_H2': 12439, 'Raw_Ethanol': 19114, 'Pressure_hPa_': 939.758, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 7, 'Fire_Alarm': 0}  ... displaying 10 of 100 total bound parameter sets ...  {'Serial_Number': 98, 'UTC': 1654733429, 'Temperature_C_': 21.362, 'Humidity_P_': 54.52, 'TVOC_ppb_': 19, 'eCO2_ppm_': 418, 'Raw_H2': 12529, 'Raw_Ethanol': 19626, 'Pressure_hPa_': 939.799, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 1, 'NC2_5': 0, 'CNT': 98, 'Fire_Alarm': 0}, {'Serial_Number': 99, 'UTC': 1654733430, 'Temperature_C_': 21.375, 'Humidity_P_': 54.74, 'TVOC_ppb_': 14, 'eCO2_ppm_': 405, 'Raw_H2': 12533, 'Raw_Ethanol': 19624, 'Pressure_hPa_': 939.784, 'PM1_0': 0, 'PM2_5': 0, 'NC0_5': 0, 'NC1_0': 0, 'NC2_5': 0, 'CNT': 99, 'Fire_Alarm': 0}]]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-12-01 14:07:07,741 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 14:07:10,269 - src.data.mysql_connector - INFO - Saved 100 rows to MySQL table 'predictions'.
+2025-12-01 14:07:10,272 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-12-01 14:07:10,273 - src.pipeline_engine - INFO - Saved 100 rows to predictions.
+2025-12-01 14:12:22,886 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 14:12:24,988 - src.data.mysql_connector - INFO - Fetched 100 rows from MySQL.
+2025-12-01 14:12:24,991 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-12-01 14:12:24,991 - src.pipeline_engine - INFO - Extracted 100 rows.
+2025-12-01 14:12:29,058 - src.pipeline_engine - INFO - Preprocessing completed (Train/Test split).
+2025-12-01 14:12:59,692 - src.pipeline_engine - INFO - Model Accuracy: 1.0
+2025-12-01 14:13:34,942 - src.pipeline_engine - INFO - Training completed. Run ID: 7fed6dd6675f4639b364f2650aef0ce6
+2025-12-01 14:13:39,927 - src.pipeline_engine - INFO - Using X_test from training for prediction.
+2025-12-01 14:13:39,937 - src.pipeline_engine - INFO - Prediction completed.
+2025-12-01 14:14:03,090 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 14:14:04,222 - src.data.mysql_connector - ERROR - Error saving data to MySQL: (mysql.connector.errors.ProgrammingError) 1054 (42S22): Unknown column 'prediction' in 'field list'
+[SQL: INSERT INTO predictions (`Serial_Number`, `UTC`, `Temperature_C_`, `Humidity_P_`, `TVOC_ppb_`, `eCO2_ppm_`, `Raw_H2`, `Raw_Ethanol`, `Pressure_hPa_`, `PM1.0`, `PM2.5`, `NC0.5`, `NC1.0`, `NC2.5`, `CNT`, prediction, prediction_time) VALUES (%(Serial_Number)s, %(UTC)s, %(Temperature_C_)s, %(Humidity_P_)s, %(TVOC_ppb_)s, %(eCO2_ppm_)s, %(Raw_H2)s, %(Raw_Ethanol)s, %(Pressure_hPa_)s, %(PM1_0)s, %(PM2_5)s, %(NC0_5)s, %(NC1_0)s, %(NC2_5)s, %(CNT)s, %(prediction)s, %(prediction_time)s)]
+[parameters: [{'Serial_Number': 1.1605320691253416, 'UTC': 1.1605320691253416, 'Temperature_C_': 1.1548214744875285, 'Humidity_P_': -1.3281627644788687, 'TVOC_ppb_': 0.16638743489535712, 'eCO2_ppm_': 0.5384705019265044, 'Raw_H2': 0.8014943481216182, 'Raw_Ethanol': 0.5977109209439593, 'Pressure_hPa_': 1.1096761606226564, 'PM1_0': -0.33333333333333337, 'PM2_5': -0.5582165559802301, 'NC0_5': 0.0, 'NC1_0': -0.6015682573975718, 'NC2_5': -0.47301616487964004, 'CNT': 1.1605320691253416, 'prediction': 0, 'prediction_time': datetime.datetime(2025, 12, 1, 8, 43, 39, 932701)}, {'Serial_Number': 0.12124961916234912, 'UTC': 0.12124961916234912, 'Temperature_C_': 0.13724775012645118, 'Humidity_P_': 1.6588205929331152, 'TVOC_ppb_': 0.08639347581105082, 'eCO2_ppm_': -0.5199481750789113, 'Raw_H2': 0.32327576332352287, 'Raw_Ethanol': 0.42132830958791784, 'Pressure_hPa_': -2.209867909625275, 'PM1_0': -0.33333333333333337, 'PM2_5': -0.5582165559802301, 'NC0_5': 0.0, 'NC1_0': -0.6015682573975718, 'NC2_5': -0.47301616487964004, 'CNT': 0.12124961916234912, 'prediction': 0, 'prediction_time': datetime.datetime(2025, 12, 1, 8, 43, 39, 932701)}, {'Serial_Number': 0.7101763408080449, 'UTC': 0.7101763408080449, 'Temperature_C_': 0.7183621564404974, 'Humidity_P_': -0.750433473127581, 'TVOC_ppb_': 0.646351189401195, 'eCO2_ppm_': -0.7184016770174269, 'Raw_H2': 0.7058506311619991, 'Raw_Ethanol': 0.5615298724606688, 'Pressure_hPa_': 0.5061226933044051, 'PM1_0': -0.33333333333333337, 'PM2_5': -0.5582165559802301, 'NC0_5': 0.0, 'NC1_0': -0.6015682573975718, 'NC2_5': -0.47301616487964004, 'CNT': 0.7101763408080449, 'prediction': 0, 'prediction_time': datetime.datetime(2025, 12, 1, 8, 43, 39, 932701)}, {'Serial_Number': -0.15589236749444887, 'UTC': -0.15589236749444887, 'Temperature_C_': -0.13959216017766624, 'Humidity_P_': 1.3556151492452038, 'TVOC_ppb_': -0.1535884014418681, 'eCO2_ppm_': -0.5199481750789113, 'Raw_H2': 0.036344612444665685, 'Raw_Ethanol': 0.3444435815609254, 'Pressure_hPa_': -0.183652697914353, 'PM1_0': -0.33333333333333337, 'PM2_5': -0.5582165559802301, 'NC0_5': 0.0, 'NC1_0': -0.6015682573975718, 'NC2_5': -0.47301616487964004, 'CNT': -0.15589236749444887, 'prediction': 0, 'prediction_time': datetime.datetime(2025, 12, 1, 8, 43, 39, 932701)}, {'Serial_Number': -0.19053511582654864, 'UTC': -0.19053511582654864, 'Temperature_C_': -0.17450890562142693, 'Humidity_P_': 1.2040124274012496, 'TVOC_ppb_': -0.7935400741163186, 'eCO2_ppm_': -0.7845528443302653, 'Raw_H2': 0.20372111712399904, 'Raw_Ethanol': 0.37610199898380464, 'Pressure_hPa_': 0.16123499769257546, 'PM1_0': -0.33333333333333337, 'PM2_5': -0.5582165559802301, 'NC0_5': 0.0, 'NC1_0': -0.6015682573975718, 'NC2_5': -0.47301616487964004, 'CNT': -0.19053511582654864, 'prediction': 0, 'prediction_time': datetime.datetime(2025, 12, 1, 8, 43, 39, 932701)}, {'Serial_Number': -0.3637488574870474, 'UTC': -0.3637488574870474, 'Temperature_C_': -0.3490926328402394, 'Humidity_P_': 0.7614963744513237, 'TVOC_ppb_': -0.3135763196104807, 'eCO2_ppm_': 0.20771466536231192, 'Raw_H2': -0.20276467995438197, 'Raw_Ethanol': 0.2766041156547556, 'Pressure_hPa_': 0.11812403574232204, 'PM1_0': -0.33333333333333337, 'PM2_5': -0.5582165559802301, 'NC0_5': 0.0, 'NC1_0': -0.6015682573975718, 'NC2_5': -0.47301616487964004, 'CNT': -0.3637488574870474, 'prediction': 0, 'prediction_time': datetime.datetime(2025, 12, 1, 8, 43, 39, 932701)}, {'Serial_Number': -0.9526755791327431, 'UTC': -0.9526755791327431, 'Temperature_C_': -0.9501594651221476, 'Humidity_P_': -1.0618336585367856, 'TVOC_ppb_': -0.7935400741163186, 'eCO2_ppm_': -0.7845528443302653, 'Raw_H2': -0.1788537507144772, 'Raw_Ethanol': -0.03998005857403672, 'Pressure_hPa_': -0.09743077401384619, 'PM1_0': -0.33333333333333337, 'PM2_5': 0.43859872255589505, 'NC0_5': 0.0, 'NC1_0': 0.32392136936792326, 'NC2_5': 0.8784585919193316, 'CNT': -0.9526755791327431, 'prediction': 0, 'prediction_time': datetime.datetime(2025, 12, 1, 8, 43, 39, 932701)}, {'Serial_Number': 1.0566038241290423, 'UTC': 1.0566038241290423, 'Temperature_C_': 1.0550593446482008, 'Humidity_P_': -1.2626048307085111, 'TVOC_ppb_': 0.646351189401195, 'eCO2_ppm_': -0.4537970077660729, 'Raw_H2': 0.8254052773615229, 'Raw_Ethanol': 0.6022335520043706, 'Pressure_hPa_': 0.592344617209813, 'PM1_0': -0.33333333333333337, 'PM2_5': -0.5582165559802301, 'NC0_5': 0.0, 'NC1_0': -0.6015682573975718, 'NC2_5': -0.47301616487964004, 'CNT': 1.0566038241290423, 'prediction': 0, 'prediction_time': datetime.datetime(2025, 12, 1, 8, 43, 39, 932701)}  ... displaying 10 of 20 total bound parameter sets ...  {'Serial_Number': -1.2991030624537407, 'UTC': -1.2991030624537407, 'Temperature_C_': -1.311797185789685, 'Humidity_P_': -0.3816700956693119, 'TVOC_ppb_': -0.7935400741163186, 'eCO2_ppm_': -0.7845528443302653, 'Raw_H2': -0.7766269817120963, 'Raw_Ethanol': -0.8992799600521874, 'Pressure_hPa_': -0.1405417359640996, 'PM1_0': 3.0, 'PM2_5': 2.4322292796281455, 'NC0_5': 0.0, 'NC1_0': 3.1003902496644087, 'NC2_5': 2.229933348718303, 'CNT': -1.2991030624537407, 'prediction': 0, 'prediction_time': datetime.datetime(2025, 12, 1, 8, 43, 39, 932701)}, {'Serial_Number': -0.6408908441438455, 'UTC': -0.6408908441438455, 'Temperature_C_': -0.6309206496363201, 'Humidity_P_': -0.5414675592345624, 'TVOC_ppb_': -0.1535884014418681, 'eCO2_ppm_': 1.8614938481832741, 'Raw_H2': -0.4179630431135249, 'Raw_Ethanol': 0.10022150429871418, 'Pressure_hPa_': 0.592344617209813, 'PM1_0': -0.33333333333333337, 'PM2_5': -0.5582165559802301, 'NC0_5': 0.0, 'NC1_0': 0.32392136936792326, 'NC2_5': -0.47301616487964004, 'CNT': -0.6408908441438455, 'prediction': 0, 'prediction_time': datetime.datetime(2025, 12, 1, 8, 43, 39, 932701)}]]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-12-01 14:14:29,361 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 14:14:30,969 - src.data.mysql_connector - INFO - Saved 20 rows to MySQL table 'predictions'.
+2025-12-01 14:14:30,972 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-12-01 14:14:30,973 - src.pipeline_engine - INFO - Saved 20 rows to predictions.
+2025-12-01 14:19:07,358 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 14:19:07,619 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-12-01 14:19:37,486 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 14:19:37,939 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-12-01 14:21:35,545 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 14:21:35,938 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-12-01 14:22:17,098 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 14:22:17,570 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-12-01 14:22:21,732 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 14:22:22,021 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-12-01 14:27:07,327 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 14:27:07,750 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-12-01 14:30:39,685 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 14:30:40,297 - src.data.mysql_connector - ERROR - Error fetching data from MySQL: (mysql.connector.errors.ProgrammingError) 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '100' at line 1
+[SQL: SELECT * FROM smoke_detection_iot 100;]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-12-01 14:30:52,290 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 14:30:52,660 - src.data.mysql_connector - ERROR - Error fetching data from MySQL: (mysql.connector.errors.ProgrammingError) 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '100' at line 1
+[SQL: SELECT * FROM smoke_detection_iot 100]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-12-01 14:31:03,959 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 14:31:04,958 - src.data.mysql_connector - ERROR - Error fetching data from MySQL: (mysql.connector.errors.ProgrammingError) 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '100' at line 1
+[SQL: SELECT * FROM alter_managment.smoke_detection_iot 100]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-12-01 14:31:56,693 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 14:31:56,864 - src.data.mysql_connector - INFO - Fetched 100 rows from MySQL.
+2025-12-01 14:31:56,866 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-12-01 14:31:56,867 - src.pipeline_engine - INFO - Extracted 100 rows.
+2025-12-01 14:34:55,813 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 14:34:56,062 - src.data.mysql_connector - INFO - Fetched 100 rows from MySQL.
+2025-12-01 14:34:56,063 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-12-01 14:34:56,064 - src.pipeline_engine - INFO - Extracted 100 rows.
+2025-12-01 14:39:33,358 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 14:39:34,314 - src.data.mysql_connector - INFO - Fetched 100 rows from MySQL.
+2025-12-01 14:39:34,326 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-12-01 14:39:34,370 - src.pipeline_engine - INFO - Extracted 100 rows.
+2025-12-01 14:39:55,895 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 14:39:56,163 - src.data.mysql_connector - INFO - Fetched 100 rows from MySQL.
+2025-12-01 14:39:56,167 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-12-01 14:39:56,172 - src.pipeline_engine - INFO - Extracted 100 rows.
+2025-12-01 14:44:11,482 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 14:44:11,794 - src.data.mysql_connector - INFO - Fetched 100 rows from MySQL.
+2025-12-01 14:44:11,795 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-12-01 14:44:11,796 - src.pipeline_engine - INFO - Extracted 100 rows.
+2025-12-01 14:45:32,046 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 14:45:32,539 - src.data.mysql_connector - INFO - Fetched 100 rows from MySQL.
+2025-12-01 14:45:32,597 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-12-01 14:45:32,797 - src.pipeline_engine - INFO - Extracted 100 rows.
+2025-12-01 14:47:19,826 - src.pipeline_engine - INFO - Preprocessing completed (Train/Test split).
+2025-12-01 14:48:17,197 - src.pipeline_engine - INFO - Model Accuracy: 1.0
+2025-12-01 14:48:38,875 - src.pipeline_engine - INFO - Training completed. Run ID: 72b0768f86f148bba58d6bbb443e0dce
+2025-12-01 14:48:59,679 - src.pipeline_engine - INFO - Using X_test from training for prediction.
+2025-12-01 14:48:59,697 - src.pipeline_engine - INFO - Prediction completed.
+2025-12-01 14:49:20,012 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 14:49:21,413 - src.data.mysql_connector - INFO - Saved 20 rows to MySQL table 'finalpredictions'.
+2025-12-01 14:49:21,416 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-12-01 14:49:21,417 - src.pipeline_engine - INFO - Saved 20 rows to finalpredictions.
+2025-12-01 15:02:33,510 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 15:02:33,825 - src.data.mysql_connector - ERROR - Error fetching data from MySQL: (mysql.connector.errors.ProgrammingError) 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '100' at line 1
+[SQL: SELECT * FROM alter_managment.smoke_detection_iot 100;]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-12-01 15:02:46,192 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 15:02:46,587 - src.data.mysql_connector - INFO - Fetched 100 rows from MySQL.
+2025-12-01 15:02:46,590 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-12-01 15:02:46,603 - src.pipeline_engine - INFO - Extracted 100 rows.
+2025-12-01 15:03:05,442 - src.pipeline_engine - INFO - Preprocessing completed (Train/Test split).
+2025-12-01 15:03:49,371 - src.pipeline_engine - INFO - Model Accuracy: 1.0
+2025-12-01 15:04:07,339 - src.pipeline_engine - INFO - Training completed. Run ID: a8faf1e96f4e432d836730a963196c87
+2025-12-01 15:04:22,071 - src.pipeline_engine - INFO - Using X_test from training for prediction.
+2025-12-01 15:04:22,086 - src.pipeline_engine - INFO - Prediction completed.
+2025-12-01 15:04:38,116 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 15:04:38,810 - src.data.mysql_connector - INFO - Saved 20 rows to MySQL table 'predictionsfinal'.
+2025-12-01 15:04:38,811 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-12-01 15:04:38,812 - src.pipeline_engine - INFO - Saved 20 rows to predictionsfinal.
+2025-12-01 15:06:44,047 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 15:06:44,275 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-12-01 15:06:51,763 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 15:06:51,953 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-12-01 15:07:02,726 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 15:07:02,892 - src.data.mysql_connector - ERROR - Error fetching row count from MySQL table 'smoke_detection_iot': Not an executable object: 'SELECT COUNT(*) FROM smoke_detection_iot'
+2025-12-01 15:07:02,896 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-12-01 15:16:31,785 - src.scheduler - INFO - Pipeline Scheduler started.
+2025-12-01 15:17:04,878 - src.scheduler - INFO - Pipeline Scheduler stopped.
+2025-12-01 15:17:18,975 - src.scheduler - INFO - Pipeline Scheduler started.
+2025-12-01 15:20:23,030 - src.scheduler - INFO - Triggering scheduled run for pipeline 13 (Scheduled Pipeline 1764582554) at 09:50
+2025-12-01 15:20:23,332 - src.pipeline_engine - INFO - Executing step: Step 1 (extraction)
+2025-12-01 15:20:23,453 - src.pipeline_engine - INFO - Pipeline failed: Extraction step requires 'database' config and 'query'
+2025-12-01 15:26:41,429 - src.pipeline_engine - INFO - Executing step: Step 1 (extraction)
+2025-12-01 15:26:41,698 - src.pipeline_engine - INFO - Pipeline failed: Extraction step requires 'database' config and 'query'
+2025-12-01 15:27:33,382 - src.scheduler - INFO - Pipeline Scheduler stopped.
+2025-12-01 15:28:27,449 - src.scheduler - INFO - Pipeline Scheduler started.
+2025-12-01 15:28:33,279 - src.pipeline_engine - INFO - Executing step: Step 1 (extraction)
+2025-12-01 15:28:33,775 - src.pipeline_engine - INFO - Pipeline failed: Extraction step requires 'database' config and 'query'
+2025-12-01 15:41:51,316 - src.scheduler - INFO - Pipeline Scheduler started.
+2025-12-01 15:45:10,834 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 15:45:11,399 - src.data.mysql_connector - ERROR - Error fetching row count from MySQL table 'smoke_detection_iot': Not an executable object: 'SELECT COUNT(*) FROM smoke_detection_iot'
+2025-12-01 15:45:11,402 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-12-01 15:45:12,944 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 15:45:13,444 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-12-01 16:10:28,387 - src.scheduler - INFO - Pipeline Scheduler started.
+2025-12-01 16:12:54,503 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 16:12:56,227 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-12-01 16:14:54,932 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 16:14:55,251 - src.data.mysql_connector - ERROR - Error fetching row count from MySQL table 'smoke_detection_iot': Not an executable object: 'SELECT COUNT(*) FROM smoke_detection_iot'
+2025-12-01 16:14:55,255 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-12-01 16:28:55,479 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 16:28:56,107 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-12-01 16:31:06,059 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 16:31:06,605 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-12-01 16:32:04,547 - src.scheduler - INFO - Triggering scheduled run for pipeline 10 (finaltest) at 11:02
+2025-12-01 16:32:04,920 - src.pipeline_engine - INFO - Executing step: extraction (extraction)
+2025-12-01 16:32:05,075 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 16:32:06,122 - src.data.mysql_connector - INFO - Fetched 100 rows from MySQL.
+2025-12-01 16:32:06,123 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-12-01 16:32:06,124 - src.pipeline_engine - INFO - Extracted 100 rows.
+2025-12-01 16:32:06,262 - src.pipeline_engine - INFO - Executing step: preprocessing (preprocessing)
+2025-12-01 16:32:06,569 - src.pipeline_engine - INFO - Preprocessing completed (Train/Test split).
+2025-12-01 16:32:06,694 - src.pipeline_engine - INFO - Executing step: training (training)
+2025-12-01 16:32:15,279 - src.pipeline_engine - INFO - Model Accuracy: 1.0
+2025-12-01 16:33:09,064 - src.pipeline_engine - INFO - Training completed. Run ID: 9f970aa0dd4648669abe3d62b349413e
+2025-12-01 16:33:09,638 - src.pipeline_engine - INFO - Executing step: New prediction step (prediction)
+2025-12-01 16:33:09,823 - src.pipeline_engine - INFO - Using X_test from training for prediction.
+2025-12-01 16:33:09,998 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 16:33:10,030 - src.pipeline_engine - INFO - Prediction completed.
+2025-12-01 16:33:10,291 - src.pipeline_engine - INFO - Executing step: New save step (save)
+2025-12-01 16:33:10,497 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 16:33:10,712 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-12-01 16:33:11,461 - src.data.mysql_connector - INFO - Saved 20 rows to MySQL table 'predictionsfinal'.
+2025-12-01 16:33:11,464 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-12-01 16:33:11,464 - src.pipeline_engine - INFO - Saved 20 rows to predictionsfinal.
+2025-12-01 16:33:11,764 - src.pipeline_engine - INFO - Pipeline execution completed successfully.
+2025-12-01 16:33:16,640 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 16:33:16,799 - src.data.mysql_connector - ERROR - Error fetching row count from MySQL table 'smoke_detection_iot': Not an executable object: 'SELECT COUNT(*) FROM smoke_detection_iot'
+2025-12-01 16:33:16,808 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-12-01 16:33:18,638 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-01 16:33:18,983 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-12-01 16:40:09,104 - src.scheduler - INFO - Pipeline Scheduler stopped.
+2025-12-01 16:42:14,918 - src.scheduler - INFO - Pipeline Scheduler started.
+2025-12-01 16:53:21,077 - src.scheduler - INFO - Pipeline Scheduler started.
+2025-12-01 16:53:22,119 - src.scheduler - INFO - Pipeline Scheduler stopped.
+2025-12-01 16:54:44,990 - src.scheduler - INFO - Pipeline Scheduler started.

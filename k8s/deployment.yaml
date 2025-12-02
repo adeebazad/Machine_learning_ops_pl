@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mlops-pipeline
+  labels:
+    app: mlops-pipeline
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mlops-pipeline
+  template:
+    metadata:
+      labels:
+        app: mlops-pipeline
+    spec:
+      containers:
+      - name: mlops-pipeline
+        image: mlops-pipeline:latest
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: CONFIG_PATH
+          value: "/app/config/config.yaml"
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mlops-secrets
+              key: db_password
+        volumeMounts:
+        - name: config-volume
+          mountPath: /app/config
+      volumes:
+      - name: config-volume
+        configMap:
+          name: mlops-config

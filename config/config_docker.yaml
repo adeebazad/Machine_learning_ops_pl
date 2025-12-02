@@ -1,0 +1,19 @@
+database:
+  database: alter_managment
+  host: host.docker.internal
+  password: root
+  port: 3306
+  prediction_table: smoke_detection_pred
+  training_table: smoke_detection_iot
+  type: mysql
+  user: root
+mlflow:
+  experiment_name: smoke_detection_iot_v3
+  tracking_uri: http://mlflow:5000
+model:
+  name: LinearRegression
+  params:
+    max_depth: 10
+    n_estimators: 100
+  target_col: Fire Alarm
+  task_type: regression

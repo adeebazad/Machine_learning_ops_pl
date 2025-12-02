@@ -1,0 +1,469 @@
+C:\Users\hp\AppData\Roaming\Python\Python313\site-packages\pydantic\_internal\_config.py:373: UserWarning: Valid config keys have changed in V2:
+* 'orm_mode' has been renamed to 'from_attributes'
+  warnings.warn(message, UserWarning)
+INFO:     Started server process [9748]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8001 (Press CTRL+C to quit)
+DEBUG: Registering files router...
+DEBUG: Found route: /files/read
+DEBUG: Found route: /files/save
+DEBUG: Found route: /files/run
+DEBUG: Found route: /files/list
+INFO:     127.0.0.1:43352 - "GET /experiments/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43355 - "GET /experiments/1/configs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43357 - "POST /train HTTP/1.1" 200 OK
+2025-11-30 11:39:21,849 - src.api - INFO - Starting background training for Job 2 (Config: Initial Config)
+2025-11-30 11:39:22,414 - src.models.train - INFO - Loading data...
+2025-11-30 11:39:22,744 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+INFO:     127.0.0.1:43360 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+2025-11-30 11:39:23,622 - src.data.mysql_connector - ERROR - Error fetching data from MySQL: (mysql.connector.errors.ProgrammingError) 1045 (28000): Access denied for user 'root'@'localhost' (using password: YES)
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-11-30 11:39:23,901 - src.api - ERROR - Background training failed: (mysql.connector.errors.ProgrammingError) 1045 (28000): Access denied for user 'root'@'localhost' (using password: YES)
+(Background on this error at: https://sqlalche.me/e/20/f405)
+INFO:     127.0.0.1:43362 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43383 - "GET /experiments/configs/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43386 - "PUT /experiments/configs/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43401 - "GET /experiments/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43403 - "GET /experiments/1/configs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43405 - "POST /train HTTP/1.1" 200 OK
+2025-11-30 11:40:48,202 - src.api - INFO - Starting background training for Job 3 (Config: Initial Config)
+2025-11-30 11:40:48,321 - src.models.train - INFO - Loading data...
+2025-11-30 11:40:48,322 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+INFO:     127.0.0.1:43408 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43413 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+2025-11-30 11:40:55,722 - src.data.mysql_connector - INFO - Fetched 62630 rows from MySQL.
+2025-11-30 11:40:55,723 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-30 11:40:55,724 - src.models.train - INFO - Preprocessing data...
+2025-11-30 11:40:55,724 - src.models.train - INFO - Using target column from config: Fire Alarm
+2025-11-30 11:40:55,724 - src.models.train - INFO - Selected target column: Fire Alarm
+2025-11-30 11:40:55,724 - src.models.train - INFO - Loading preprocessor from: src/features/preprocess.py
+INFO:     127.0.0.1:43420 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43427 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43433 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43443 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43445 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43447 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43450 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43453 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43457 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43463 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43469 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43476 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43478 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43481 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43485 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43487 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43490 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43493 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43496 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43500 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43502 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43504 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43507 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43509 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43514 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43519 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43522 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43525 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43528 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43530 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43532 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43534 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43537 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43539 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43542 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43546 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43548 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43550 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43552 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43558 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43563 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43565 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43567 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43574 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43584 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43587 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43597 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43600 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43603 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43605 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43608 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43617 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43626 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43628 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43636 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43641 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43643 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43645 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+2025-11-30 11:46:05,117 - src.api - ERROR - Background training failed: API request to http://localhost:5000/api/2.0/mlflow/experiments/get-by-name failed with exception HTTPConnectionPool(host='localhost', port=5000): Max retries exceeded with url: /api/2.0/mlflow/experiments/get-by-name?experiment_name=Fresh_Start_Exp (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x0000012D655418C0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))
+INFO:     127.0.0.1:43691 - "GET /experiments/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43695 - "GET /experiments/1/configs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43697 - "POST /train HTTP/1.1" 200 OK
+2025-11-30 11:46:47,372 - src.api - INFO - Starting background training for Job 4 (Config: Initial Config)
+2025-11-30 11:46:47,382 - src.models.train - INFO - Loading data...
+2025-11-30 11:46:47,383 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+INFO:     127.0.0.1:43700 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43702 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43704 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+2025-11-30 11:47:00,567 - src.data.mysql_connector - INFO - Fetched 62630 rows from MySQL.
+2025-11-30 11:47:00,569 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-30 11:47:00,569 - src.models.train - INFO - Preprocessing data...
+2025-11-30 11:47:00,570 - src.models.train - INFO - Using target column from config: Fire Alarm
+2025-11-30 11:47:00,570 - src.models.train - INFO - Selected target column: Fire Alarm
+2025-11-30 11:47:00,570 - src.models.train - INFO - Loading preprocessor from: src/features/preprocess.py
+Starting JSON flattening...
+JSON flattening complete.
+INFO:     127.0.0.1:43708 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43713 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43716 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43719 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43722 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43724 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43727 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43732 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43734 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43739 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43749 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43759 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43764 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43766 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43770 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43773 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43775 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43777 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43780 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43784 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43788 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43790 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43793 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43799 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43801 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43808 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43811 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43816 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43818 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43822 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43824 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43826 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43828 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43830 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43832 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43834 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43837 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43848 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43854 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43856 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43861 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43863 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43865 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43867 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43870 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43872 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43874 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43876 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43882 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43885 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43887 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43889 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43891 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43894 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43896 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43902 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43904 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43908 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43912 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43915 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43917 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43921 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43924 - "GET /experiments/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43926 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43928 - "GET /experiments/1/configs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43931 - "POST /train HTTP/1.1" 200 OK
+2025-11-30 11:51:25,608 - src.api - INFO - Starting background training for Job 5 (Config: Initial Config)
+2025-11-30 11:51:25,632 - src.models.train - INFO - Loading data...
+2025-11-30 11:51:25,633 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+INFO:     127.0.0.1:43934 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43935 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+2025-11-30 11:51:29,172 - src.data.mysql_connector - INFO - Fetched 62630 rows from MySQL.
+2025-11-30 11:51:29,173 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-30 11:51:29,173 - src.models.train - INFO - Preprocessing data...
+2025-11-30 11:51:29,173 - src.models.train - INFO - Using target column from config: Fire Alarm
+2025-11-30 11:51:29,174 - src.models.train - INFO - Selected target column: Fire Alarm
+2025-11-30 11:51:29,174 - src.models.train - INFO - Loading preprocessor from: src/features/preprocess.py
+Starting JSON flattening...
+JSON flattening complete.
+INFO:     127.0.0.1:43938 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43939 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43943 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43949 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43955 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43956 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43960 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+2025/11/30 11:51:42 INFO mlflow.tracking.fluent: Experiment with name 'Fresh_Start_Exp' does not exist. Creating a new experiment.
+INFO:     127.0.0.1:43963 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+2025-11-30 11:51:44,802 - src.models.train - INFO - Starting training...
+2025-11-30 11:51:44,802 - src.models.train - INFO - Logging dataset to MLflow...
+C:\Users\hp\AppData\Roaming\Python\Python313\site-packages\mlflow\data\dataset_source_registry.py:148: UserWarning: Failed to determine whether UCVolumeDatasetSource can resolve source information for 'smoke_detection_iot'. Exception: 
+  return _dataset_source_registry.resolve(
+C:\Users\hp\AppData\Roaming\Python\Python313\site-packages\mlflow\data\dataset_source_registry.py:148: UserWarning: The specified dataset source can be interpreted in multiple ways: LocalArtifactDatasetSource, LocalArtifactDatasetSource. MLflow will assume that this is a LocalArtifactDatasetSource source.
+  return _dataset_source_registry.resolve(
+C:\Users\hp\AppData\Roaming\Python\Python313\site-packages\mlflow\types\utils.py:452: UserWarning: Hint: Inferred schema contains integer column(s). Integer columns in Python cannot represent missing values. If your input data contains missing values at inference time, it will be encoded as floats and will cause a schema enforcement error. The best way to avoid this problem is to infer the model schema based on a realistic data sample (training dataset) that includes missing values. Alternatively, you can declare integer columns as doubles (float64) whenever these columns may have missing values. See `Handling Integers With Missing Values <https://www.mlflow.org/docs/latest/models.html#handling-integers-with-missing-values>`_ for more details.
+  warnings.warn(
+2025-11-30 11:51:46,612 - src.models.train - INFO - Task Type: classification, Model: RandomForestClassifier
+INFO:     127.0.0.1:43969 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43970 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+2025-11-30 11:51:48,945 - src.models.train - INFO - Starting training...
+2025-11-30 11:51:48,945 - src.models.train - INFO - Logging dataset to MLflow...
+C:\Users\hp\AppData\Roaming\Python\Python313\site-packages\mlflow\data\dataset_source_registry.py:148: UserWarning: Failed to determine whether UCVolumeDatasetSource can resolve source information for 'smoke_detection_iot'. Exception: 
+  return _dataset_source_registry.resolve(
+C:\Users\hp\AppData\Roaming\Python\Python313\site-packages\mlflow\data\dataset_source_registry.py:148: UserWarning: The specified dataset source can be interpreted in multiple ways: LocalArtifactDatasetSource, LocalArtifactDatasetSource. MLflow will assume that this is a LocalArtifactDatasetSource source.
+  return _dataset_source_registry.resolve(
+C:\Users\hp\AppData\Roaming\Python\Python313\site-packages\mlflow\types\utils.py:452: UserWarning: Hint: Inferred schema contains integer column(s). Integer columns in Python cannot represent missing values. If your input data contains missing values at inference time, it will be encoded as floats and will cause a schema enforcement error. The best way to avoid this problem is to infer the model schema based on a realistic data sample (training dataset) that includes missing values. Alternatively, you can declare integer columns as doubles (float64) whenever these columns may have missing values. See `Handling Integers With Missing Values <https://www.mlflow.org/docs/latest/models.html#handling-integers-with-missing-values>`_ for more details.
+  warnings.warn(
+2025-11-30 11:51:50,612 - src.models.train - INFO - Task Type: classification, Model: RandomForestClassifier
+INFO:     127.0.0.1:43973 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43974 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43982 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43984 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+2025-11-30 11:51:56,639 - src.models.train - INFO - Model Accuracy: 1.0
+2025-11-30 11:51:58,855 - src.models.train - INFO - Model Accuracy: 1.0
+2025/11/30 11:51:59 WARNING mlflow.models.model: `artifact_path` is deprecated. Please use `name` instead.
+INFO:     127.0.0.1:43990 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43991 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+2025/11/30 11:52:03 WARNING mlflow.models.model: `artifact_path` is deprecated. Please use `name` instead.
+INFO:     127.0.0.1:43995 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43996 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44001 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44002 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44005 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44006 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44009 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44011 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44014 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44015 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44018 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44019 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44023 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44024 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44027 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44028 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44033 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44034 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44037 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44038 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44041 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44042 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44046 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44047 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44050 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44052 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44057 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44059 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44062 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+2025/11/30 11:53:01 WARNING mlflow.models.model: Model logged without a signature and input example. Please set `input_example` parameter when logging the model to auto infer the model signature.
+2025/11/30 11:53:01 WARNING mlflow.models.model: Model logged without a signature and input example. Please set `input_example` parameter when logging the model to auto infer the model signature.
+INFO:     127.0.0.1:44065 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44070 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+2025-11-30 11:53:04,983 - src.models.train - INFO - Logging preprocessing script: src/features/preprocess.py
+2025-11-30 11:53:04,984 - src.models.train - INFO - Logging preprocessing script: src/features/preprocess.py
+2025-11-30 11:53:05,029 - src.models.train - INFO - Training complete and logged to MLflow.
+View run overjoyed-zebra-327 at: http://localhost:5000/#/experiments/1/runs/bfc46576ed0f41c3a4a27b1156caf605
+View experiment at: http://localhost:5000/#/experiments/1
+2025-11-30 11:53:05,033 - src.models.train - INFO - Training complete and logged to MLflow.
+View run capricious-sloth-913 at: http://localhost:5000/#/experiments/1/runs/e0b5208b71a24b99b84313aca7fe2f78
+View experiment at: http://localhost:5000/#/experiments/1
+🏃 View run overjoyed-zebra-327 at: http://localhost:5000/#/experiments/1/runs/bfc46576ed0f41c3a4a27b1156caf605
+🧪 View experiment at: http://localhost:5000/#/experiments/1
+🏃 View run capricious-sloth-913 at: http://localhost:5000/#/experiments/1/runs/e0b5208b71a24b99b84313aca7fe2f78
+🧪 View experiment at: http://localhost:5000/#/experiments/1
+INFO:     127.0.0.1:44071 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+2025-11-30 11:53:05,886 - src.api - INFO - Background training completed. Run ID: bfc46576ed0f41c3a4a27b1156caf605
+2025-11-30 11:53:06,163 - src.api - INFO - Background training completed. Run ID: e0b5208b71a24b99b84313aca7fe2f78
+INFO:     127.0.0.1:44076 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44078 - "GET /experiments/1/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44386 - "GET /experiments HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:44386 - "GET /experiments HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:44386 - "GET /experiments/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44386 - "GET /experiments/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44386 - "GET /experiments/1/configs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44415 - "WebSocket /system/ws/logs" [accepted]
+INFO:     127.0.0.1:44416 - "GET /experiments HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:44416 - "GET /experiments HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:44419 - "WebSocket /system/ws/logs" [accepted]
+INFO:     127.0.0.1:44416 - "GET /experiments/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44416 - "GET /experiments/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44416 - "GET /experiments/1/configs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44387 - "OPTIONS /experiments HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44387 - "POST /experiments HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:44387 - "OPTIONS /experiments/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44387 - "POST /experiments/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44387 - "GET /experiments HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:44387 - "GET /experiments/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44462 - "GET /experiments HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:44462 - "GET /experiments/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44462 - "GET /experiments/1/configs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44463 - "GET /experiments/2/configs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44464 - "OPTIONS /experiments/2/configs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44464 - "POST /experiments/2/configs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44464 - "GET /experiments/2/configs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44497 - "GET /experiments HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:44497 - "GET /experiments HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:44497 - "GET /experiments/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44509 - "WebSocket /system/ws/logs" [accepted]
+INFO:     127.0.0.1:44497 - "GET /experiments/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44510 - "GET /experiments/1/configs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44529 - "GET /experiments/2/configs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44530 - "OPTIONS /train HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44530 - "POST /train HTTP/1.1" 200 OK
+2025-11-30 12:04:41,059 - src.api - INFO - Starting background training for Job 6 (Config: Browser Test Conf)
+Log client disconnected
+2025-11-30 12:04:41,267 - src.models.train - INFO - Loading data...
+2025-11-30 12:04:41,542 - src.api - ERROR - Background training failed: 'database'
+INFO:     127.0.0.1:44539 - "GET /experiments HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:44539 - "GET /experiments HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:44539 - "GET /experiments/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44539 - "GET /experiments/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44539 - "GET /experiments/1/configs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44555 - "GET /experiments/2/configs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44580 - "GET /experiments/configs/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44613 - "OPTIONS /database/test HTTP/1.1" 200 OK
+2025-11-30 12:07:16,868 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+Log client disconnected
+2025-11-30 12:07:20,007 - src.data.mysql_connector - INFO - MySQL connection closed.
+INFO:     127.0.0.1:44613 - "POST /database/test HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44616 - "OPTIONS /database/columns/smoke_detection_iot HTTP/1.1" 200 OK
+2025-11-30 12:07:52,383 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-30 12:07:54,132 - src.data.mysql_connector - INFO - MySQL connection closed.
+INFO:     127.0.0.1:44617 - "POST /database/columns/smoke_detection_iot HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44688 - "GET /experiments HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:44688 - "GET /experiments HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:44689 - "GET /experiments/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44689 - "GET /experiments/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44689 - "GET /experiments/1/configs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44700 - "GET /experiments/2/configs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44701 - "GET /experiments/configs/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44768 - "OPTIONS /experiments/configs/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44768 - "PUT /experiments/configs/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44768 - "GET /experiments/2/configs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44768 - "GET /experiments HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:44768 - "GET /experiments HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:44769 - "GET /experiments/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44769 - "GET /experiments/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44768 - "GET /experiments/1/configs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44774 - "WebSocket /system/ws/logs" [accepted]
+INFO:     127.0.0.1:44777 - "GET /experiments/2/configs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44777 - "POST /train HTTP/1.1" 200 OK
+2025-11-30 12:13:28,770 - src.api - INFO - Starting background training for Job 7 (Config: Browser Test Conf)
+2025-11-30 12:13:28,805 - src.models.train - INFO - Loading data...
+2025-11-30 12:13:28,805 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+Log client disconnected
+2025-11-30 12:13:36,458 - src.data.mysql_connector - INFO - Fetched 62630 rows from MySQL.
+2025-11-30 12:13:36,461 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-11-30 12:13:36,461 - src.models.train - INFO - Preprocessing data...
+2025-11-30 12:13:36,462 - src.models.train - INFO - Using target column from config: Fire Alarm
+2025-11-30 12:13:36,462 - src.models.train - INFO - Selected target column: Fire Alarm
+2025-11-30 12:13:36,462 - src.models.train - INFO - Loading preprocessor from: src/features/preprocess.py
+Starting JSON flattening...
+JSON flattening complete.
+2025-11-30 12:13:40,659 - src.models.train - INFO - Starting training...
+2025-11-30 12:13:40,659 - src.models.train - INFO - Logging dataset to MLflow...
+C:\Users\hp\AppData\Roaming\Python\Python313\site-packages\mlflow\data\dataset_source_registry.py:148: UserWarning: Failed to determine whether UCVolumeDatasetSource can resolve source information for 'smoke_detection_iot'. Exception: 
+  return _dataset_source_registry.resolve(
+C:\Users\hp\AppData\Roaming\Python\Python313\site-packages\mlflow\data\dataset_source_registry.py:148: UserWarning: The specified dataset source can be interpreted in multiple ways: LocalArtifactDatasetSource, LocalArtifactDatasetSource. MLflow will assume that this is a LocalArtifactDatasetSource source.
+  return _dataset_source_registry.resolve(
+C:\Users\hp\AppData\Roaming\Python\Python313\site-packages\mlflow\types\utils.py:452: UserWarning: Hint: Inferred schema contains integer column(s). Integer columns in Python cannot represent missing values. If your input data contains missing values at inference time, it will be encoded as floats and will cause a schema enforcement error. The best way to avoid this problem is to infer the model schema based on a realistic data sample (training dataset) that includes missing values. Alternatively, you can declare integer columns as doubles (float64) whenever these columns may have missing values. See `Handling Integers With Missing Values <https://www.mlflow.org/docs/latest/models.html#handling-integers-with-missing-values>`_ for more details.
+  warnings.warn(
+2025-11-30 12:13:42,898 - src.models.train - INFO - Task Type: classification, Model: RandomForestClassifier
+2025-11-30 12:13:52,473 - src.models.train - INFO - Model Accuracy: 1.0
+2025/11/30 12:14:01 WARNING mlflow.models.model: `artifact_path` is deprecated. Please use `name` instead.
+2025/11/30 12:14:30 WARNING mlflow.models.model: Model logged without a signature and input example. Please set `input_example` parameter when logging the model to auto infer the model signature.
+INFO:     127.0.0.1:44799 - "GET /experiments HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:44799 - "GET /experiments HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:44799 - "GET /experiments/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44799 - "GET /experiments/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44799 - "GET /experiments/1/configs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44799 - "GET /experiments/configs/1 HTTP/1.1" 200 OK
+2025-11-30 12:14:31,624 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+Log client disconnected
+2025-11-30 12:14:31,991 - src.data.mysql_connector - INFO - MySQL connection closed.
+INFO:     127.0.0.1:44799 - "POST /database/columns/smoke_detection_iot HTTP/1.1" 200 OK
+2025-11-30 12:14:33,721 - src.models.train - INFO - Logging preprocessing script: src/features/preprocess.py
+2025-11-30 12:14:33,751 - src.models.train - INFO - Training complete and logged to MLflow.
+View run likeable-cat-330 at: http://localhost:5000/#/experiments/0/runs/0880424657c54c6ba234cdf9b92bc99d
+View experiment at: http://localhost:5000/#/experiments/0
+🏃 View run likeable-cat-330 at: http://localhost:5000/#/experiments/0/runs/0880424657c54c6ba234cdf9b92bc99d
+🧪 View experiment at: http://localhost:5000/#/experiments/0
+2025-11-30 12:14:34,178 - src.api - INFO - Background training completed. Run ID: 0880424657c54c6ba234cdf9b92bc99d
+INFO:     127.0.0.1:44799 - "GET /experiments/2/configs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44799 - "GET /experiments/configs/2 HTTP/1.1" 200 OK
+2025-11-30 12:14:36,745 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-30 12:14:37,451 - src.data.mysql_connector - INFO - MySQL connection closed.
+INFO:     127.0.0.1:44799 - "POST /database/columns/smoke_detection_iot HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44802 - "OPTIONS /predict HTTP/1.1" 200 OK
+2025-11-30 12:14:59,842 - src.api - INFO - Loading model and preprocessor from runs:/0880424657c54c6ba234cdf9b92bc99d/model...
+Downloading artifacts:   0%|          | 0/1 [00:00<?, ?it/s]Downloading artifacts:   0%|          | 0/1 [00:00<?, ?it/s]
+Downloading artifacts:   0%|          | 0/5 [00:00<?, ?it/s]Downloading artifacts:  20%|██        | 1/5 [00:00<00:00, 10485.76it/s]Downloading artifacts:  40%|████      | 2/5 [00:00<00:00, 2947.51it/s] Downloading artifacts:  60%|██████    | 3/5 [00:00<00:00, 3334.99it/s]Downloading artifacts:  80%|████████  | 4/5 [00:00<00:00, 3831.29it/s]Downloading artifacts: 100%|██████████| 5/5 [00:00<00:00, 4235.81it/s]Downloading artifacts: 100%|██████████| 5/5 [00:00<00:00, 3670.20it/s]
+Downloading artifacts:   0%|          | 0/1 [00:00<?, ?it/s]Downloading artifacts: 100%|██████████| 1/1 [00:00<00:00, 1215.04it/s]Downloading artifacts: 100%|██████████| 1/1 [00:00<00:00, 908.05it/s] 
+2025-11-30 12:15:02,790 - src.api - INFO - Downloaded custom preprocessing script to: C:\Users\hp\AppData\Local\Temp\tmptpjo3v0k\preprocess.py
+Downloading artifacts:   0%|          | 0/2 [00:00<?, ?it/s]Downloading artifacts:  50%|█████     | 1/2 [00:00<00:00, 15947.92it/s]Downloading artifacts: 100%|██████████| 2/2 [00:00<00:00, 7936.24it/s] Downloading artifacts: 100%|██████████| 2/2 [00:00<00:00, 4478.70it/s]
+2025-11-30 12:15:03,147 - src.api - INFO - Generating forecast for 9 days...
+C:\Users\hp\AppData\Roaming\Python\Python313\site-packages\sklearn\utils\validation.py:2739: UserWarning: X does not have valid feature names, but RandomForestClassifier was fitted with feature names
+  warnings.warn(
+Starting JSON flattening...
+JSON flattening complete.
+INFO:     127.0.0.1:44803 - "POST /predict HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44819 - "GET /scheduler/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44820 - "GET /config/list HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44819 - "GET /scheduler/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44820 - "GET /config/list HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44819 - "GET /config/config.yaml HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44819 - "OPTIONS /database/count/smoke_detection_iot HTTP/1.1" 200 OK
+2025-11-30 12:15:14,235 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-30 12:15:14,579 - src.data.mysql_connector - ERROR - Error fetching row count from MySQL table 'smoke_detection_iot': Not an executable object: 'SELECT COUNT(*) FROM smoke_detection_iot'
+2025-11-30 12:15:14,581 - src.data.mysql_connector - INFO - MySQL connection closed.
+INFO:     127.0.0.1:44820 - "POST /database/count/smoke_detection_iot HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44823 - "GET /experiments HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:44823 - "GET /experiments HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:44824 - "GET /experiments/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44824 - "GET /experiments/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44824 - "GET /experiments/1/configs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44824 - "GET /experiments/configs/1 HTTP/1.1" 200 OK
+2025-11-30 12:15:25,098 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-30 12:15:25,825 - src.data.mysql_connector - INFO - MySQL connection closed.
+INFO:     127.0.0.1:44824 - "POST /database/columns/smoke_detection_iot HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44829 - "GET /scheduler/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44830 - "GET /config/list HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44829 - "GET /scheduler/jobs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44830 - "GET /config/list HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44830 - "GET /config/config.yaml HTTP/1.1" 200 OK
+2025-11-30 12:15:31,710 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-30 12:15:32,153 - src.data.mysql_connector - ERROR - Error fetching row count from MySQL table 'smoke_detection_iot': Not an executable object: 'SELECT COUNT(*) FROM smoke_detection_iot'
+2025-11-30 12:15:32,158 - src.data.mysql_connector - INFO - MySQL connection closed.
+INFO:     127.0.0.1:44830 - "POST /database/count/smoke_detection_iot HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44831 - "GET /experiments HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:44831 - "GET /experiments HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:44831 - "GET /experiments/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44831 - "GET /experiments/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44831 - "GET /experiments/1/configs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44831 - "GET /experiments/configs/1 HTTP/1.1" 200 OK
+2025-11-30 12:15:38,108 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-11-30 12:15:38,832 - src.data.mysql_connector - INFO - MySQL connection closed.
+INFO:     127.0.0.1:44831 - "POST /database/columns/smoke_detection_iot HTTP/1.1" 200 OK
+2025-11-30 12:15:46,042 - src.api - INFO - Loading model and preprocessor from runs:/bfc46576ed0f41c3a4a27b1156caf605/model...
+Downloading artifacts:   0%|          | 0/1 [00:00<?, ?it/s]Downloading artifacts:   0%|          | 0/1 [00:00<?, ?it/s]
+Downloading artifacts:   0%|          | 0/5 [00:00<?, ?it/s]Downloading artifacts:  20%|██        | 1/5 [00:00<00:00, 12671.61it/s]Downloading artifacts:  40%|████      | 2/5 [00:00<00:00, 7326.30it/s] Downloading artifacts:  60%|██████    | 3/5 [00:00<00:00, 6834.82it/s]Downloading artifacts:  80%|████████  | 4/5 [00:00<00:00, 6631.31it/s]Downloading artifacts: 100%|██████████| 5/5 [00:00<00:00, 758.27it/s] Downloading artifacts: 100%|██████████| 5/5 [00:00<00:00, 726.41it/s]
+Downloading artifacts:   0%|          | 0/1 [00:00<?, ?it/s]Downloading artifacts: 100%|██████████| 1/1 [00:00<00:00, 14.35it/s]Downloading artifacts: 100%|██████████| 1/1 [00:00<00:00, 14.29it/s]
+2025-11-30 12:15:47,043 - src.api - INFO - Downloaded custom preprocessing script to: C:\Users\hp\AppData\Local\Temp\tmpsmpois_o\preprocess.py
+Downloading artifacts:   0%|          | 0/2 [00:00<?, ?it/s]Downloading artifacts:  50%|█████     | 1/2 [00:00<00:00, 8272.79it/s]Downloading artifacts: 100%|██████████| 2/2 [00:00<00:00, 108.92it/s] Downloading artifacts: 100%|██████████| 2/2 [00:00<00:00, 107.42it/s]
+C:\Users\hp\AppData\Roaming\Python\Python313\site-packages\sklearn\utils\validation.py:2739: UserWarning: X does not have valid feature names, but RandomForestClassifier was fitted with feature names
+  warnings.warn(
+Starting JSON flattening...
+JSON flattening complete.
+INFO:     127.0.0.1:44831 - "POST /predict HTTP/1.1" 200 OK
+2025-11-30 12:16:21,879 - src.api - INFO - Generating forecast for 11 days...
+C:\Users\hp\AppData\Roaming\Python\Python313\site-packages\sklearn\utils\validation.py:2739: UserWarning: X does not have valid feature names, but RandomForestClassifier was fitted with feature names
+  warnings.warn(
+Starting JSON flattening...
+JSON flattening complete.
+INFO:     127.0.0.1:44836 - "POST /predict HTTP/1.1" 200 OK

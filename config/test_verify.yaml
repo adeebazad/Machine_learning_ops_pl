@@ -1,0 +1,6 @@
+database:
+  host: localhost
+  type: mysql
+model:
+  name: TestModel
+  type: classification
