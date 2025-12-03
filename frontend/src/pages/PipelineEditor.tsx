@@ -141,6 +141,61 @@ const PipelineEditor: React.FC = () => {
         return options[taskType] || [];
     };
 
+    const getDefaultParams = (modelName: string) => {
+        switch (modelName) {
+            case 'RandomForestClassifier':
+            case 'RandomForestRegressor':
+            case 'ExtraTreesClassifier':
+            case 'GradientBoostingClassifier':
+                return { n_estimators: 100, max_depth: 10 };
+            case 'XGBClassifier':
+            case 'XGBRegressor':
+            case 'LGBMClassifier':
+            case 'LGBMRegressor':
+            case 'CatBoostClassifier':
+            case 'CatBoostRegressor':
+                return { n_estimators: 100, learning_rate: 0.1, max_depth: 6 };
+            case 'LogisticRegression':
+                return { C: 1.0, solver: 'lbfgs' };
+            case 'LinearRegression':
+                return {};
+            case 'Ridge':
+            case 'Lasso':
+                return { alpha: 1.0 };
+            case 'ElasticNet':
+                return { alpha: 1.0, l1_ratio: 0.5 };
+            case 'SVC':
+            case 'SVR':
+                return { C: 1.0, kernel: 'rbf' };
+            case 'KNeighborsClassifier':
+            case 'KNeighborsRegressor':
+                return { n_neighbors: 5 };
+            case 'DecisionTreeClassifier':
+            case 'DecisionTreeRegressor':
+                return { max_depth: 10 };
+            case 'KMeans':
+                return { n_clusters: 3 };
+            case 'DBSCAN':
+                return { eps: 0.5, min_samples: 5 };
+            case 'PCA':
+                return { n_components: 2 };
+            case 'Prophet':
+                return { seasonality_mode: 'additive' };
+            case 'ARIMA':
+                return { order: [1, 1, 1] };
+            case 'SARIMA':
+                return { order: [1, 1, 1], seasonal_order: [0, 0, 0, 0] };
+            case 'DNN (MLP)':
+                return { layers: [64, 32], activation: 'relu', epochs: 10 };
+            case 'LSTM':
+                return { units: 50, epochs: 10 };
+            case 'CNN':
+                return { filters: 32, kernel_size: [3, 3], epochs: 10 };
+            default:
+                return {};
+        }
+    };
+
     const updateStep = (index: number, field: keyof PipelineStep, value: any) => {
         const newSteps = [...steps];
         newSteps[index] = { ...newSteps[index], [field]: value };
@@ -317,7 +372,7 @@ const PipelineEditor: React.FC = () => {
     };
 
     return (
-        <div className="p-8 max-w-5xl mx-auto pb-24">
+        <div className="p-8 max-w-5xl mx-auto pb-24" >
             <div className="flex justify-between items-center mb-8">
                 <h1 className="text-3xl font-bold text-white">
                     {id ? 'Edit Pipeline' : 'New Pipeline'}
@@ -557,8 +612,17 @@ const PipelineEditor: React.FC = () => {
                                                 const newTaskType = e.target.value;
                                                 // Reset model name when task type changes
                                                 const defaultModel = getModelOptions(newTaskType)[0] || '';
-                                                updateNestedConfig(index, 'model', 'task_type', newTaskType);
-                                                updateNestedConfig(index, 'model', 'name', defaultModel);
+                                                const defaultParams = getDefaultParams(defaultModel);
+
+                                                // Update task type, model name, AND params
+                                                const newModelConfig = {
+                                                    ...step.config_json.model,
+                                                    task_type: newTaskType,
+                                                    name: defaultModel,
+                                                    params: defaultParams
+                                                };
+
+                                                updateStepConfig(index, 'model', newModelConfig);
                                             }}
                                             className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
                                         >
@@ -574,13 +638,38 @@ const PipelineEditor: React.FC = () => {
                                         <label className="block text-gray-400 mb-1">Model Name</label>
                                         <select
                                             value={step.config_json.model?.name}
-                                            onChange={(e) => updateNestedConfig(index, 'model', 'name', e.target.value)}
+                                            onChange={(e) => {
+                                                const newModelName = e.target.value;
+                                                const defaultParams = getDefaultParams(newModelName);
+
+                                                const newModelConfig = {
+                                                    ...step.config_json.model,
+                                                    name: newModelName,
+                                                    params: defaultParams
+                                                };
+                                                updateStepConfig(index, 'model', newModelConfig);
+                                            }}
                                             className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
                                         >
                                             {getModelOptions(step.config_json.model?.task_type || 'classification').map(opt => (
                                                 <option key={opt} value={opt}>{opt}</option>
                                             ))}
                                         </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-gray-400 mb-1">Parameters (JSON)</label>
+                                        <textarea
+                                            value={JSON.stringify(step.config_json.model?.params || {}, null, 2)}
+                                            onChange={(e) => {
+                                                try {
+                                                    const params = JSON.parse(e.target.value);
+                                                    updateNestedConfig(index, 'model', 'params', params);
+                                                } catch (err) {
+                                                    // Allow typing invalid JSON while editing
+                                                }
+                                            }}
+                                            className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white font-mono text-xs h-24"
+                                        />
                                     </div>
                                     <div>
                                         <label className="block text-gray-400 mb-1">MLflow Experiment</label>
@@ -702,7 +791,7 @@ const PipelineEditor: React.FC = () => {
                     <button onClick={() => addStep('save')} className="px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg text-sm text-teal-400 border border-teal-500/30">+ Save</button>
                 </div>
             </div>
-        </div>
+        </div >
     );
 };
 
