@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Save, Trash2, ArrowUp, ArrowDown, Play } from 'lucide-react';
-import { pipelineService, fileService } from '../services/api';
+import { pipelineService, fileService, experimentService } from '../services/api';
 
 interface PipelineStep {
     id?: number;
@@ -371,21 +371,137 @@ const PipelineEditor: React.FC = () => {
         setScriptContent('');
     };
 
+    const [showConfigModal, setShowConfigModal] = useState(false);
+    const [experiments, setExperiments] = useState<any[]>([]);
+    const [selectedExperimentId, setSelectedExperimentId] = useState<string>('');
+    const [newConfigName, setNewConfigName] = useState('');
+
+    useEffect(() => {
+        if (showConfigModal) {
+            fetchExperiments();
+        }
+    }, [showConfigModal]);
+
+    const fetchExperiments = async () => {
+        try {
+            const res: any = await experimentService.list();
+            setExperiments(res);
+            if (res.length > 0) setSelectedExperimentId(res[0].id.toString());
+        } catch (err) {
+            console.error("Failed to fetch experiments", err);
+        }
+    };
+
+    const handleSaveToConfig = async () => {
+        if (!selectedExperimentId || !newConfigName) {
+            alert("Please select an experiment and enter a config name");
+            return;
+        }
+
+        // Extract config from steps
+        const extractionStep = steps.find(s => s.step_type === 'extraction');
+        const preprocessingStep = steps.find(s => s.step_type === 'preprocessing');
+        const trainingStep = steps.find(s => s.step_type === 'training');
+        const saveStep = steps.find(s => s.step_type === 'save');
+
+        const configData = {
+            database: {
+                ...(extractionStep?.config_json.database || {}),
+                training_table: extractionStep?.config_json.query?.match(/FROM\s+(\w+)/i)?.[1] || '', // Simple regex to guess table
+                prediction_table: saveStep?.config_json.table_name || ''
+            },
+            preprocessing: {
+                script_path: preprocessingStep?.config_json.script_path || ''
+            },
+            model: {
+                ...(trainingStep?.config_json.model || {}),
+                target_col: preprocessingStep?.config_json.target_col || ''
+            },
+            mlflow: trainingStep?.config_json.mlflow || {}
+        };
+
+        try {
+            await experimentService.createConfig(parseInt(selectedExperimentId), newConfigName, configData);
+            alert("Configuration saved successfully!");
+            setShowConfigModal(false);
+            setNewConfigName('');
+        } catch (err) {
+            console.error("Failed to save config", err);
+            alert("Failed to save configuration");
+        }
+    };
+
     return (
         <div className="p-8 max-w-5xl mx-auto pb-24" >
             <div className="flex justify-between items-center mb-8">
                 <h1 className="text-3xl font-bold text-white">
                     {id ? 'Edit Pipeline' : 'New Pipeline'}
                 </h1>
-                <button
-                    onClick={handleSave}
-                    disabled={loading}
-                    className="flex items-center gap-2 px-6 py-2 bg-green-600 hover:bg-green-700 rounded-lg transition-colors disabled:opacity-50"
-                >
-                    <Save size={20} />
-                    {loading ? 'Saving...' : 'Save Pipeline'}
-                </button>
+                <div className="flex gap-3">
+                    <button
+                        onClick={() => setShowConfigModal(true)}
+                        className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors"
+                    >
+                        <Save size={20} />
+                        Save as Config
+                    </button>
+                    <button
+                        onClick={handleSave}
+                        disabled={loading}
+                        className="flex items-center gap-2 px-6 py-2 bg-green-600 hover:bg-green-700 rounded-lg transition-colors disabled:opacity-50"
+                    >
+                        <Save size={20} />
+                        {loading ? 'Saving...' : 'Save Pipeline'}
+                    </button>
+                </div>
             </div>
+
+            {showConfigModal && (
+                <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+                    <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 w-96">
+                        <h3 className="text-xl font-bold text-white mb-4">Save Configuration</h3>
+
+                        <div className="mb-4">
+                            <label className="block text-sm text-gray-400 mb-1">Select Experiment</label>
+                            <select
+                                value={selectedExperimentId}
+                                onChange={(e) => setSelectedExperimentId(e.target.value)}
+                                className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
+                            >
+                                {experiments.map(e => (
+                                    <option key={e.id} value={e.id}>{e.name}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div className="mb-6">
+                            <label className="block text-sm text-gray-400 mb-1">Config Name</label>
+                            <input
+                                type="text"
+                                value={newConfigName}
+                                onChange={(e) => setNewConfigName(e.target.value)}
+                                className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
+                                placeholder="e.g. V1 Config"
+                            />
+                        </div>
+
+                        <div className="flex justify-end gap-3">
+                            <button
+                                onClick={() => setShowConfigModal(false)}
+                                className="px-4 py-2 text-gray-400 hover:text-white"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleSaveToConfig}
+                                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded"
+                            >
+                                Save
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-6 mb-8">
                 <div className="grid gap-4">
