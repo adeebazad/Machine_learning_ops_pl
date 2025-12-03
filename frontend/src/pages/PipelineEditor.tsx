@@ -110,6 +110,37 @@ const PipelineEditor: React.FC = () => {
         }
     };
 
+    const getModelOptions = (taskType: string) => {
+        const options: { [key: string]: string[] } = {
+            classification: [
+                "LogisticRegression", "KNeighborsClassifier", "DecisionTreeClassifier",
+                "RandomForestClassifier", "ExtraTreesClassifier", "GradientBoostingClassifier",
+                "XGBClassifier", "LGBMClassifier", "CatBoostClassifier",
+                "NaiveBayes", "SVC", "MLPClassifier"
+            ],
+            regression: [
+                "LinearRegression", "Ridge", "Lasso", "ElasticNet",
+                "DecisionTreeRegressor", "RandomForestRegressor", "KNeighborsRegressor",
+                "XGBRegressor", "LGBMRegressor", "CatBoostRegressor",
+                "SVR", "MLPRegressor"
+            ],
+            clustering: [
+                "KMeans", "DBSCAN", "OPTICS", "MeanShift",
+                "AgglomerativeClustering", "GaussianMixture", "Birch"
+            ],
+            dimensionality_reduction: [
+                "PCA", "LDA"
+            ],
+            time_series: [
+                "Prophet", "ARIMA", "SARIMA"
+            ],
+            deep_learning: [
+                "DNN (MLP)", "LSTM", "CNN"
+            ]
+        };
+        return options[taskType] || [];
+    };
+
     const updateStep = (index: number, field: keyof PipelineStep, value: any) => {
         const newSteps = [...steps];
         newSteps[index] = { ...newSteps[index], [field]: value };
@@ -519,23 +550,36 @@ const PipelineEditor: React.FC = () => {
                             {step.step_type === 'training' && (
                                 <>
                                     <div>
-                                        <label className="block text-gray-400 mb-1">Model Name</label>
-                                        <input
-                                            type="text"
-                                            value={step.config_json.model?.name}
-                                            onChange={(e) => updateNestedConfig(index, 'model', 'name', e.target.value)}
-                                            className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
-                                        />
-                                    </div>
-                                    <div>
                                         <label className="block text-gray-400 mb-1">Task Type</label>
                                         <select
                                             value={step.config_json.model?.task_type}
-                                            onChange={(e) => updateNestedConfig(index, 'model', 'task_type', e.target.value)}
+                                            onChange={(e) => {
+                                                const newTaskType = e.target.value;
+                                                // Reset model name when task type changes
+                                                const defaultModel = getModelOptions(newTaskType)[0] || '';
+                                                updateNestedConfig(index, 'model', 'task_type', newTaskType);
+                                                updateNestedConfig(index, 'model', 'name', defaultModel);
+                                            }}
                                             className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
                                         >
                                             <option value="classification">Classification</option>
                                             <option value="regression">Regression</option>
+                                            <option value="clustering">Clustering</option>
+                                            <option value="dimensionality_reduction">Dimensionality Reduction</option>
+                                            <option value="time_series">Time Series</option>
+                                            <option value="deep_learning">Deep Learning</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-gray-400 mb-1">Model Name</label>
+                                        <select
+                                            value={step.config_json.model?.name}
+                                            onChange={(e) => updateNestedConfig(index, 'model', 'name', e.target.value)}
+                                            className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
+                                        >
+                                            {getModelOptions(step.config_json.model?.task_type || 'classification').map(opt => (
+                                                <option key={opt} value={opt}>{opt}</option>
+                                            ))}
                                         </select>
                                     </div>
                                     <div>
