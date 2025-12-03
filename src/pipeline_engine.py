@@ -200,7 +200,22 @@ class DataPreprocessor:
             model_name = model_config.get('name', 'RandomForestClassifier')
             params = model_config.get('params', {})
             
+            # Save task type to context for prediction step
+            self.context['task_type'] = task_type
+
             model = ModelFactory.get_model(task_type, model_name, params)
+            
+            # Fix for switching from Time Series to other models: Drop datetime columns
+            if task_type != 'time_series':
+                for dataset_name in ['X_train', 'X_test']:
+                    if dataset_name in self.context:
+                        df = self.context[dataset_name]
+                        # Drop datetime columns which cause issues for standard sklearn models
+                        cols_to_drop = df.select_dtypes(include=['datetime', 'datetimetz', '<M8[ns]']).columns
+                        if len(cols_to_drop) > 0:
+                            self._log(f"Dropping datetime columns for non-time-series task ({task_type}): {list(cols_to_drop)}")
+                            self.context[dataset_name] = df.drop(columns=cols_to_drop)
+
             model.fit(self.context['X_train'], self.context['y_train'])
             
             # Evaluate
@@ -267,6 +282,15 @@ class DataPreprocessor:
             model = self.context['model']
         else:
             model = mlflow.sklearn.load_model(model_uri)
+            
+        # Fix for non-time-series models: Drop datetime columns from prediction data
+        task_type = self.context.get('task_type')
+        if task_type and task_type != 'time_series':
+             if isinstance(data_to_predict, pd.DataFrame):
+                 cols_to_drop = data_to_predict.select_dtypes(include=['datetime', 'datetimetz', '<M8[ns]']).columns
+                 if len(cols_to_drop) > 0:
+                     self._log(f"Dropping datetime columns for prediction ({task_type}): {list(cols_to_drop)}")
+                     data_to_predict = data_to_predict.drop(columns=cols_to_drop)
             
         predictions = model.predict(data_to_predict)
         
