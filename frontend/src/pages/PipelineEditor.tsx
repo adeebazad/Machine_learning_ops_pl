@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Save, Trash2, ArrowUp, ArrowDown, Play } from 'lucide-react';
-import { pipelineService } from '../services/api';
+import { pipelineService, fileService } from '../services/api';
 
 interface PipelineStep {
     id?: number;
@@ -23,6 +23,11 @@ const PipelineEditor: React.FC = () => {
     const [stepLoading, setStepLoading] = useState<{ [key: number]: boolean }>({});
     const [stepResults, setStepResults] = useState<{ [key: number]: any }>({});
     const [stepError, setStepError] = useState<{ [key: number]: string }>({});
+
+    // Script editing state
+    const [editingScriptIndex, setEditingScriptIndex] = useState<number | null>(null);
+    const [scriptContent, setScriptContent] = useState('');
+    const [scriptLoading, setScriptLoading] = useState(false);
 
     useEffect(() => {
         if (id) {
@@ -233,6 +238,53 @@ const PipelineEditor: React.FC = () => {
         }
     };
 
+    const handleLoadScript = async (index: number) => {
+        const path = steps[index].config_json.script_path;
+        if (!path) {
+            alert("Please specify a script path first");
+            return;
+        }
+
+        setScriptLoading(true);
+        try {
+            const res: any = await fileService.read(path);
+            setScriptContent(res.data.content);
+            setEditingScriptIndex(index);
+        } catch (err) {
+            console.error("Failed to load script:", err);
+            // If file doesn't exist, we can start with a template or empty
+            setScriptContent("# Write your preprocessing code here\n# import pandas as pd\n\n# def preprocess(df):\n#     return df\n");
+            setEditingScriptIndex(index);
+        } finally {
+            setScriptLoading(false);
+        }
+    };
+
+    const handleSaveScript = async (index: number) => {
+        const path = steps[index].config_json.script_path;
+        if (!path) {
+            alert("Please specify a script path first");
+            return;
+        }
+
+        setScriptLoading(true);
+        try {
+            await fileService.save(path, scriptContent);
+            alert("Script saved successfully!");
+            setEditingScriptIndex(null);
+        } catch (err) {
+            console.error("Failed to save script:", err);
+            alert("Failed to save script");
+        } finally {
+            setScriptLoading(false);
+        }
+    };
+
+    const handleCancelEdit = () => {
+        setEditingScriptIndex(null);
+        setScriptContent('');
+    };
+
     return (
         <div className="p-8 max-w-5xl mx-auto pb-24">
             <div className="flex justify-between items-center mb-8">
@@ -402,15 +454,55 @@ const PipelineEditor: React.FC = () => {
 
                             {step.step_type === 'preprocessing' && (
                                 <>
-                                    <div>
+                                    <div className="col-span-2">
                                         <label className="block text-gray-400 mb-1">Script Path</label>
-                                        <input
-                                            type="text"
-                                            value={step.config_json.script_path}
-                                            onChange={(e) => updateStepConfig(index, 'script_path', e.target.value)}
-                                            className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
-                                        />
+                                        <div className="flex gap-2">
+                                            <input
+                                                type="text"
+                                                value={step.config_json.script_path}
+                                                onChange={(e) => updateStepConfig(index, 'script_path', e.target.value)}
+                                                className="flex-1 bg-gray-900 border border-gray-700 rounded p-2 text-white"
+                                                placeholder="src/features/your_script.py"
+                                            />
+                                            <button
+                                                onClick={() => handleLoadScript(index)}
+                                                className="px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded text-sm transition-colors"
+                                            >
+                                                Edit Script
+                                            </button>
+                                        </div>
                                     </div>
+
+                                    {editingScriptIndex === index && (
+                                        <div className="col-span-2 mt-2 p-4 bg-gray-900 rounded border border-gray-700">
+                                            <div className="flex justify-between items-center mb-2">
+                                                <span className="text-sm font-bold text-gray-300">Editing: {step.config_json.script_path}</span>
+                                                <div className="flex gap-2">
+                                                    <button
+                                                        onClick={handleCancelEdit}
+                                                        className="px-3 py-1 text-xs bg-gray-700 hover:bg-gray-600 text-white rounded"
+                                                    >
+                                                        Cancel
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleSaveScript(index)}
+                                                        disabled={scriptLoading}
+                                                        className="px-3 py-1 text-xs bg-green-600 hover:bg-green-700 text-white rounded flex items-center gap-1"
+                                                    >
+                                                        <Save size={12} />
+                                                        {scriptLoading ? 'Saving...' : 'Save File'}
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <textarea
+                                                value={scriptContent}
+                                                onChange={(e) => setScriptContent(e.target.value)}
+                                                className="w-full h-64 bg-black text-gray-300 font-mono text-sm p-4 rounded border border-gray-700 focus:border-purple-500 outline-none"
+                                                spellCheck={false}
+                                            />
+                                        </div>
+                                    )}
+
                                     <div>
                                         <label className="block text-gray-400 mb-1">Target Column (Optional)</label>
                                         <input
