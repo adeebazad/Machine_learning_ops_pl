@@ -875,3 +875,11 @@ Feature names seen at fit time, yet now missing:
 2025-12-01 16:53:21,077 - src.scheduler - INFO - Pipeline Scheduler started.
 2025-12-01 16:53:22,119 - src.scheduler - INFO - Pipeline Scheduler stopped.
 2025-12-01 16:54:44,990 - src.scheduler - INFO - Pipeline Scheduler started.
+2025-12-03 12:01:27,592 - src.scheduler - INFO - Pipeline Scheduler started.
+2025-12-03 12:02:38,934 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-03 12:02:50,990 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-12-03 12:03:25,122 - src.data.mysql_connector - INFO - Successfully connected to MySQL database.
+2025-12-03 12:03:28,410 - src.data.mysql_connector - INFO - Fetched 100 rows from MySQL.
+2025-12-03 12:03:28,422 - src.data.mysql_connector - INFO - MySQL connection closed.
+2025-12-03 12:03:28,426 - src.pipeline_engine - INFO - Extracted 100 rows.
+2025-12-03 12:03:58,993 - src.scheduler - INFO - Pipeline Scheduler stopped.

@@ -68,7 +68,17 @@ const PipelineEditor: React.FC = () => {
     const getDefaultConfig = (type: string) => {
         switch (type) {
             case 'extraction':
-                return { database: { type: 'mysql', host: 'localhost', port: 3306, user: 'root', password: 'root', database: 'alter_managment' }, query: 'SELECT * FROM table' };
+                return {
+                    database: {
+                        type: 'mysql',
+                        host: 'localhost',
+                        port: 3306,
+                        user: 'root',
+                        password: '',
+                        database: 'mlops'
+                    },
+                    query: 'SELECT * FROM my_table LIMIT 100'
+                };
             case 'preprocessing':
                 return { script_path: 'src/features/preprocess.py', target_col: 'Target' };
             case 'training':
@@ -79,7 +89,17 @@ const PipelineEditor: React.FC = () => {
             case 'prediction':
                 return { model_uri: '' }; // Empty means use model from previous step
             case 'save':
-                return { database: { type: 'mysql', host: 'localhost', port: 3306, user: 'root', password: 'root', database: 'alter_managment' }, table_name: 'predictions' };
+                return {
+                    database: {
+                        type: 'mysql',
+                        host: 'localhost',
+                        port: 3306,
+                        user: 'root',
+                        password: '',
+                        database: 'mlops'
+                    },
+                    table_name: 'predictions'
+                };
             default:
                 return {};
         }
@@ -307,6 +327,68 @@ const PipelineEditor: React.FC = () => {
                         <div className="grid grid-cols-2 gap-4 text-sm">
                             {step.step_type === 'extraction' && (
                                 <>
+                                    <div className="col-span-2 grid grid-cols-3 gap-4 mb-2 p-3 bg-gray-900/50 rounded border border-gray-700">
+                                        <div className="col-span-3 text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Database Configuration</div>
+
+                                        <div>
+                                            <label className="block text-gray-400 mb-1">Type</label>
+                                            <select
+                                                value={step.config_json.database?.type}
+                                                onChange={(e) => updateNestedConfig(index, 'database', 'type', e.target.value)}
+                                                className="w-full bg-gray-800 border border-gray-600 rounded p-2 text-white"
+                                            >
+                                                <option value="mysql">MySQL</option>
+                                                <option value="postgres">PostgreSQL</option>
+                                                <option value="cratedb">CrateDB</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-gray-400 mb-1">Host</label>
+                                            <input
+                                                type="text"
+                                                value={step.config_json.database?.host}
+                                                onChange={(e) => updateNestedConfig(index, 'database', 'host', e.target.value)}
+                                                className="w-full bg-gray-800 border border-gray-600 rounded p-2 text-white"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-gray-400 mb-1">Port</label>
+                                            <input
+                                                type="number"
+                                                value={step.config_json.database?.port}
+                                                onChange={(e) => updateNestedConfig(index, 'database', 'port', parseInt(e.target.value))}
+                                                className="w-full bg-gray-800 border border-gray-600 rounded p-2 text-white"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-gray-400 mb-1">User</label>
+                                            <input
+                                                type="text"
+                                                value={step.config_json.database?.user}
+                                                onChange={(e) => updateNestedConfig(index, 'database', 'user', e.target.value)}
+                                                className="w-full bg-gray-800 border border-gray-600 rounded p-2 text-white"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-gray-400 mb-1">Password</label>
+                                            <input
+                                                type="password"
+                                                value={step.config_json.database?.password}
+                                                onChange={(e) => updateNestedConfig(index, 'database', 'password', e.target.value)}
+                                                className="w-full bg-gray-800 border border-gray-600 rounded p-2 text-white"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-gray-400 mb-1">DB Name / Schema</label>
+                                            <input
+                                                type="text"
+                                                value={step.config_json.database?.database || step.config_json.database?.schema}
+                                                onChange={(e) => updateNestedConfig(index, 'database', 'database', e.target.value)}
+                                                className="w-full bg-gray-800 border border-gray-600 rounded p-2 text-white"
+                                            />
+                                        </div>
+                                    </div>
+
                                     <div className="col-span-2">
                                         <label className="block text-gray-400 mb-1">SQL Query</label>
                                         <textarea
@@ -378,6 +460,68 @@ const PipelineEditor: React.FC = () => {
 
                             {step.step_type === 'save' && (
                                 <>
+                                    <div className="col-span-2 grid grid-cols-3 gap-4 mb-2 p-3 bg-gray-900/50 rounded border border-gray-700">
+                                        <div className="col-span-3 text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Database Configuration</div>
+
+                                        <div>
+                                            <label className="block text-gray-400 mb-1">Type</label>
+                                            <select
+                                                value={step.config_json.database?.type}
+                                                onChange={(e) => updateNestedConfig(index, 'database', 'type', e.target.value)}
+                                                className="w-full bg-gray-800 border border-gray-600 rounded p-2 text-white"
+                                            >
+                                                <option value="mysql">MySQL</option>
+                                                <option value="postgres">PostgreSQL</option>
+                                                <option value="cratedb">CrateDB</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-gray-400 mb-1">Host</label>
+                                            <input
+                                                type="text"
+                                                value={step.config_json.database?.host}
+                                                onChange={(e) => updateNestedConfig(index, 'database', 'host', e.target.value)}
+                                                className="w-full bg-gray-800 border border-gray-600 rounded p-2 text-white"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-gray-400 mb-1">Port</label>
+                                            <input
+                                                type="number"
+                                                value={step.config_json.database?.port}
+                                                onChange={(e) => updateNestedConfig(index, 'database', 'port', parseInt(e.target.value))}
+                                                className="w-full bg-gray-800 border border-gray-600 rounded p-2 text-white"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-gray-400 mb-1">User</label>
+                                            <input
+                                                type="text"
+                                                value={step.config_json.database?.user}
+                                                onChange={(e) => updateNestedConfig(index, 'database', 'user', e.target.value)}
+                                                className="w-full bg-gray-800 border border-gray-600 rounded p-2 text-white"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-gray-400 mb-1">Password</label>
+                                            <input
+                                                type="password"
+                                                value={step.config_json.database?.password}
+                                                onChange={(e) => updateNestedConfig(index, 'database', 'password', e.target.value)}
+                                                className="w-full bg-gray-800 border border-gray-600 rounded p-2 text-white"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-gray-400 mb-1">DB Name / Schema</label>
+                                            <input
+                                                type="text"
+                                                value={step.config_json.database?.database || step.config_json.database?.schema}
+                                                onChange={(e) => updateNestedConfig(index, 'database', 'database', e.target.value)}
+                                                className="w-full bg-gray-800 border border-gray-600 rounded p-2 text-white"
+                                            />
+                                        </div>
+                                    </div>
+
                                     <div>
                                         <label className="block text-gray-400 mb-1">Table Name</label>
                                         <input
