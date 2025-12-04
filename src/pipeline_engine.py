@@ -318,6 +318,11 @@ class DataPreprocessor:
         result_df['prediction'] = predictions
         result_df['prediction_time'] = datetime.utcnow()
         
+        if 'run_id' in self.context:
+            result_df['run_id'] = self.context['run_id']
+            
+        result_df['model_type'] = type(model).__name__
+        
         self.context['data'] = result_df
         self._log("Prediction completed.")
 
