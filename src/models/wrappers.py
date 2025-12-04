@@ -118,9 +118,9 @@ class DLWrapper:
             filters = self.params.get('filters', 32)
             # Adjust kernel size to be (k, 1) since width is 1
             k = self.params.get('kernel_size', 3)
-            if isinstance(k, tuple):
+            if isinstance(k, (list, tuple)):
                 k = k[0]
-            kernel_size = (min(k, input_dim), 1)
+            kernel_size = (min(int(k), input_dim), 1)
             
             model.add(Conv2D(filters, kernel_size, activation='relu', input_shape=(input_dim, 1, 1)))
             model.add(Flatten())
@@ -135,6 +135,10 @@ class DLWrapper:
         return model
 
     def _reshape_input(self, X):
+        # Convert DataFrame to numpy array if needed
+        if isinstance(X, pd.DataFrame):
+            X = X.values
+            
         if self.model_type == 'lstm':
             # Reshape to (samples, 1, features)
             return X.reshape((X.shape[0], 1, X.shape[1]))
