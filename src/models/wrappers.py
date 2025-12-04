@@ -158,6 +158,14 @@ class DLWrapper:
         if self.model_type in ['lstm', 'cnn']:
             X_processed = self._reshape_input(X)
 
+        # Ensure y is 1D array
+        if isinstance(y, pd.DataFrame):
+            y = y.values.ravel()
+        elif isinstance(y, pd.Series):
+            y = y.values
+        elif isinstance(y, np.ndarray) and len(y.shape) > 1:
+            y = y.ravel()
+
         epochs = self.params.get('epochs', 10)
         batch_size = self.params.get('batch_size', 32)
         
