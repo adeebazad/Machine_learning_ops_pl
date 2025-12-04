@@ -3,50 +3,37 @@
 # Exit on error
 set -e
 
-echo "Starting deployment on Ubuntu..."
+echo "🚀 Starting Deployment..."
 
-# 1. Check for Docker
-if ! command -v docker &> /dev/null; then
-    echo "Docker not found. Installing..."
-    sudo apt-get update
-    sudo apt-get install -y ca-certificates curl gnupg
-    sudo install -m 0755 -d /etc/apt/keyrings
-    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-    sudo chmod a+r /etc/apt/keyrings/docker.gpg
-
-    echo \
-      "deb [arch=\"$(dpkg --print-architecture)\" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
-      $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-      sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-    
-    sudo apt-get update
-    sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-    
-    # Add user to docker group
-    sudo usermod -aG docker $USER
-    echo "Docker installed. Please log out and back in for group changes to take effect, or run 'newgrp docker'."
-else
-    echo "Docker is already installed."
+# 1. Build Docker Image
+echo "📦 Building Docker image..."
+# Use minikube docker env if available, otherwise standard build
+if command -v minikube &> /dev/null; then
+    echo "   Using Minikube Docker environment..."
+    eval $(minikube -p minikube docker-env)
 fi
 
-# 2. Check for Docker Compose
-if ! command -v docker-compose &> /dev/null; then
-    echo "Checking for docker compose plugin..."
-    if docker compose version &> /dev/null; then
-        echo "Docker Compose plugin found."
-    else
-        echo "Installing Docker Compose..."
-        sudo apt-get install -y docker-compose-plugin
-    fi
+docker build -t my-mlops-app:latest .
+
+# 2. Apply Kubernetes Manifests
+echo "☸️  Applying Kubernetes manifests..."
+
+# Apply Secrets and ConfigMaps first
+kubectl apply -f k8s/secret.yaml
+kubectl apply -f k8s/configmap.yaml
+
+# Apply Deployment and Service
+kubectl apply -f k8s/deployment.yaml
+kubectl apply -f k8s/service.yaml
+
+# Apply Ingress (if applicable)
+if [ -f k8s/ingress.yaml ]; then
+    kubectl apply -f k8s/ingress.yaml
 fi
 
-# 3. Deploy
-echo "Building and starting containers..."
-# Use 'docker compose' (v2) instead of 'docker-compose' (v1) if available
-if docker compose version &> /dev/null; then
-    docker compose up -d --build
-else
-    docker-compose up -d --build
-fi
+# 3. Status Check
+echo "⏳ Waiting for rollout to complete..."
+kubectl rollout status deployment/mlops-backend
 
-echo "Deployment complete! Access the application at http://localhost (or your server IP)."
+echo "✅ Deployment completed successfully!"
+echo "   Service URL (Minikube): $(minikube service mlops-backend --url 2>/dev/null || echo 'Check kubectl get svc')"
