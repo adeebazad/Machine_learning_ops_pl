@@ -107,19 +107,25 @@ class DLWrapper:
             
         elif self.model_type == 'lstm':
             # Expects 3D input (samples, timesteps, features)
+            # We reshape tabular data to (samples, 1, features)
             units = self.params.get('units', 50)
-            model.add(LSTM(units, input_shape=self.input_shape))
+            model.add(LSTM(units, input_shape=(1, input_dim)))
             model.add(Dense(1))
             
         elif self.model_type == 'cnn':
-            # Expects image input
+            # Expects 4D input (samples, height, width, channels)
+            # We reshape tabular data to (samples, features, 1, 1)
             filters = self.params.get('filters', 32)
-            kernel_size = self.params.get('kernel_size', (3, 3))
-            model.add(Conv2D(filters, kernel_size, activation='relu', input_shape=self.input_shape))
-            model.add(MaxPooling2D((2, 2)))
+            # Adjust kernel size to be (k, 1) since width is 1
+            k = self.params.get('kernel_size', 3)
+            if isinstance(k, tuple):
+                k = k[0]
+            kernel_size = (min(k, input_dim), 1)
+            
+            model.add(Conv2D(filters, kernel_size, activation='relu', input_shape=(input_dim, 1, 1)))
             model.add(Flatten())
             model.add(Dense(64, activation='relu'))
-            model.add(Dense(10, activation='softmax')) # Example 10 classes
+            model.add(Dense(1)) # Changed to 1 for regression/binary generic
 
         optimizer = self.params.get('optimizer', 'adam')
         loss = self.params.get('loss', 'mse')
@@ -128,25 +134,38 @@ class DLWrapper:
         model.compile(optimizer=optimizer, loss=loss, metrics=metrics)
         return model
 
+    def _reshape_input(self, X):
+        if self.model_type == 'lstm':
+            # Reshape to (samples, 1, features)
+            return X.reshape((X.shape[0], 1, X.shape[1]))
+        elif self.model_type == 'cnn':
+            # Reshape to (samples, features, 1, 1)
+            return X.reshape((X.shape[0], X.shape[1], 1, 1))
+        return X
+
     def fit(self, X, y):
-        # Auto-detect input shape if not provided for MLP
-        if self.input_shape is None and len(X.shape) > 1:
-             input_dim = X.shape[1]
+        # Auto-detect input shape
+        input_dim = X.shape[1] if len(X.shape) > 1 else 1
+        
+        if self.model is None:
              self.model = self._build_model(input_dim)
-        elif self.model is None:
-             # For LSTM/CNN, input_shape must be passed in init or inferred differently
-             # Fallback to simple MLP inference
-             input_dim = X.shape[1] if len(X.shape) > 1 else 1
-             self.model = self._build_model(input_dim)
+
+        X_processed = X
+        if self.model_type in ['lstm', 'cnn']:
+            X_processed = self._reshape_input(X)
 
         epochs = self.params.get('epochs', 10)
         batch_size = self.params.get('batch_size', 32)
         
-        self.history = self.model.fit(X, y, epochs=epochs, batch_size=batch_size, verbose=0)
+        self.history = self.model.fit(X_processed, y, epochs=epochs, batch_size=batch_size, verbose=0)
         return self
 
     def predict(self, X):
-        return self.model.predict(X)
+        X_processed = X
+        if self.model_type in ['lstm', 'cnn']:
+            X_processed = self._reshape_input(X)
+            
+        return self.model.predict(X_processed)
 
 class ArimaWrapper:
     def __init__(self, order=(1, 1, 1), seasonal_order=None, **params):
