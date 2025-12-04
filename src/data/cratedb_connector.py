@@ -54,7 +54,7 @@ class CrateDBConnector(DatabaseConnector):
         try:
             # Sanitize column names
             data_to_save = data.copy()
-            data_to_save.columns = [str(col).replace(' ', '_').replace('[', '_').replace(']', '_').replace('%', 'P') for col in data_to_save.columns]
+            data_to_save.columns = [str(col).replace(' ', '_').replace('[', '_').replace(']', '_').replace('%', 'P').replace('.', '_') for col in data_to_save.columns]
             
             # CrateDB supports standard SQL insert
             data_to_save.to_sql(name=table_name, con=self.engine, if_exists=if_exists, index=False, chunksize=1000)
