@@ -60,8 +60,36 @@ class TrainingStep(PipelineStepHandler):
             # Log Model & Preprocessor
             mlflow.sklearn.log_model(model, "model")
             if 'preprocessor' in context:
-                context['preprocessor'].save_preprocessors('models/preprocessors')
-                mlflow.log_artifacts('models/preprocessors', artifact_path="preprocessors")
+                preprocessor = context['preprocessor']
+                
+                # Debugging info
+                logger.info(f"Preprocessor object: {preprocessor}")
+                logger.info(f"Preprocessor type: {type(preprocessor)}")
+                
+                # Handle case where preprocessor is a class (issue #210)
+                if isinstance(preprocessor, type):
+                    logger.error("Preprocessor in context is a Class, not an instance! Attempting to instantiate (Warning: Scaler will be empty).")
+                    try:
+                        preprocessor = preprocessor()
+                        context['preprocessor'] = preprocessor # Update context
+                    except Exception as e:
+                        logger.error(f"Failed to instantiate preprocessor class: {e}")
+                        raise ValueError(f"Preprocessor is a class and cannot be instantiated: {e}")
+
+                # Verify method exists
+                if not hasattr(preprocessor, 'save_preprocessors'):
+                     logger.error("Preprocessor object missing 'save_preprocessors' method.")
+                     raise ValueError(f"Preprocessor object {type(preprocessor)} missing 'save_preprocessors' method.")
+
+                try:
+                    preprocessor.save_preprocessors('models/preprocessors')
+                    mlflow.log_artifacts('models/preprocessors', artifact_path="preprocessors")
+                except TypeError as e:
+                    logger.error(f"Failed to save preprocessors: {e}")
+                    import inspect
+                    sig = inspect.signature(preprocessor.save_preprocessors)
+                    logger.error(f"Expected signature: {sig}")
+                    raise e
                 
             context['model'] = model
             context['run_id'] = mlflow.active_run().info.run_id
