@@ -64,6 +64,9 @@ class PreprocessingStep(PipelineStepHandler):
         df = context['data']
         script_path = config.get('script_path', 'src/features/preprocess.py')
         target_col = config.get('target_col')
+        print(f"DEBUG: target_col in PreprocessingStep: {target_col}") # Temporary debug
+        if target_col:
+            context['target_col'] = target_col
         
         # Auto-create script if it doesn't exist
         if not os.path.exists(script_path):

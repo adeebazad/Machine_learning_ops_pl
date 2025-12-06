@@ -82,7 +82,10 @@ class PredictionStep(PipelineStepHandler):
                 else:
                     result_df = pd.DataFrame(data_to_predict)
         
-        result_df['prediction'] = predictions
+        target_col = context.get('target_col', '')
+        pred_col_name = f"prediction_{target_col}" if target_col else "prediction"
+        
+        result_df[pred_col_name] = predictions
         result_df['prediction_time'] = datetime.utcnow()
         
         if 'run_id' in context:
@@ -90,10 +93,10 @@ class PredictionStep(PipelineStepHandler):
             
         result_df['model_type'] = type(model).__name__
         
-        # Reorder columns to put 'prediction' first if it exists
-        if 'prediction' in result_df.columns:
-            cols = ['prediction'] + [c for c in result_df.columns if c != 'prediction']
+        # Reorder columns to put prediction column first
+        if pred_col_name in result_df.columns:
+            cols = [pred_col_name] + [c for c in result_df.columns if c != pred_col_name]
             result_df = result_df[cols]
         
         context['data'] = result_df
-        logger.info("Prediction completed.")
+        logger.info(f"Prediction completed. Output column: {pred_col_name}")
