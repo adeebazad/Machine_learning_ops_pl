@@ -39,9 +39,10 @@ class TrainingStep(PipelineStepHandler):
                     if dataset_name in context:
                         df = context[dataset_name]
                         # Drop datetime columns which cause issues for standard sklearn models
-                        cols_to_drop = df.select_dtypes(include=['datetime', 'datetimetz', '<M8[ns]']).columns
+                        # Also drop object columns (strings, lists) as they cannot be processed by numeric models without encoding
+                        cols_to_drop = df.select_dtypes(include=['datetime', 'datetimetz', '<M8[ns]', 'object']).columns
                         if len(cols_to_drop) > 0:
-                            logger.info(f"Dropping datetime columns for non-time-series task ({task_type}): {list(cols_to_drop)}")
+                            logger.info(f"Dropping non-numeric columns for task ({task_type}): {list(cols_to_drop)}")
                             context[dataset_name] = df.drop(columns=cols_to_drop)
 
             model.fit(context['X_train'], context['y_train'])
