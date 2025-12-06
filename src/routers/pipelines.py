@@ -61,7 +61,6 @@ def create_pipeline(pipeline: PipelineCreate, db: Session = Depends(get_db)):
             name=pipeline.name, 
             description=pipeline.description,
             schedule_enabled=sched_enabled,
-            schedule_enabled=sched_enabled,
             schedule_time=pipeline.schedule_time,
             schedule_interval=pipeline.schedule_interval
         )
@@ -112,7 +111,6 @@ def get_pipeline(pipeline_id: int, db: Session = Depends(get_db)):
         "name": pipeline.name,
         "description": pipeline.description,
         "schedule_enabled": bool(pipeline.schedule_enabled),
-        "schedule_enabled": bool(pipeline.schedule_enabled),
         "schedule_time": pipeline.schedule_time,
         "schedule_interval": pipeline.schedule_interval,
         "last_run": pipeline.last_run,
@@ -140,7 +138,6 @@ def update_pipeline(pipeline_id: int, pipeline_update: PipelineCreate, db: Sessi
         # Update basic fields
         db_pipeline.name = pipeline_update.name
         db_pipeline.description = pipeline_update.description
-        db_pipeline.schedule_enabled = 1 if pipeline_update.schedule_enabled else 0
         db_pipeline.schedule_enabled = 1 if pipeline_update.schedule_enabled else 0
         db_pipeline.schedule_time = pipeline_update.schedule_time
         db_pipeline.schedule_interval = pipeline_update.schedule_interval
