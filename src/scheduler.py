@@ -60,7 +60,7 @@ class PipelineScheduler:
                     else:
                         # Check if enough time has passed
                         elapsed = (now - pipeline.last_run).total_seconds()
-                        if elapsed >= pipeline.schedule_interval * 3600:
+                        if elapsed >= pipeline.schedule_interval:
                             should_run = True
                 
                 elif pipeline.schedule_time:

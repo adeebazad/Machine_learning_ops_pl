@@ -92,6 +92,24 @@ const PipelineEditor: React.FC = () => {
         }
     };
 
+    // Helper functions for HH:MM:SS conversion
+    const secondsToHms = (d: number) => {
+        d = Number(d);
+        const h = Math.floor(d / 3600);
+        const m = Math.floor((d % 3600) / 60);
+        const s = Math.floor(d % 3600 % 60);
+
+        const hDisplay = h < 10 ? "0" + h : h;
+        const mDisplay = m < 10 ? "0" + m : m;
+        const sDisplay = s < 10 ? "0" + s : s;
+        return `${hDisplay}:${mDisplay}:${sDisplay}`;
+    };
+
+    const hmsToSeconds = (hms: string) => {
+        const [h, m, s] = hms.split(':').map(Number);
+        return (h * 3600) + (m * 60) + (s || 0);
+    };
+
     const handleSave = async () => {
         if (!name) {
             alert('Please enter a pipeline name');
@@ -517,13 +535,14 @@ const PipelineEditor: React.FC = () => {
                         <div className="flex items-center gap-2 ml-6">
                             <label className="text-sm text-gray-400">Run every:</label>
                             <input
-                                type="number"
-                                min="1"
-                                value={scheduleInterval}
-                                onChange={(e) => setScheduleInterval(parseInt(e.target.value) || 0)}
-                                className="bg-gray-900 border border-gray-700 rounded px-3 py-1 text-white w-20 text-center"
+                                type="text"
+                                key={scheduleInterval} // Force re-render when loaded
+                                defaultValue={secondsToHms(scheduleInterval)}
+                                onBlur={(e) => setScheduleInterval(hmsToSeconds(e.target.value))}
+                                className="bg-gray-900 border border-gray-700 rounded px-3 py-1 text-white w-28 text-center"
+                                placeholder="HH:MM:SS"
                             />
-                            <span className="text-sm text-gray-400">hours</span>
+                            <span className="text-sm text-gray-400">(HH:MM:SS)</span>
                         </div>
                     )}
                 </div>
