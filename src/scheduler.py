@@ -93,8 +93,12 @@ class PipelineScheduler:
         
         # Update last_run
         pipeline.last_run = datetime.datetime.utcnow()
+        db.add(pipeline) # Explicitly add to session to ensure update is tracked
         
         db.commit()
+        logger.info(f"Successfully triggered pipeline {pipeline.id}. Updated last_run to {pipeline.last_run}")
+        
+        db.refresh(run_record)
         db.refresh(run_record)
         
         # Run task (in a separate thread to not block scheduler)
