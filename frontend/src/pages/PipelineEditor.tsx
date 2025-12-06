@@ -11,6 +11,21 @@ interface PipelineStep {
     config_json: any;
 }
 
+const AVAILABLE_MODELS = {
+    classification: [
+        "RandomForestClassifier", "LogisticRegression", "DecisionTreeClassifier",
+        "KNeighborsClassifier", "GradientBoostingClassifier", "SVC", "MLPClassifier",
+        "NaiveBayes", "ExtraTreesClassifier", "XGBClassifier", "LGBMClassifier", "CatBoostClassifier"
+    ],
+    regression: [
+        "RandomForestRegressor", "LinearRegression", "Ridge", "Lasso", "ElasticNet",
+        "DecisionTreeRegressor", "KNeighborsRegressor", "SVR", "MLPRegressor",
+        "XGBRegressor", "LGBMRegressor", "CatBoostRegressor"
+    ],
+    time_series: ["Prophet", "ARIMA", "SARIMA"],
+    clustering: ["KMeans", "DBSCAN", "GaussianMixture"],
+};
+
 const PipelineEditor: React.FC = () => {
     const navigate = useNavigate();
     const { id } = useParams();
@@ -635,22 +650,43 @@ const PipelineEditor: React.FC = () => {
                                             <label className="block text-xs text-gray-500 mb-1">Task Type</label>
                                             <select
                                                 value={step.config_json.model?.task_type || 'classification'}
-                                                onChange={(e) => updateNestedConfig(index, 'model', 'task_type', e.target.value)}
+                                                onChange={(e) => {
+                                                    const newTask = e.target.value;
+                                                    // Reset model when task changes
+                                                    const firstModel = AVAILABLE_MODELS[newTask as keyof typeof AVAILABLE_MODELS]?.[0] || '';
+                                                    const newSteps = [...steps];
+                                                    const currentConfig = newSteps[index].config_json;
+                                                    newSteps[index].config_json = {
+                                                        ...currentConfig,
+                                                        model: {
+                                                            ...currentConfig.model,
+                                                            task_type: newTask,
+                                                            name: firstModel
+                                                        }
+                                                    };
+                                                    setSteps(newSteps);
+                                                }}
                                                 className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
                                             >
                                                 <option value="classification">Classification</option>
                                                 <option value="regression">Regression</option>
                                                 <option value="time_series">Time Series</option>
+                                                <option value="clustering">Clustering</option>
                                             </select>
                                         </div>
                                         <div>
                                             <label className="block text-xs text-gray-500 mb-1">Model Name</label>
-                                            <input
-                                                type="text"
+                                            <select
                                                 value={step.config_json.model?.name || ''}
                                                 onChange={(e) => updateNestedConfig(index, 'model', 'name', e.target.value)}
                                                 className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
-                                            />
+                                            >
+                                                {AVAILABLE_MODELS[step.config_json.model?.task_type as keyof typeof AVAILABLE_MODELS]?.map((model) => (
+                                                    <option key={model} value={model}>
+                                                        {model}
+                                                    </option>
+                                                ))}
+                                            </select>
                                         </div>
                                     </div>
                                     <div>
