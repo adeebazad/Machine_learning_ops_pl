@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 from typing import List, Dict, Any, Optional
 from pydantic import BaseModel
 from datetime import datetime
@@ -80,6 +81,9 @@ def create_pipeline(pipeline: PipelineCreate, db: Session = Depends(get_db)):
         
         db.commit()
         return db_pipeline
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=400, detail="A pipeline with this name already exists.")
     except Exception as e:
         db.rollback()
         print(f"Error creating pipeline: {e}") # Simple print for now, ideally use logger
