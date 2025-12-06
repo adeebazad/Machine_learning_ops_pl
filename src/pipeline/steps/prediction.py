@@ -86,7 +86,8 @@ class PredictionStep(PipelineStepHandler):
         pred_col_name = f"prediction_{target_col}" if target_col else "prediction"
         
         result_df[pred_col_name] = predictions
-        result_df['prediction_time'] = datetime.utcnow()
+        from datetime import timezone
+        result_df['prediction_time'] = datetime.now(timezone.utc)
         
         if 'run_id' in context:
             result_df['run_id'] = context['run_id']

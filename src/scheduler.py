@@ -56,10 +56,12 @@ class PipelineScheduler:
                     # Interval Based Scheduling
                     should_run = False
                     if not pipeline.last_run:
+                        logger.info(f"Pipeline {pipeline.id} has no last_run. Scheduling immediately.")
                         should_run = True
                     else:
                         # Check if enough time has passed
                         elapsed = (now - pipeline.last_run).total_seconds()
+                        logger.debug(f"Pipeline {pipeline.id}: elapsed={elapsed}, interval={pipeline.schedule_interval}")
                         if elapsed >= pipeline.schedule_interval:
                             should_run = True
                 
