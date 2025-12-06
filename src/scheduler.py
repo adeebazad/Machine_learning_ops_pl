@@ -35,8 +35,8 @@ class PipelineScheduler:
             except Exception as e:
                 logger.error(f"Error in scheduler loop: {e}")
             
-            # Sleep for 60 seconds
-            for _ in range(60):
+            # Sleep for 5 seconds
+            for _ in range(5):
                 if not self.running:
                     break
                 time.sleep(1)
