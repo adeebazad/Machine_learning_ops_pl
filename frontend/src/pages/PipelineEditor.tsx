@@ -24,6 +24,7 @@ const AVAILABLE_MODELS = {
     ],
     time_series: ["Prophet", "ARIMA", "SARIMA"],
     clustering: ["KMeans", "DBSCAN", "GaussianMixture"],
+    deep_learning: ["DNN (MLP)", "LSTM", "CNN"]
 };
 
 const PipelineEditor: React.FC = () => {
@@ -182,6 +183,23 @@ const PipelineEditor: React.FC = () => {
             config_json: getDefaultConfig(type)
         };
         setSteps([...steps, newStep]);
+    };
+
+    const getDefaultParams = (modelName: string) => {
+        if (modelName.includes('RandomForest') || modelName.includes('ExtraTrees') || modelName.includes('Bagging')) {
+            return { n_estimators: 100 };
+        }
+        if (modelName.includes('XGB') || modelName.includes('LGBM') || modelName.includes('CatBoost')) {
+            return { n_estimators: 100, learning_rate: 0.1 };
+        }
+        if (modelName.includes('KMeans')) {
+            return { n_clusters: 3 };
+        }
+        if (['DNN (MLP)', 'LSTM', 'CNN'].includes(modelName)) {
+            return { epochs: 10, batch_size: 32, learning_rate: 0.001 };
+        }
+        // Most other models (LinearRegression, ARIMA, etc.) assume default parameters
+        return {};
     };
 
     const getDefaultConfig = (type: string) => {
@@ -661,7 +679,8 @@ const PipelineEditor: React.FC = () => {
                                                         model: {
                                                             ...currentConfig.model,
                                                             task_type: newTask,
-                                                            name: firstModel
+                                                            name: firstModel,
+                                                            params: getDefaultParams(firstModel)
                                                         }
                                                     };
                                                     setSteps(newSteps);
@@ -672,13 +691,27 @@ const PipelineEditor: React.FC = () => {
                                                 <option value="regression">Regression</option>
                                                 <option value="time_series">Time Series</option>
                                                 <option value="clustering">Clustering</option>
+                                                <option value="deep_learning">Deep Learning</option>
                                             </select>
                                         </div>
                                         <div>
                                             <label className="block text-xs text-gray-500 mb-1">Model Name</label>
                                             <select
                                                 value={step.config_json.model?.name || ''}
-                                                onChange={(e) => updateNestedConfig(index, 'model', 'name', e.target.value)}
+                                                onChange={(e) => {
+                                                    const newModel = e.target.value;
+                                                    const newSteps = [...steps];
+                                                    const currentConfig = newSteps[index].config_json;
+                                                    newSteps[index].config_json = {
+                                                        ...currentConfig,
+                                                        model: {
+                                                            ...currentConfig.model,
+                                                            name: newModel,
+                                                            params: getDefaultParams(newModel)
+                                                        }
+                                                    };
+                                                    setSteps(newSteps);
+                                                }}
                                                 className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
                                             >
                                                 {AVAILABLE_MODELS[step.config_json.model?.task_type as keyof typeof AVAILABLE_MODELS]?.map((model) => (
