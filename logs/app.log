@@ -883,3 +883,12 @@ Feature names seen at fit time, yet now missing:
 2025-12-03 12:03:28,422 - src.data.mysql_connector - INFO - MySQL connection closed.
 2025-12-03 12:03:28,426 - src.pipeline_engine - INFO - Extracted 100 rows.
 2025-12-03 12:03:58,993 - src.scheduler - INFO - Pipeline Scheduler stopped.
+2025-12-06 21:58:44,874 - src.pipeline_engine - ERROR - PipelineRun 999 not found
+2025-12-06 21:58:46,156 - src.pipeline_engine - INFO - Executing step: Step 1 (extraction)
+2025-12-06 21:58:46,159 - src.pipeline_engine - INFO - Executing step: Step 1 (extraction)
+2025-12-06 21:58:46,160 - src.pipeline_engine - INFO - Pipeline execution completed successfully.
+2025-12-06 21:59:21,204 - src.pipeline_engine - ERROR - PipelineRun 999 not found
+2025-12-06 21:59:21,246 - src.pipeline_engine - INFO - Executing step: Step 1 (extraction)
+2025-12-06 21:59:21,249 - src.pipeline_engine - INFO - Executing step: Step 1 (extraction)
+2025-12-06 21:59:21,250 - src.pipeline_engine - INFO - Pipeline execution completed successfully.
+2025-12-06 22:06:55,754 - src.scheduler - INFO - Pipeline Scheduler started.

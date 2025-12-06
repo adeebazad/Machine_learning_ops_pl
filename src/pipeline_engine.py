@@ -12,6 +12,11 @@ from src.utils.dynamic_loader import load_class_from_file
 from src.models.model_factory import ModelFactory
 from src.utils.logger import setup_logger
 from sklearn.metrics import accuracy_score, mean_squared_error, r2_score
+from src.pipeline.steps.extraction import ExtractionStep
+from src.pipeline.steps.preprocessing import PreprocessingStep
+from src.pipeline.steps.training import TrainingStep
+from src.pipeline.steps.prediction import PredictionStep
+from src.pipeline.steps.save import SaveStep
 
 logger = setup_logger(__name__)
 
@@ -70,277 +75,24 @@ class PipelineEngine:
 
     def _execute_step(self, step: PipelineStep):
         config = step.config_json
-        
+        handler = None
+
         if step.step_type == "extraction":
-            self._step_extraction(config)
+            handler = ExtractionStep()
         elif step.step_type == "preprocessing":
-            self._step_preprocessing(config)
+            handler = PreprocessingStep()
         elif step.step_type == "training":
-            self._step_training(config)
+            handler = TrainingStep()
         elif step.step_type == "prediction":
-            self._step_prediction(config)
+            handler = PredictionStep()
         elif step.step_type == "save":
-            self._step_save(config)
+            handler = SaveStep()
         else:
             raise ValueError(f"Unknown step type: {step.step_type}")
+        
+        self._log(f"Executing step: {step.name} ({step.step_type})")
+        handler.execute(self.context, config)
 
-    def _step_extraction(self, config):
-        db_config = config.get('database')
-        query = config.get('query')
-        if not db_config or not query:
-            raise ValueError("Extraction step requires 'database' config and 'query'")
-        
-        connector = DataLoader.get_connector(db_config['type'], db_config)
-        df = connector.fetch_data(query)
-        connector.close()
-        
-        self.context['data'] = df
-        self._log(f"Extracted {len(df)} rows.")
-
-    def _step_preprocessing(self, config):
-        if 'data' not in self.context:
-            raise ValueError("No data found in context for preprocessing")
-        
-        df = self.context['data']
-        script_path = config.get('script_path', 'src/features/preprocess.py')
-        target_col = config.get('target_col')
-        
-        # Auto-create script if it doesn't exist
-        if not os.path.exists(script_path):
-            self._log(f"Preprocessing script not found at {script_path}. Creating default template.")
-            try:
-                os.makedirs(os.path.dirname(script_path), exist_ok=True)
-                with open(script_path, 'w') as f:
-                    f.write('''import pandas as pd
-from sklearn.preprocessing import StandardScaler, LabelEncoder
-from sklearn.model_selection import train_test_split
-from typing import Tuple, Any
-import joblib
-import os
-
-class DataPreprocessor:
-    def __init__(self):
-        self.scaler = StandardScaler()
-        self.label_encoder = LabelEncoder()
-
-    def preprocess_train(self, df: pd.DataFrame, target_col: str) -> Tuple[Any, Any, Any, Any]:
-        """
-        Preprocesses training data: splits into X/y, scales features, encodes target.
-        """
-        # Basic implementation: Drop target, scale numerics, encode target
-        X = df.drop(columns=[target_col])
-        y = df[target_col]
-        
-        # Select numerical columns
-        numerical_cols = X.select_dtypes(include=['number']).columns
-        
-        # Scale
-        X_scaled = X.copy()
-        X_scaled[numerical_cols] = self.scaler.fit_transform(X[numerical_cols])
-        
-        # Encode target
-        y_encoded = self.label_encoder.fit_transform(y)
-
-        return train_test_split(X_scaled, y_encoded, test_size=0.2, random_state=42)
-
-    def preprocess_inference(self, df: pd.DataFrame) -> Any:
-        """
-        Preprocesses inference data using fitted scaler.
-        """
-        numerical_cols = df.select_dtypes(include=['number']).columns
-        return self.scaler.transform(df[numerical_cols])
-
-    def save_preprocessors(self, path: str):
-        os.makedirs(path, exist_ok=True)
-        joblib.dump(self.scaler, os.path.join(path, 'scaler.joblib'))
-        joblib.dump(self.label_encoder, os.path.join(path, 'label_encoder.joblib'))
-
-    def load_preprocessors(self, path: str):
-        self.scaler = joblib.load(os.path.join(path, 'scaler.joblib'))
-        self.label_encoder = joblib.load(os.path.join(path, 'label_encoder.joblib'))
-''')
-            except Exception as e:
-                self._log(f"Failed to create default preprocessing script: {e}")
-                raise ValueError(f"Script not found and failed to create default: {e}")
-
-        DataPreprocessorClass = load_class_from_file(script_path, 'DataPreprocessor')
-        preprocessor = DataPreprocessorClass()
-        
-        if target_col:
-            # Training mode preprocessing
-            X_train, X_test, y_train, y_test = preprocessor.preprocess_train(df, target_col)
-            self.context['X_train'] = X_train
-            self.context['X_test'] = X_test
-            self.context['y_train'] = y_train
-            self.context['y_test'] = y_test
-            self.context['preprocessor'] = preprocessor
-            self._log("Preprocessing completed (Train/Test split).")
-        else:
-            # Inference mode preprocessing
-            processed_data = preprocessor.preprocess_inference(df)
-            self.context['data'] = processed_data
-            self._log("Preprocessing completed (Inference mode).")
-
-    def _step_training(self, config):
-        if 'X_train' not in self.context:
-            raise ValueError("Training data not found in context")
-            
-        mlflow_config = config.get('mlflow', {})
-        model_config = config.get('model', {})
-        
-        mlflow.set_tracking_uri(mlflow_config.get('tracking_uri', 'http://localhost:5000'))
-        mlflow.set_experiment(mlflow_config.get('experiment_name', 'Default'))
-        
-        with mlflow.start_run():
-            # Log params
-            mlflow.log_params(model_config.get('params', {}))
-            
-            # Train
-            task_type = model_config.get('task_type', 'classification')
-            model_name = model_config.get('name', 'RandomForestClassifier')
-            params = model_config.get('params', {})
-            
-            # Save task type to context for prediction step
-            self.context['task_type'] = task_type
-
-            model = ModelFactory.get_model(task_type, model_name, params)
-            
-            # Fix for switching from Time Series to other models: Drop datetime columns
-            if task_type != 'time_series':
-                for dataset_name in ['X_train', 'X_test']:
-                    if dataset_name in self.context:
-                        df = self.context[dataset_name]
-                        # Drop datetime columns which cause issues for standard sklearn models
-                        cols_to_drop = df.select_dtypes(include=['datetime', 'datetimetz', '<M8[ns]']).columns
-                        if len(cols_to_drop) > 0:
-                            self._log(f"Dropping datetime columns for non-time-series task ({task_type}): {list(cols_to_drop)}")
-                            self.context[dataset_name] = df.drop(columns=cols_to_drop)
-
-            model.fit(self.context['X_train'], self.context['y_train'])
-            
-            # Evaluate
-            predictions = model.predict(self.context['X_test'])
-            if task_type == 'classification':
-                acc = accuracy_score(self.context['y_test'], predictions)
-                mlflow.log_metric("accuracy", acc)
-                self._log(f"Model Accuracy: {acc}")
-            else:
-                mse = mean_squared_error(self.context['y_test'], predictions)
-                mlflow.log_metric("mse", mse)
-                self._log(f"Model MSE: {mse}")
-                
-            # Log Model & Preprocessor
-            mlflow.sklearn.log_model(model, "model")
-            if 'preprocessor' in self.context:
-                self.context['preprocessor'].save_preprocessors('models/preprocessors')
-                mlflow.log_artifacts('models/preprocessors', artifact_path="preprocessors")
-                
-            self.context['model'] = model
-            self.context['run_id'] = mlflow.active_run().info.run_id
-            self._log(f"Training completed. Run ID: {self.context['run_id']}")
-
-    def _step_prediction(self, config):
-        data_to_predict = None
-        used_test_set = False
-
-        # Priority 1: If X_test is available (from immediate training step), use it.
-        if 'X_test' in self.context:
-             data_to_predict = self.context['X_test']
-             used_test_set = True
-             self._log("Using X_test from training for prediction.")
-             
-        # Priority 2: Use context['data'] (but might need preprocessing)
-        elif 'data' in self.context:
-             data_to_predict = self.context['data']
-             if 'preprocessor' in self.context:
-                 self._log("Applying preprocessor to input data.")
-                 try:
-                     # Try to use preprocess_inference if available
-                     if hasattr(self.context['preprocessor'], 'preprocess_inference'):
-                        data_to_predict = self.context['preprocessor'].preprocess_inference(data_to_predict)
-                     # Fallback to transform if preprocess_inference is not there but transform is
-                     elif hasattr(self.context['preprocessor'], 'transform'):
-                        data_to_predict = self.context['preprocessor'].transform(data_to_predict)
-                 except Exception as e:
-                     self._log(f"Preprocessing failed: {str(e)}")
-                     # Continue and hope model handles raw data? Or fail?
-                     # Let's fail if preprocessing was attempted and failed
-                     raise ValueError(f"Preprocessing failed: {str(e)}")
-        
-        if data_to_predict is None:
-            raise ValueError("Data not found for prediction")
-            
-        model_uri = config.get('model_uri')
-        if not model_uri and 'run_id' in self.context:
-            model_uri = f"runs:/{self.context['run_id']}/model"
-            
-        if not model_uri:
-             raise ValueError("No model URI provided or found in context")
-             
-        # Load model
-        if 'model' in self.context:
-            model = self.context['model']
-        else:
-            model = mlflow.sklearn.load_model(model_uri)
-            
-        # Fix for non-time-series models: Drop datetime columns from prediction data
-        task_type = self.context.get('task_type')
-        if task_type and task_type != 'time_series':
-             if isinstance(data_to_predict, pd.DataFrame):
-                 cols_to_drop = data_to_predict.select_dtypes(include=['datetime', 'datetimetz', '<M8[ns]']).columns
-                 if len(cols_to_drop) > 0:
-                     self._log(f"Dropping datetime columns for prediction ({task_type}): {list(cols_to_drop)}")
-                     data_to_predict = data_to_predict.drop(columns=cols_to_drop)
-            
-        predictions = model.predict(data_to_predict)
-        
-        # Attach predictions to data
-        result_df = None
-        
-        if used_test_set:
-            # If we used X_test, it's already a DataFrame (likely scaled)
-            if isinstance(data_to_predict, pd.DataFrame):
-                result_df = data_to_predict.copy()
-            else:
-                result_df = pd.DataFrame(data_to_predict)
-        else:
-            # If we used inference mode, we want to attach predictions to the ORIGINAL data
-            # context['data'] holds the original data before preprocessing (for this step)
-            if 'data' in self.context and len(self.context['data']) == len(predictions):
-                result_df = self.context['data'].copy()
-            else:
-                # Fallback if lengths don't match or data missing
-                if isinstance(data_to_predict, pd.DataFrame):
-                    result_df = data_to_predict.copy()
-                else:
-                    result_df = pd.DataFrame(data_to_predict)
-        
-        result_df['prediction'] = predictions
-        result_df['prediction_time'] = datetime.utcnow()
-        
-        if 'run_id' in self.context:
-            result_df['run_id'] = self.context['run_id']
-            
-        result_df['model_type'] = type(model).__name__
-        
-        self.context['data'] = result_df
-        self._log("Prediction completed.")
-
-    def _step_save(self, config):
-        if 'data' not in self.context:
-             raise ValueError("No data to save")
-             
-        db_config = config.get('database')
-        table_name = config.get('table_name')
-        
-        if not db_config or not table_name:
-            raise ValueError("Save step requires 'database' config and 'table_name'")
-            
-        connector = DataLoader.get_connector(db_config['type'], db_config)
-        connector.save_data(self.context['data'], table_name)
-        connector.close()
-        
-        self._log(f"Saved {len(self.context['data'])} rows to {table_name}.")
 
 class StepExecutor:
     def __init__(self, pipeline_id: int):
