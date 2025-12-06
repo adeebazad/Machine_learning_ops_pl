@@ -793,7 +793,7 @@ const StepOutput = ({ result }: { result: any }) => {
 
     return (
         <div className="mt-4 p-3 bg-gray-800/50 rounded-lg text-sm text-gray-300">
-            {result.data}
+            {typeof result.data === 'object' ? JSON.stringify(result.data, null, 2) : String(result.data)}
         </div>
     );
 };
