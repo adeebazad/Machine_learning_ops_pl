@@ -755,22 +755,22 @@ const PipelineEditor: React.FC = () => {
 const StepOutput = ({ result }: { result: any }) => {
     if (!result) return null;
 
-    if (result.type === 'dataframe') {
-        const columns = Object.keys(result.data[0] || {});
+    if (result.type === 'dataframe' || result.type === 'table') {
+        const columns = result.columns || Object.keys(result.data[0] || {});
         return (
             <div className="mt-4 bg-gray-900 rounded-lg overflow-hidden border border-gray-700">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left text-xs text-gray-400">
                         <thead className="bg-gray-800 text-gray-200 uppercase font-bold">
                             <tr>
-                                {columns.map(col => <th key={col} className="p-2 border-b border-gray-700">{col}</th>)}
+                                {columns.map((col: string) => <th key={col} className="p-2 border-b border-gray-700">{col}</th>)}
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-800">
-                            {result.data.slice(0, 5).map((row: any, i: number) => (
+                            {result.data.slice(0, 10).map((row: any, i: number) => (
                                 <tr key={i} className="hover:bg-gray-800/50">
-                                    {columns.map(col => (
-                                        <td key={`${i}-${col}`} className="p-2 border-b border-gray-800 font-mono whitespace-nowrap">
+                                    {columns.map((col: string) => (
+                                        <td key={`${i}-${col}`} className="p-2 border-b border-gray-800 font-mono whitespace-nowrap max-w-xs truncate" title={typeof row[col] === 'object' ? JSON.stringify(row[col]) : String(row[col])}>
                                             {typeof row[col] === 'object' ? JSON.stringify(row[col]) : String(row[col])}
                                         </td>
                                     ))}
