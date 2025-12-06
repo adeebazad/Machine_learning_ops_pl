@@ -90,5 +90,10 @@ class PredictionStep(PipelineStepHandler):
             
         result_df['model_type'] = type(model).__name__
         
+        # Reorder columns to put 'prediction' first if it exists
+        if 'prediction' in result_df.columns:
+            cols = ['prediction'] + [c for c in result_df.columns if c != 'prediction']
+            result_df = result_df[cols]
+        
         context['data'] = result_df
         logger.info("Prediction completed.")

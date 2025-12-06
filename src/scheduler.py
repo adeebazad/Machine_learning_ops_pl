@@ -52,30 +52,30 @@ class PipelineScheduler:
             current_time_str = now.strftime("%H:%M")
             
             for pipeline in pipelines:
-                if not pipeline.schedule_time:
-                    continue
-                    
-                # Check if it's time to run
-                # We want to run if:
-                # 1. Current time matches schedule time
-                # 2. Hasn't run today yet (or at all)
-                
-                # Simple check: if current HH:MM == schedule HH:MM
-                # And last_run is not within the last minute (to prevent double triggering)
-                
-                if pipeline.schedule_time == current_time_str:
+                if pipeline.schedule_interval and pipeline.schedule_interval > 0:
+                    # Interval Based Scheduling
                     should_run = False
                     if not pipeline.last_run:
                         should_run = True
                     else:
-                        # Check if last run was today
-                        if pipeline.last_run.date() < now.date():
+                        # Check if enough time has passed
+                        elapsed = (now - pipeline.last_run).total_seconds()
+                        if elapsed >= pipeline.schedule_interval * 3600:
                             should_run = True
-                        # Or if it was more than a minute ago (just in case of restart/drift, though date check handles daily)
-                        elif (now - pipeline.last_run).total_seconds() > 65:
-                             # This handles the case where we might want to run multiple times if we change the schedule?
-                             # For "daily", date check is enough.
-                             pass
+                
+                elif pipeline.schedule_time:
+                    # Time Based Scheduling (Daily)
+                    if pipeline.schedule_time == current_time_str:
+                        should_run = False
+                        if not pipeline.last_run:
+                            should_run = True
+                        else:
+                            # Check if last run was today
+                            if pipeline.last_run.date() < now.date():
+                                should_run = True
+                            pass
+                else:
+                    should_run = False
 
                     if should_run:
                         logger.info(f"Triggering scheduled run for pipeline {pipeline.id} ({pipeline.name}) at {current_time_str}")

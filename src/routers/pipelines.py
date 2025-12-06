@@ -21,6 +21,7 @@ class PipelineCreate(BaseModel):
     description: Optional[str] = None
     schedule_enabled: Optional[bool] = False
     schedule_time: Optional[str] = None
+    schedule_interval: Optional[int] = None # Hours
     steps: List[PipelineStepCreate]
 
 class PipelineResponse(BaseModel):
@@ -29,6 +30,7 @@ class PipelineResponse(BaseModel):
     description: Optional[str]
     schedule_enabled: Optional[bool]
     schedule_time: Optional[str]
+    schedule_interval: Optional[int]
     last_run: Optional[datetime]
     created_at: datetime
     class Config:
@@ -59,7 +61,9 @@ def create_pipeline(pipeline: PipelineCreate, db: Session = Depends(get_db)):
             name=pipeline.name, 
             description=pipeline.description,
             schedule_enabled=sched_enabled,
-            schedule_time=pipeline.schedule_time
+            schedule_enabled=sched_enabled,
+            schedule_time=pipeline.schedule_time,
+            schedule_interval=pipeline.schedule_interval
         )
         db.add(db_pipeline)
         db.commit()
@@ -108,7 +112,9 @@ def get_pipeline(pipeline_id: int, db: Session = Depends(get_db)):
         "name": pipeline.name,
         "description": pipeline.description,
         "schedule_enabled": bool(pipeline.schedule_enabled),
+        "schedule_enabled": bool(pipeline.schedule_enabled),
         "schedule_time": pipeline.schedule_time,
+        "schedule_interval": pipeline.schedule_interval,
         "last_run": pipeline.last_run,
         "created_at": pipeline.created_at,
         "steps": steps
@@ -135,7 +141,9 @@ def update_pipeline(pipeline_id: int, pipeline_update: PipelineCreate, db: Sessi
         db_pipeline.name = pipeline_update.name
         db_pipeline.description = pipeline_update.description
         db_pipeline.schedule_enabled = 1 if pipeline_update.schedule_enabled else 0
+        db_pipeline.schedule_enabled = 1 if pipeline_update.schedule_enabled else 0
         db_pipeline.schedule_time = pipeline_update.schedule_time
+        db_pipeline.schedule_interval = pipeline_update.schedule_interval
         
         # Delete existing steps
         db.query(PipelineStep).filter(PipelineStep.pipeline_id == pipeline_id).delete()

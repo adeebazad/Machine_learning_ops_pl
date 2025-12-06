@@ -50,6 +50,7 @@ class Pipeline(Base):
     # Scheduling
     schedule_enabled = Column(Integer, default=0) # SQLite uses Integer for Boolean
     schedule_time = Column(String, nullable=True) # HH:MM
+    schedule_interval = Column(Integer, nullable=True) # Hours
     last_run = Column(DateTime, nullable=True)
 
     steps = relationship("PipelineStep", back_populates="pipeline", cascade="all, delete-orphan")
