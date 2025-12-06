@@ -79,9 +79,9 @@ class PipelineScheduler:
                 else:
                     should_run = False
 
-                    if should_run:
-                        logger.info(f"Triggering scheduled run for pipeline {pipeline.id} ({pipeline.name}) at {current_time_str}")
-                        self._trigger_pipeline(db, pipeline)
+                if should_run:
+                    logger.info(f"Triggering scheduled run for pipeline {pipeline.id} ({pipeline.name}) at {current_time_str}")
+                    self._trigger_pipeline(db, pipeline)
                         
         finally:
             db.close()
