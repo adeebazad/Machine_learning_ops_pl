@@ -86,24 +86,34 @@ class PipelineScheduler:
         finally:
             db.close()
 
-    def _trigger_pipeline(self, db: Session, pipeline: Pipeline):
-        # Create run record
-        run_record = PipelineRun(pipeline_id=pipeline.id, status="pending")
-        db.add(run_record)
-        
-        # Update last_run
-        pipeline.last_run = datetime.datetime.utcnow()
-        db.add(pipeline) # Explicitly add to session to ensure update is tracked
-        
-        db.commit()
-        logger.info(f"Successfully triggered pipeline {pipeline.id}. Updated last_run to {pipeline.last_run}")
-        
-        db.refresh(run_record)
-        db.refresh(run_record)
-        
-        # Run task (in a separate thread to not block scheduler)
-        # We can use the same function as the API
-        threading.Thread(target=run_pipeline_task, args=(pipeline.id, run_record.id)).start()
+    def _trigger_pipeline(self, db: Session, pipeline_obj: Pipeline):
+        try:
+            # 1. Refetch pipeline to ensure it's attached to this session and locked if possible
+            # (SQLite doesn't support for update, but fresh get is safer)
+            pipeline = db.query(Pipeline).filter(Pipeline.id == pipeline_obj.id).first()
+            if not pipeline:
+                logger.error(f"Pipeline {pipeline_obj.id} not found in DB execution context.")
+                return
+
+            # 2. Create run record
+            run_record = PipelineRun(pipeline_id=pipeline.id, status="pending")
+            db.add(run_record)
+            
+            # 3. Update last_run
+            pipeline.last_run = datetime.datetime.utcnow()
+            db.add(pipeline) 
+            
+            # 4. Commit transaction
+            db.commit()
+            logger.info(f"Successfully triggered pipeline {pipeline.id}. Updated last_run to {pipeline.last_run}")
+            
+            # 5. Start background thread
+            db.refresh(run_record)
+            threading.Thread(target=run_pipeline_task, args=(pipeline.id, run_record.id)).start()
+            
+        except Exception as e:
+            logger.error(f"Failed to trigger pipeline {pipeline_obj.id}: {e}")
+            db.rollback()
 
 # Global instance
 scheduler = PipelineScheduler()
