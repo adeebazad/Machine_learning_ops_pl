@@ -542,8 +542,47 @@ const PipelineEditor: React.FC = () => {
                                             >
                                                 <option value="mysql">MySQL</option>
                                                 <option value="postgresql">PostgreSQL</option>
+                                                <option value="cratedb">CrateDB</option>
                                                 <option value="sqlite">SQLite</option>
                                             </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs text-gray-500 mb-1">Host</label>
+                                            <input
+                                                type="text"
+                                                value={step.config_json.database?.host || ''}
+                                                onChange={(e) => updateNestedConfig(index, 'database', 'host', e.target.value)}
+                                                className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
+                                                placeholder="localhost"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs text-gray-500 mb-1">Port</label>
+                                            <input
+                                                type="text"
+                                                value={step.config_json.database?.port || ''}
+                                                onChange={(e) => updateNestedConfig(index, 'database', 'port', e.target.value)}
+                                                className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
+                                                placeholder="3306"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs text-gray-500 mb-1">User</label>
+                                            <input
+                                                type="text"
+                                                value={step.config_json.database?.user || ''}
+                                                onChange={(e) => updateNestedConfig(index, 'database', 'user', e.target.value)}
+                                                className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs text-gray-500 mb-1">Password</label>
+                                            <input
+                                                type="password"
+                                                value={step.config_json.database?.password || ''}
+                                                onChange={(e) => updateNestedConfig(index, 'database', 'password', e.target.value)}
+                                                className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
+                                            />
                                         </div>
                                         <div>
                                             <label className="block text-xs text-gray-500 mb-1">Database Name</label>
