@@ -52,10 +52,10 @@ export const Dashboard = () => {
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-transparent pointer-events-none" />
                 <div className="relative z-10">
                     <h1 className="text-4xl font-bold text-white mb-2 tracking-tight">
-                        Welcome to <span className="neon-text">NEXUS</span>
+                        <span className="neon-text">NEC</span> Orchestrating a brighter world
                     </h1>
                     <p className="text-gray-400 text-lg max-w-2xl leading-relaxed">
-                        Advanced MLOps Pipeline Control System. Monitor infrastructure, manage training workflows, and deploy models with precision.
+                        MLOps and Pipeline Command Center. Monitor infrastructure, manage training workflows, and deploy models with precision.
                     </p>
                 </div>
             </div>
