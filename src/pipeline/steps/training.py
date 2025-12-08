@@ -20,6 +20,7 @@ class TrainingStep(PipelineStepHandler):
         
         # Prioritize Environment Variable (Docker) > Config File > Default
         tracking_uri = os.getenv('MLFLOW_TRACKING_URI') or mlflow_config.get('tracking_uri', 'http://localhost:5000')
+        logger.info(f"Using MLflow Tracking URI: {tracking_uri}")
         mlflow.set_tracking_uri(tracking_uri)
         mlflow.set_experiment(mlflow_config.get('experiment_name', 'Default'))
         
@@ -121,7 +122,10 @@ class TrainingStep(PipelineStepHandler):
                 # But to be safe and consistent with previous behavior, we keep explicit logging but maybe use a different artifact path if needed.
                 # Actually, MLflow handles overwrites typically. Let's keep manual logging to ensure we get exactly what we want.
                 if not mlflow.active_run().data.tags.get('mlflow.autologging', None):
-                     mlflow.sklearn.log_model(model, "model")
+                     try:
+                         mlflow.sklearn.log_model(model, "model")
+                     except Exception as e:
+                         logger.warning(f"Failed to log model: {e}")
     
                 if 'preprocessor' in context:
                     preprocessor = context['preprocessor']
