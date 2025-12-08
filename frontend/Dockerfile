@@ -9,13 +9,12 @@ WORKDIR /app
 COPY package*.json ./
 
 # Force cache invalidation for npm ci
-ENV CACHE_BUST=2025-12-08-1
-
-# Use npm ci with cache and offline preference
+# Avoid cross-platform lockfile issues by removing it and doing a fresh install
 RUN npm config set fetch-retry-maxtimeout 600000 \
     && npm config set fetch-retries 5 \
     && npm config set fetch-retry-mintimeout 10000 \
-    && npm ci --prefer-offline --no-audit --progress=false
+    && rm -f package-lock.json \
+    && npm install --no-audit --progress=false
 
 # Copy the rest of the source code
 COPY . .
