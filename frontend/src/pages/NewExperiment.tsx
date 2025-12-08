@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { experimentService } from '../services/api';
-import { Play, Save, Plus } from 'lucide-react';
+import { Save } from 'lucide-react';
 
 export const NewExperiment = () => {
     const navigate = useNavigate();

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Save, Plus, Trash2, Database, Layers, Settings, FileText, CheckCircle, FlaskConical } from 'lucide-react';
+import { Save, Plus, Database, Layers, Settings, FileText, CheckCircle, FlaskConical } from 'lucide-react';
 import { experimentService, databaseService } from '../services/api';
 
 const SectionHeader = ({ icon: Icon, title }: any) => (
@@ -33,7 +33,7 @@ export const Config = () => {
     const [configData, setConfigData] = useState<any>({});
     const [configName, setConfigName] = useState('');
 
-    const [loading, setLoading] = useState(false);
+
     const [tables, setTables] = useState<string[]>([]);
     const [columns, setColumns] = useState<string[]>([]);
     const [newConfigName, setNewConfigName] = useState('');
@@ -85,7 +85,6 @@ export const Config = () => {
     };
 
     const loadConfigDetails = async (configId: number) => {
-        setLoading(true);
         try {
             const res: any = await experimentService.getConfig(configId);
             setConfigData(res.config_json);
@@ -95,8 +94,6 @@ export const Config = () => {
             }
         } catch (err) {
             console.error(err);
-        } finally {
-            setLoading(false);
         }
     };
 

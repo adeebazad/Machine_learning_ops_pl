@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { Play, Terminal, Activity, FlaskConical, FileText } from 'lucide-react';
+import { Play, Terminal, Activity } from 'lucide-react';
 import { trainingService, experimentService } from '../services/api';
 
 export const Training = () => {
