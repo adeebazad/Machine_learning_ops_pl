@@ -25,6 +25,9 @@ class TrainingStep(PipelineStepHandler):
         mlflow.set_experiment(mlflow_config.get('experiment_name', 'Default'))
         
         try:
+            # Explicitly disable autologging to prevent implicit behavior
+            mlflow.sklearn.autolog(disable=True)
+            
             with mlflow.start_run():
                 # Log params
                 mlflow.log_params(model_config.get('params', {}))
@@ -90,6 +93,11 @@ class TrainingStep(PipelineStepHandler):
                     }
                     for k, v in metrics.items():
                         try:
+                            # Sanitize: Skip NaN or Infinite values
+                            import math
+                            if isinstance(v, float) and (math.isnan(v) or math.isinf(v)):
+                                logger.warning(f"Skipping NaN/Inf metric {k}")
+                                continue
                             mlflow.log_metric(k, v)
                         except Exception as e:
                             logger.warning(f"Failed to log metric {k}: {e}")
@@ -111,6 +119,11 @@ class TrainingStep(PipelineStepHandler):
                     }
                     for k, v in metrics.items():
                         try:
+                            # Sanitize: Skip NaN or Infinite values
+                            import math
+                            if isinstance(v, float) and (math.isnan(v) or math.isinf(v)):
+                                logger.warning(f"Skipping NaN/Inf metric {k}")
+                                continue
                             mlflow.log_metric(k, v)
                         except Exception as e:
                             logger.warning(f"Failed to log metric {k}: {e}")
