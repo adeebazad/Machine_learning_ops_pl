@@ -12,7 +12,7 @@ COPY package*.json ./
 ENV CACHE_BUST=2025-12-08-1
 
 # Use npm ci with cache and offline preference
-RUN npm config set fetch-retry-maxtimeout 60000 \
+RUN npm config set fetch-retry-maxtimeout 600000 \
     && npm config set fetch-retries 5 \
     && npm config set fetch-retry-mintimeout 10000 \
     && npm ci --prefer-offline --no-audit --progress=false
