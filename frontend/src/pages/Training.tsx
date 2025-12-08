@@ -41,8 +41,13 @@ export const Training = () => {
     const loadExperiments = async () => {
         try {
             const res: any = await experimentService.list();
-            setExperiments(res);
-            if (res.length > 0 && !selectedExperiment) setSelectedExperiment(res[0].id.toString());
+            if (Array.isArray(res)) {
+                setExperiments(res);
+                if (res.length > 0 && !selectedExperiment) setSelectedExperiment(res[0].id.toString());
+            } else {
+                console.error("Experiment list response is not an array:", res);
+                setExperiments([]);
+            }
         } catch (err) {
             console.error(err);
         }
@@ -51,8 +56,13 @@ export const Training = () => {
     const loadConfigs = async (experimentId: number) => {
         try {
             const res: any = await experimentService.listConfigs(experimentId);
-            setConfigs(res);
-            if (res.length > 0) setSelectedConfig(res[0].id.toString());
+            if (Array.isArray(res)) {
+                setConfigs(res);
+                if (res.length > 0) setSelectedConfig(res[0].id.toString());
+            } else {
+                console.error("Config list response is not an array:", res);
+                setConfigs([]);
+            }
         } catch (err) {
             console.error(err);
         }
