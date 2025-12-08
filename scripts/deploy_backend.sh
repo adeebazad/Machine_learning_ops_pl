@@ -10,6 +10,10 @@ if ! command -v docker &> /dev/null; then
     exit 1
 fi
 
+echo "[0/2] Cleaning up old Backend Services..."
+docker compose stop api celery_worker mlflow redis || true
+docker compose rm -f api celery_worker mlflow redis || true
+
 echo "[1/2] Building API Image (Host Network)..."
 docker build --network host -t mlops-api:latest .
 # Tag specifically for celery worker if compose defaults to project-service naming

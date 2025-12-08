@@ -10,6 +10,10 @@ if ! command -v docker &> /dev/null; then
     exit 1
 fi
 
+echo "[0/2] Cleaning up old Frontend Services..."
+docker compose stop frontend nginx || true
+docker compose rm -f frontend nginx || true
+
 echo "[1/2] Building Frontend Image (Host Network)..."
 docker build --network host -t mlops-frontend:latest ./frontend
 
