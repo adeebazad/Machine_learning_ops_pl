@@ -7,7 +7,7 @@ import os
 BROKER_URL = os.getenv('CELERY_BROKER_URL', 'redis://localhost:6379/0')
 BACKEND_URL = os.getenv('CELERY_RESULT_BACKEND', 'redis://localhost:6379/0')
 
-celery_app = Celery('mlops_pipeline', broker=BROKER_URL, backend=BACKEND_URL)
+celery_app = Celery('mlops_pipeline', broker=BROKER_URL, backend=BACKEND_URL, include=['src.tasks'])
 
 celery_app.conf.update(
     task_serializer='json',
