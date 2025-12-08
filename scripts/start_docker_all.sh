@@ -14,12 +14,19 @@ fi
 echo "[1/3] Stopping any running containers..."
 docker compose down
 
-echo "[2/3] Building and Starting Services..."
-# --build: Force rebuild of images to pick up code changes
-# -d: Detached mode (background)
-docker compose up --build -d
+echo "[2/4] Building Services Manually (to avoid network timeouts)..."
+# Build API with host network
+echo "Building API..."
+docker build --network host -t mlops-api:latest .
 
-echo "[3/3] Verifying Deployment..."
+# Build Frontend with host network
+echo "Building Frontend..."
+docker build --network host -t mlops-frontend:latest ./frontend
+
+echo "[3/4] Starting Services..."
+docker compose up -d
+
+echo "[4/4] Verifying Deployment..."
 sleep 5
 docker compose ps
 
