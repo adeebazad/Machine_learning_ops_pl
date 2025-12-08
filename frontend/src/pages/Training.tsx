@@ -14,7 +14,9 @@ export const Training = () => {
 
     useEffect(() => {
         loadExperiments();
-        const ws = new WebSocket('ws://localhost:8001/system/ws/logs');
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = `${protocol}//${window.location.host}/api/system/ws/logs`;
+        const ws = new WebSocket(wsUrl);
 
         ws.onmessage = (event) => {
             setLogs(prev => [...prev, event.data]);

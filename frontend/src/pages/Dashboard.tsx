@@ -28,7 +28,9 @@ export const Dashboard = () => {
     const [currentRam, setCurrentRam] = useState(0);
 
     useEffect(() => {
-        const ws = new WebSocket('ws://localhost:8001/system/ws/stats');
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = `${protocol}//${window.location.host}/api/system/ws/stats`;
+        const ws = new WebSocket(wsUrl);
 
         ws.onmessage = (event) => {
             const data = JSON.parse(event.data);
