@@ -176,7 +176,13 @@ def predict(request: PredictionRequest, db: Session = Depends(get_db)):
                  config = load_config(CONFIG_PATH)
              else:
                  # Minimal config if needed
-                 config = {'mlflow': {'tracking_uri': 'http://localhost:5000', 'experiment_name': 'Default'}}
+                 tracking_uri = os.getenv('MLFLOW_TRACKING_URI', 'http://localhost:5000')
+                 config = {'mlflow': {'tracking_uri': tracking_uri, 'experiment_name': 'Default'}}
+        
+        # Override tracking URI from Env if available (Config file might have localhost)
+        if os.getenv('MLFLOW_TRACKING_URI'):
+             if 'mlflow' not in config: config['mlflow'] = {}
+             config['mlflow']['tracking_uri'] = os.getenv('MLFLOW_TRACKING_URI')
         
         # Determine Model URI and Run ID
         model_uri = request.model_uri

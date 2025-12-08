@@ -11,7 +11,7 @@ preprocessing:
   script_path: src/features/preprocess.py
 mlflow:
   experiment_name: dominose_order_v1
-  tracking_uri: http://localhost:5000
+  tracking_uri: http://mlflow:5000
 model:
   name: LinearRegression
   params:

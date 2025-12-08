@@ -6,6 +6,8 @@ from sklearn.metrics import accuracy_score, mean_squared_error
 from src.models.model_factory import ModelFactory
 import logging
 
+import os
+
 logger = logging.getLogger(__name__)
 
 class TrainingStep(PipelineStepHandler):
@@ -16,7 +18,9 @@ class TrainingStep(PipelineStepHandler):
         mlflow_config = config.get('mlflow', {})
         model_config = config.get('model', {})
         
-        mlflow.set_tracking_uri(mlflow_config.get('tracking_uri', 'http://localhost:5000'))
+        # Prioritize Environment Variable (Docker) > Config File > Default
+        tracking_uri = os.getenv('MLFLOW_TRACKING_URI') or mlflow_config.get('tracking_uri', 'http://localhost:5000')
+        mlflow.set_tracking_uri(tracking_uri)
         mlflow.set_experiment(mlflow_config.get('experiment_name', 'Default'))
         
         with mlflow.start_run():
