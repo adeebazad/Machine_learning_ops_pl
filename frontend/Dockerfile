@@ -8,6 +8,9 @@ WORKDIR /app
 # Copy only package files first to leverage Docker cache
 COPY package*.json ./
 
+# Force cache invalidation for npm ci
+ENV CACHE_BUST=2025-12-08-1
+
 # Use npm ci with cache and offline preference
 RUN npm config set fetch-retry-maxtimeout 600000 \
     && npm config set fetch-retries 5 \
