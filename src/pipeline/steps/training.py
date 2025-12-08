@@ -149,8 +149,6 @@ class TrainingStep(PipelineStepHandler):
                     
                 context['model'] = model
                 context['run_id'] = mlflow.active_run().info.run_id
-                context['model'] = model
-                context['run_id'] = mlflow.active_run().info.run_id
                 logger.info(f"Training completed. Run ID: {context['run_id']}")
         except Exception as e:
              logger.error(f"Training failed: {e}")
