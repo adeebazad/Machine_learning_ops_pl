@@ -19,9 +19,13 @@ export const ModelRegistry = () => {
     const loadExperiments = async () => {
         try {
             const res: any = await mlflowService.listExperiments();
-            setExperiments(res.experiments);
-            if (res.experiments.length > 0) {
-                setSelectedExp(res.experiments[0].id);
+            if (res && Array.isArray(res.experiments)) {
+                setExperiments(res.experiments);
+                if (res.experiments.length > 0) {
+                    setSelectedExp(res.experiments[0].id);
+                }
+            } else {
+                setExperiments([]);
             }
         } catch (err) {
             console.error(err);
@@ -32,7 +36,11 @@ export const ModelRegistry = () => {
         setLoading(true);
         try {
             const res: any = await mlflowService.listRuns(expId);
-            setRuns(res.runs);
+            if (res && Array.isArray(res.runs)) {
+                setRuns(res.runs);
+            } else {
+                setRuns([]);
+            }
         } catch (err) {
             console.error(err);
         } finally {

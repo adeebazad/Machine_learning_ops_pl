@@ -39,7 +39,11 @@ export const CodeStudio = () => {
     const loadExperiments = async () => {
         try {
             const res: any = await import('../services/api').then(m => m.experimentService.list());
-            setExperiments(res);
+            if (Array.isArray(res)) {
+                setExperiments(res);
+            } else {
+                setExperiments([]);
+            }
         } catch (err) {
             console.error(err);
         }
@@ -48,7 +52,11 @@ export const CodeStudio = () => {
     const loadConfigs = async (experimentId: number) => {
         try {
             const res: any = await import('../services/api').then(m => m.experimentService.listConfigs(experimentId));
-            setConfigs(res);
+            if (Array.isArray(res)) {
+                setConfigs(res);
+            } else {
+                setConfigs([]);
+            }
         } catch (err) {
             console.error(err);
         }
@@ -77,7 +85,11 @@ export const CodeStudio = () => {
     const loadFiles = async () => {
         try {
             const res: any = await fileService.list();
-            setFiles(res.files);
+            if (res && Array.isArray(res.files)) {
+                setFiles(res.files);
+            } else {
+                setFiles([]);
+            }
         } catch (err) {
             console.error(err);
         }

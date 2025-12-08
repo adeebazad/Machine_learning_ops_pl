@@ -68,8 +68,12 @@ export const Config = () => {
     const loadExperiments = async () => {
         try {
             const res: any = await experimentService.list();
-            setExperiments(res);
-            if (res.length > 0 && !selectedExperiment) setSelectedExperiment(res[0].id.toString());
+            if (Array.isArray(res)) {
+                setExperiments(res);
+                if (res.length > 0 && !selectedExperiment) setSelectedExperiment(res[0].id.toString());
+            } else {
+                setExperiments([]);
+            }
         } catch (err) {
             console.error(err);
         }
@@ -78,7 +82,11 @@ export const Config = () => {
     const loadConfigs = async (experimentId: number) => {
         try {
             const res: any = await experimentService.listConfigs(experimentId);
-            setConfigs(res);
+            if (Array.isArray(res)) {
+                setConfigs(res);
+            } else {
+                setConfigs([]);
+            }
         } catch (err) {
             console.error(err);
         }
@@ -138,7 +146,11 @@ export const Config = () => {
     const testConnection = async (dbConfig: any) => {
         try {
             const res: any = await databaseService.test(dbConfig);
-            setTables(res.tables);
+            if (res && Array.isArray(res.tables)) {
+                setTables(res.tables);
+            } else {
+                setTables([]);
+            }
         } catch (err) {
             console.error("DB Connection failed", err);
             setTables([]);
@@ -149,7 +161,11 @@ export const Config = () => {
         if (!configData?.database) return;
         try {
             const res: any = await databaseService.getColumns(table, configData.database);
-            setColumns(res.columns);
+            if (res && Array.isArray(res.columns)) {
+                setColumns(res.columns);
+            } else {
+                setColumns([]);
+            }
         } catch (err) {
             console.error("Failed to fetch columns", err);
         }

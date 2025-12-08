@@ -36,8 +36,13 @@ export const Inference = () => {
     const loadExperiments = async () => {
         try {
             const res: any = await experimentService.list();
-            setExperiments(res);
-            if (res.length > 0 && !selectedExperiment) setSelectedExperiment(res[0].id.toString());
+            if (Array.isArray(res)) {
+                setExperiments(res);
+                if (res.length > 0 && !selectedExperiment) setSelectedExperiment(res[0].id.toString());
+            } else {
+                console.error("Experiment list response is not an array:", res);
+                setExperiments([]);
+            }
         } catch (err) {
             console.error(err);
         }
@@ -46,8 +51,13 @@ export const Inference = () => {
     const loadConfigs = async (experimentId: number) => {
         try {
             const res: any = await experimentService.listConfigs(experimentId);
-            setConfigs(res);
-            if (res.length > 0) setSelectedConfig(res[0].id.toString());
+            if (Array.isArray(res)) {
+                setConfigs(res);
+                if (res.length > 0) setSelectedConfig(res[0].id.toString());
+            } else {
+                console.error("Config list response is not an array:", res);
+                setConfigs([]);
+            }
         } catch (err) {
             console.error(err);
         }
@@ -231,7 +241,7 @@ export const Inference = () => {
                                         {/* Highlighted Prediction if available */}
                                         {result.predictions && (
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                {result.predictions.slice(0, 2).map((pred: any, idx: number) => (
+                                                {result.predictions && Array.isArray(result.predictions) && result.predictions.slice(0, 2).map((pred: any, idx: number) => (
                                                     <div key={idx} className="p-4 rounded-xl bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border border-cyan-500/20">
                                                         <div className="text-gray-400 text-xs uppercase tracking-wider mb-1">Prediction {idx + 1}</div>
                                                         <div className="text-2xl font-bold text-white font-mono">

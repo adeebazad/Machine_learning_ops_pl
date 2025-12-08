@@ -23,7 +23,11 @@ const Pipelines: React.FC = () => {
     const fetchPipelines = async () => {
         try {
             const data: any = await pipelineService.listPipelines();
-            setPipelines(data);
+            if (Array.isArray(data)) {
+                setPipelines(data);
+            } else {
+                setPipelines([]);
+            }
         } catch (err) {
             setError('Failed to load pipelines');
         } finally {
