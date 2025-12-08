@@ -86,11 +86,8 @@ class PipelineScheduler:
         finally:
             db.close()
 
-from src.tasks import execute_pipeline_task
-
-# ... 
-
     def _trigger_pipeline(self, db: Session, pipeline_obj: Pipeline):
+        from src.tasks import execute_pipeline_task
         try:
             # 1. Refetch pipeline to ensure it's attached to this session and locked if possible
             # (SQLite doesn't support for update, but fresh get is safer)
