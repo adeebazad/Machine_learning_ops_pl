@@ -86,6 +86,10 @@ class PipelineScheduler:
         finally:
             db.close()
 
+from src.tasks import execute_pipeline_task
+
+# ... 
+
     def _trigger_pipeline(self, db: Session, pipeline_obj: Pipeline):
         try:
             # 1. Refetch pipeline to ensure it's attached to this session and locked if possible
@@ -107,9 +111,11 @@ class PipelineScheduler:
             db.commit()
             logger.info(f"Successfully triggered pipeline {pipeline.id}. Updated last_run to {pipeline.last_run}")
             
-            # 5. Start background thread
+            # 5. Dispatch to Celery
             db.refresh(run_record)
-            threading.Thread(target=run_pipeline_task, args=(pipeline.id, run_record.id)).start()
+            # Use execute_pipeline_task.delay() for distributed execution
+            execute_pipeline_task.delay(pipeline.id, run_record.id)
+            logger.info(f"Dispatched pipeline {pipeline.id} run {run_record.id} to Celery worker.")
             
         except Exception as e:
             logger.error(f"Failed to trigger pipeline {pipeline_obj.id}: {e}")

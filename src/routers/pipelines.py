@@ -174,8 +174,12 @@ def run_pipeline_task(pipeline_id: int, run_id: int):
     engine = PipelineEngine(pipeline_id)
     engine.run(run_id)
 
+from src.tasks import execute_pipeline_task
+
+# ... 
+
 @router.post("/{pipeline_id}/run", response_model=Dict[str, Any])
-def run_pipeline(pipeline_id: int, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+def run_pipeline(pipeline_id: int, db: Session = Depends(get_db)):
     pipeline = db.query(Pipeline).filter(Pipeline.id == pipeline_id).first()
     if not pipeline:
         raise HTTPException(status_code=404, detail="Pipeline not found")
@@ -186,9 +190,10 @@ def run_pipeline(pipeline_id: int, background_tasks: BackgroundTasks, db: Sessio
     db.commit()
     db.refresh(run_record)
     
-    background_tasks.add_task(run_pipeline_task, pipeline_id, run_record.id)
+    # Dispatch to Celery
+    execute_pipeline_task.delay(pipeline_id, run_record.id)
     
-    return {"message": "Pipeline execution started", "run_id": run_record.id}
+    return {"message": "Pipeline execution started (Celery)", "run_id": run_record.id}
 
 @router.get("/{pipeline_id}/runs", response_model=List[PipelineRunResponse])
 def list_pipeline_runs(pipeline_id: int, db: Session = Depends(get_db)):
