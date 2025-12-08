@@ -19,4 +19,21 @@ export CELERY_RESULT_BACKEND='redis://localhost:6379/0'
 # -A src.celery_app: points to the celery instance in src/celery_app.py
 # worker: run as worker
 # --loglevel=info: show logs
-celery -A src.celery_app worker --loglevel=info
+# Check if celery is installed
+if ! command -v celery &> /dev/null; then
+    echo "Command 'celery' not found. Trying 'python -m celery'..."
+    if ! python -m celery --version &> /dev/null; then
+        echo "Error: Celery is not installed or not found."
+        echo "Please make sure your virtual environment is active and you have installed dependencies:"
+        echo "  source venv/bin/activate (or similar)"
+        echo "  pip install -r requirements.txt"
+        exit 1
+    else
+        CMD="python -m celery"
+    fi
+else
+    CMD="celery"
+fi
+
+echo "Running Celery with: $CMD"
+$CMD -A src.celery_app worker --loglevel=info
