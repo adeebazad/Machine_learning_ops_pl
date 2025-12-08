@@ -11,8 +11,8 @@ if ! command -v docker &> /dev/null; then
 fi
 
 echo "[0/2] Cleaning up old Backend Services..."
-docker compose stop api celery_worker mlflow redis || true
-docker compose rm -f api celery_worker mlflow redis || true
+# Force remove containers by name to ensure ports are release
+docker rm -f mlops_api celery_worker mlflow_server redis_broker || true
 
 echo "[1/2] Building API Image (Host Network)..."
 docker build --network host -t mlops-api:latest .
