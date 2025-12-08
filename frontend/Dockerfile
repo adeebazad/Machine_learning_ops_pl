@@ -9,7 +9,10 @@ WORKDIR /app
 COPY package*.json ./
 
 # Use npm ci with cache and offline preference
-RUN npm ci --prefer-offline --no-audit --progress=false
+RUN npm config set fetch-retry-maxtimeout 600000 \
+    && npm config set fetch-retries 5 \
+    && npm config set fetch-retry-mintimeout 10000 \
+    && npm ci --prefer-offline --no-audit --progress=false
 
 # Copy the rest of the source code
 COPY . .
