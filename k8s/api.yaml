@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mlops-api
+  labels:
+    app: mlops-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mlops-api
+  template:
+    metadata:
+      labels:
+        app: mlops-api
+    spec:
+      containers:
+      - name: mlops-api
+        image: mlops-api:latest
+        imagePullPolicy: Changeset
+        ports:
+        - containerPort: 8000
+        env:
+        - name: MLFLOW_TRACKING_URI
+          value: "http://mlflow-service:5000"
+        - name: CELERY_BROKER_URL
+          value: "redis://redis-service:6379/0"
+        - name: CELERY_RESULT_BACKEND
+          value: "redis://redis-service:6379/0"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mlops-api-service
+spec:
+  selector:
+    app: mlops-api
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
+  type: ClusterIP
