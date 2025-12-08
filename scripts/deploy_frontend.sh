@@ -15,7 +15,7 @@ docker build --network host -t mlops-frontend:latest ./frontend
 
 echo "[2/2] Starting Frontend Services (App & Nginx)..."
 # Start frontend and the proxy (which depends on both, but mainly exposes frontend/api)
-docker compose up -d frontend nginx
+docker compose up --no-build -d frontend nginx
 
 echo "Frontend Deployment Complete!"
 docker compose ps

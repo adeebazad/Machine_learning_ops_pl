@@ -15,7 +15,7 @@ docker build --network host -t mlops-api:latest .
 
 echo "[2/2] Starting Backend Services (API, Celery, MLflow, Redis)..."
 # We start explicit dependencies plus the API and Worker
-docker compose up -d api celery_worker mlflow redis
+docker compose up --no-build -d api celery_worker mlflow redis
 
 echo "Backend Deployment Complete!"
 docker compose ps
