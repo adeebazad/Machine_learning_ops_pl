@@ -25,7 +25,7 @@ services:
       - "3000:80"
 
   mlflow:
-    image: ghcr.io/mlflow/mlflow:latest
+    image: bitnami/mlflow:latest
     container_name: mlflow_server
     restart: always
     ports:
