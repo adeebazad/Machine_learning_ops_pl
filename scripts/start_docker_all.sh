@@ -25,6 +25,8 @@ docker build --network host -t mlops-frontend:latest ./frontend
 
 echo "[3/4] Starting Services..."
 docker compose up -d
+echo "Force restarting Nginx to apply latest config..."
+docker compose restart nginx
 
 echo "[4/4] Verifying Deployment..."
 sleep 5
