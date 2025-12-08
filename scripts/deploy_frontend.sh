@@ -16,6 +16,8 @@ docker rm -f mlops_frontend nginx_proxy || true
 
 echo "[1/2] Building Frontend Image (Host Network)..."
 docker build --network host -t mlops-frontend:latest ./frontend
+# Tag specifically for frontend to resolve 'No such image' error in compose
+docker tag mlops-frontend:latest machine_learning_ops_pl-frontend:latest
 
 echo "[2/2] Starting Frontend Services (App & Nginx)..."
 # Start frontend and the proxy (which depends on both, but mainly exposes frontend/api)
