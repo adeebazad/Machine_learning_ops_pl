@@ -12,6 +12,8 @@ fi
 
 echo "[1/2] Building API Image (Host Network)..."
 docker build --network host -t mlops-api:latest .
+# Tag specifically for celery worker if compose defaults to project-service naming
+docker tag mlops-api:latest machine_learning_ops_pl-celery_worker:latest
 
 echo "[2/2] Starting Backend Services (API, Celery, MLflow, Redis)..."
 # We start explicit dependencies plus the API and Worker
