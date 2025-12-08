@@ -50,8 +50,8 @@ export const mlflowService = {
 };
 
 export const experimentService = {
-    list: () => api.get('/experiments'),
-    create: (name: string, description?: string) => api.post('/experiments', { name, description }),
+    list: () => api.get('/experiments/'),
+    create: (name: string, description?: string) => api.post('/experiments/', { name, description }),
     get: (id: number) => api.get(`/experiments/${id}`),
     listConfigs: (experimentId: number) => api.get(`/experiments/${experimentId}/configs`),
     createConfig: (experimentId: number, name: string, configJson: any) => api.post(`/experiments/${experimentId}/configs`, { name, config_json: configJson }),
