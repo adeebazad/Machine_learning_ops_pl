@@ -69,10 +69,10 @@ class TrainingStep(PipelineStepHandler):
                 f1 = f1_score(context['y_test'], predictions, average='weighted', zero_division=0)
                 
                 metrics = {
-                    "accuracy": acc,
-                    "precision_weighted": prec,
-                    "recall_weighted": rec,
-                    "f1_weighted": f1
+                    "test_accuracy": acc,
+                    "test_precision_weighted": prec,
+                    "test_recall_weighted": rec,
+                    "test_f1_weighted": f1
                 }
                 mlflow.log_metrics(metrics)
                 logger.info(f"Classification Metrics: {metrics}")
@@ -86,10 +86,10 @@ class TrainingStep(PipelineStepHandler):
                 r2 = r2_score(context['y_test'], predictions)
                 
                 metrics = {
-                    "mse": mse,
-                    "rmse": rmse,
-                    "mae": mae,
-                    "r2_score": r2
+                    "test_mse": mse,
+                    "test_rmse": rmse,
+                    "test_mae": mae,
+                    "test_r2_score": r2
                 }
                 mlflow.log_metrics(metrics)
                 logger.info(f"Regression Metrics: {metrics}")
