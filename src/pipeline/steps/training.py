@@ -87,12 +87,12 @@ class TrainingStep(PipelineStepHandler):
                         "test_recall_weighted": rec,
                         "test_f1_weighted": f1
                     }
-                for k, v in metrics.items():
-                    try:
-                        mlflow.log_metric(k, v)
-                    except Exception as e:
-                        logger.warning(f"Failed to log metric {k}: {e}")
-                logger.info(f"Classification Metrics: {metrics}")
+                    for k, v in metrics.items():
+                        try:
+                            mlflow.log_metric(k, v)
+                        except Exception as e:
+                            logger.warning(f"Failed to log metric {k}: {e}")
+                    logger.info(f"Classification Metrics: {metrics}")
                 else:
                     from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
                     import numpy as np
@@ -108,12 +108,12 @@ class TrainingStep(PipelineStepHandler):
                         "test_mae": mae,
                         "test_r2_score": r2
                     }
-                for k, v in metrics.items():
-                    try:
-                        mlflow.log_metric(k, v)
-                    except Exception as e:
-                        logger.warning(f"Failed to log metric {k}: {e}")
-                logger.info(f"Regression Metrics: {metrics}")
+                    for k, v in metrics.items():
+                        try:
+                            mlflow.log_metric(k, v)
+                        except Exception as e:
+                            logger.warning(f"Failed to log metric {k}: {e}")
+                    logger.info(f"Regression Metrics: {metrics}")
                     
                 # Log Model & Preprocessor
                 # Note: autolog logs model automatically, but we might want to log it explicitly as 'model' if autolog uses a different name
