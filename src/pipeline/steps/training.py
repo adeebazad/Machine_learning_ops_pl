@@ -32,9 +32,15 @@ class TrainingStep(PipelineStepHandler):
             model_name = model_config.get('name', 'RandomForestClassifier')
             params = model_config.get('params', {})
             
+            # Enable Autologging
+            mlflow.sklearn.autolog()
+            
             # Save task type to context for prediction step
             context['task_type'] = task_type
-
+            
+            # ... (data dropping logic remains same, implicit in replace block if I don't touch it, but I need to include it or skip it. 
+            # Wait, the replace tool requires exact match. I will target the block around model.fit to add autolog and metrics.)
+            
             model = ModelFactory.get_model(task_type, model_name, params)
             
             # Fix for switching from Time Series to other models: Drop datetime columns
@@ -53,14 +59,40 @@ class TrainingStep(PipelineStepHandler):
             
             # Evaluate
             predictions = model.predict(context['X_test'])
+            
+            # Basic Metrics
             if task_type == 'classification':
+                from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
                 acc = accuracy_score(context['y_test'], predictions)
-                mlflow.log_metric("accuracy", acc)
-                logger.info(f"Model Accuracy: {acc}")
+                prec = precision_score(context['y_test'], predictions, average='weighted', zero_division=0)
+                rec = recall_score(context['y_test'], predictions, average='weighted', zero_division=0)
+                f1 = f1_score(context['y_test'], predictions, average='weighted', zero_division=0)
+                
+                metrics = {
+                    "accuracy": acc,
+                    "precision_weighted": prec,
+                    "recall_weighted": rec,
+                    "f1_weighted": f1
+                }
+                mlflow.log_metrics(metrics)
+                logger.info(f"Classification Metrics: {metrics}")
             else:
+                from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+                import numpy as np
+                
                 mse = mean_squared_error(context['y_test'], predictions)
-                mlflow.log_metric("mse", mse)
-                logger.info(f"Model MSE: {mse}")
+                rmse = np.sqrt(mse)
+                mae = mean_absolute_error(context['y_test'], predictions)
+                r2 = r2_score(context['y_test'], predictions)
+                
+                metrics = {
+                    "mse": mse,
+                    "rmse": rmse,
+                    "mae": mae,
+                    "r2_score": r2
+                }
+                mlflow.log_metrics(metrics)
+                logger.info(f"Regression Metrics: {metrics}")
                 
             # Log Model & Preprocessor
             mlflow.sklearn.log_model(model, "model")
