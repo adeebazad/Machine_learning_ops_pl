@@ -12,16 +12,16 @@ if ! command -v docker &> /dev/null; then
 fi
 
 echo "[1/3] Stopping any running containers..."
-docker-compose down
+docker compose down
 
 echo "[2/3] Building and Starting Services..."
 # --build: Force rebuild of images to pick up code changes
 # -d: Detached mode (background)
-docker-compose up --build -d
+docker compose up --build -d
 
 echo "[3/3] Verifying Deployment..."
 sleep 5
-docker-compose ps
+docker compose ps
 
 echo ""
 echo "============================================="
