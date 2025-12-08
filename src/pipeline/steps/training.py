@@ -23,13 +23,6 @@ class TrainingStep(PipelineStepHandler):
         mlflow.set_tracking_uri(tracking_uri)
         mlflow.set_experiment(mlflow_config.get('experiment_name', 'Default'))
         
-        # Enable Autologging (Clear previous hooks first to avoid duplication in persistent workers)
-        try:
-            mlflow.sklearn.autolog(disable=True)
-        except:
-            pass
-        mlflow.sklearn.autolog(log_models=True, log_input_examples=True, log_model_signatures=True)
-        
         try:
             with mlflow.start_run():
                 # Log params
@@ -59,6 +52,24 @@ class TrainingStep(PipelineStepHandler):
     
                 model.fit(context['X_train'], context['y_train'])
                 
+                # Log Feature Importance (if available)
+                if hasattr(model, 'feature_importances_'):
+                    try:
+                        import json
+                        feature_names = context['X_train'].columns.tolist()
+                        importances = model.feature_importances_.tolist()
+                        feature_importance_dict = dict(zip(feature_names, importances))
+                        # Sort by importance
+                        sorted_idx = sorted(feature_importance_dict.items(), key=lambda x: x[1], reverse=True)
+                        logger.info(f"Top 5 Feature Importances: {sorted_idx[:5]}")
+                        
+                        # Log as artifact
+                        with open("feature_importance.json", "w") as f:
+                            json.dump(feature_importance_dict, f)
+                        mlflow.log_artifact("feature_importance.json")
+                    except Exception as fi_err:
+                        logger.warning(f"Failed to log feature importance: {fi_err}")
+
                 # Evaluate
                 predictions = model.predict(context['X_test'])
                 
@@ -138,7 +149,9 @@ class TrainingStep(PipelineStepHandler):
                     
                 context['model'] = model
                 context['run_id'] = mlflow.active_run().info.run_id
+                context['model'] = model
+                context['run_id'] = mlflow.active_run().info.run_id
                 logger.info(f"Training completed. Run ID: {context['run_id']}")
-        finally:
-            # Disable autologging to prevent duplicate hooks in future runs
-            mlflow.sklearn.autolog(disable=True)
+        except Exception as e:
+             logger.error(f"Training failed: {e}")
+             raise e
