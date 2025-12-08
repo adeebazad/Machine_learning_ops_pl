@@ -33,15 +33,21 @@ export const Dashboard = () => {
         const ws = new WebSocket(wsUrl);
 
         ws.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            setCurrentCpu(data.cpu);
-            setCurrentRam(data.ram);
+            try {
+                const data = JSON.parse(event.data);
+                if (data && typeof data.cpu === 'number') {
+                    setCurrentCpu(data.cpu);
+                    setCurrentRam(data.ram);
 
-            setStats(prev => {
-                const newStats = [...prev, { time: new Date().toLocaleTimeString(), cpu: data.cpu, ram: data.ram }];
-                if (newStats.length > 20) newStats.shift();
-                return newStats;
-            });
+                    setStats(prev => {
+                        const newStats = [...prev, { time: new Date().toLocaleTimeString(), cpu: data.cpu, ram: data.ram }];
+                        if (newStats.length > 20) newStats.shift();
+                        return newStats;
+                    });
+                }
+            } catch (e) {
+                console.warn("Received non-JSON data from WebSocket:", event.data);
+            }
         };
 
         return () => ws.close();
@@ -109,7 +115,7 @@ export const Dashboard = () => {
                         </div>
                     </div>
                     <div className="h-[350px] w-full" style={{ height: 350 }}>
-                        <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+                        <ResponsiveContainer width="100%" height="100%">
                             <AreaChart data={stats}>
                                 <defs>
                                     <linearGradient id="colorCpu" x1="0" y1="0" x2="0" y2="1">
@@ -165,7 +171,7 @@ export const Dashboard = () => {
                                 <span className="text-green-400 opacity-0 group-hover:opacity-100 transition-opacity">→</span>
                             </button>
                             <button
-                                onClick={() => window.open('http://localhost:5000', '_blank')}
+                                onClick={() => window.open('/mlflow/', '_blank')}
                                 className="w-full p-3 rounded-lg bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 text-left text-sm text-blue-300 hover:text-blue-200 transition-colors flex items-center justify-between group"
                             >
                                 <span className="flex items-center gap-2">
