@@ -52,6 +52,7 @@ class PipelineScheduler:
             current_time_str = now.strftime("%H:%M")
             
             for pipeline in pipelines:
+                should_run = False
                 if pipeline.schedule_interval and pipeline.schedule_interval > 0:
                     # Interval Based Scheduling
                     should_run = False
