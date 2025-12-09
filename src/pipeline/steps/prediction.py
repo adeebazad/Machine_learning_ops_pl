@@ -82,22 +82,56 @@ class PredictionStep(PipelineStepHandler):
                 else:
                     result_df = pd.DataFrame(data_to_predict)
         
-        target_col = context.get('target_col', '')
-        pred_col_name = f"prediction_{target_col}" if target_col else "prediction"
-        
-        result_df[pred_col_name] = predictions
-        from datetime import timezone
-        result_df['prediction_time'] = datetime.now(timezone.utc)
-        
         if 'run_id' in context:
             result_df['run_id'] = context['run_id']
             
         result_df['model_type'] = type(model).__name__
         
-        # Reorder columns to put prediction column first
-        if pred_col_name in result_df.columns:
-            cols = [pred_col_name] + [c for c in result_df.columns if c != pred_col_name]
-            result_df = result_df[cols]
+        # Handle predictions (could be 1D or 2D)
+        # Check shape of predictions
+        import numpy as np
+        
+        if isinstance(predictions, np.ndarray) and predictions.ndim > 1 and predictions.shape[1] > 1:
+            # Multi-output prediction
+            logger.info(f"Multi-output predictions detected: shape {predictions.shape}")
+            # Try to infer column names from model if possible, or use generic
+            target_names = None
+            
+            # If we just trained, context['y_train'] might have columns
+            if 'y_train' in context and isinstance(context['y_train'], pd.DataFrame):
+                 target_names = context['y_train'].columns.tolist()
+                 # Ensure length matches
+                 if len(target_names) != predictions.shape[1]:
+                     logger.warning("y_train columns count does not match prediction columns count. using generic names.")
+                     target_names = [f"prediction_{i}" for i in range(predictions.shape[1])]
+            else:
+                 target_names = [f"prediction_{i}" for i in range(predictions.shape[1])]
+            
+            # Assign columns
+            for i, name in enumerate(target_names):
+                col_name = f"prediction_{name}" if not name.startswith("prediction") else name
+                result_df[col_name] = predictions[:, i]
+                
+            # Reorder: put prediction columns first
+            pred_cols = [f"prediction_{name}" if not name.startswith("prediction") else name for name in target_names]
+            other_cols = [c for c in result_df.columns if c not in pred_cols]
+            result_df = result_df[pred_cols + other_cols]
+            
+            logger.info(f"Attached multi-output predictions: {pred_cols}")
+            
+        else:
+            # Single output
+            target_col = context.get('target_col', '')
+            pred_col_name = f"prediction_{target_col}" if target_col else "prediction"
+            
+            result_df[pred_col_name] = predictions
+            
+            # Reorder columns to put prediction column first
+            if pred_col_name in result_df.columns:
+                cols = [pred_col_name] + [c for c in result_df.columns if c != pred_col_name]
+                result_df = result_df[cols]
+                
+            logger.info(f"Prediction completed. Output column: {pred_col_name}")
         
         context['data'] = result_df
         logger.info(f"Prediction completed. Output column: {pred_col_name}")

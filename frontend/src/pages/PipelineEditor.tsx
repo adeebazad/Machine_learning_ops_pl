@@ -677,6 +677,35 @@ const PipelineEditor: React.FC = () => {
                                             className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
                                         />
                                     </div>
+                                    <div className="pt-2 border-t border-gray-700 mt-2">
+                                        <label className="block text-xs text-gray-400 font-semibold mb-2">Forecasting (Optional)</label>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-xs text-gray-500 mb-1">Horizons (comma-sep)</label>
+                                                <input
+                                                    type="text"
+                                                    value={step.config_json.forecasting?.horizons?.join(',') || ''}
+                                                    onChange={(e) => {
+                                                        const val = e.target.value;
+                                                        const horizons = val.split(',').map(h => h.trim()).filter(h => h);
+                                                        updateNestedConfig(index, 'forecasting', 'horizons', horizons);
+                                                    }}
+                                                    className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
+                                                    placeholder="e.g. 1h, 6h, 1d"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs text-gray-500 mb-1">Timestamp Column</label>
+                                                <input
+                                                    type="text"
+                                                    value={step.config_json.forecasting?.timestamp_col || ''}
+                                                    onChange={(e) => updateNestedConfig(index, 'forecasting', 'timestamp_col', e.target.value)}
+                                                    className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
+                                                    placeholder="e.g. timestamp"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             )}
 
