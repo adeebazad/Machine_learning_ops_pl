@@ -82,15 +82,35 @@ class PreprocessingStep(PipelineStepHandler):
         DataPreprocessorClass = load_class_from_file(script_path, 'DataPreprocessor')
         preprocessor = DataPreprocessorClass()
         
+        forecasting_config = config.get('forecasting', {})
+        forecasting_horizons = forecasting_config.get('horizons')
+        timestamp_col = forecasting_config.get('timestamp_col')
+
         if target_col:
             # Training mode preprocessing
-            X_train, X_test, y_train, y_test = preprocessor.preprocess_train(df, target_col)
+            # Check if preprocess_train accepts forecasting arguments (to maintain backward compatibility if user hasn't updated script)
+            # Actually, I updated the script, so it should be fine. But if it's a user-supplied script without the args, it might fail.
+            # However, the task is to enable this feature. I assume the script is the one I just edited.
+            
+            import inspect
+            sig = inspect.signature(preprocessor.preprocess_train)
+            if 'forecasting_horizons' in sig.parameters:
+                 X_train, X_test, y_train, y_test = preprocessor.preprocess_train(df, target_col, forecasting_horizons=forecasting_horizons, timestamp_col=timestamp_col)
+            else:
+                 logger.warning("DataPreprocessor.preprocess_train does not accept forecasting_horizons. Ignoring forecasting config.")
+                 X_train, X_test, y_train, y_test = preprocessor.preprocess_train(df, target_col)
+
             context['X_train'] = X_train
             context['X_test'] = X_test
             context['y_train'] = y_train
             context['y_test'] = y_test
             context['preprocessor'] = preprocessor
-            logger.info("Preprocessing completed (Train/Test split).")
+            
+            if forecasting_horizons:
+                 context['task_type'] = 'forecasting'
+                 logger.info(f"Preprocessing completed (Forecasting mode). Horizons: {forecasting_horizons}")
+            else:
+                 logger.info("Preprocessing completed (Train/Test split).")
         else:
             # Inference mode preprocessing
             processed_data = preprocessor.preprocess_inference(df)
