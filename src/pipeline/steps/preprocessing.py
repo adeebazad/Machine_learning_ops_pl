@@ -67,8 +67,32 @@ class PreprocessingStep(PipelineStepHandler):
         print(f"DEBUG: target_col in PreprocessingStep: {target_col}") # Temporary debug
         if target_col:
             context['target_col'] = target_col
+            
+        forecasting_config = config.get('forecasting', {})
+        forecasting_horizons = forecasting_config.get('horizons')
+        timestamp_col = forecasting_config.get('timestamp_col')
         
-        # Auto-create script if it doesn't exist
+        if timestamp_col:
+            context['timestamp_col'] = timestamp_col
+            # Force sort here to ensure consistency and correct Train/Test split
+            # The SQL query might return Newest->Oldest (DESC), but we need Oldest->Newest for sequential split.
+            # If sorting fails, we might end up training on Newest and Testing on Oldest (which is wrong).
+            ts_col_clean = timestamp_col.strip()
+            if ts_col_clean in df.columns:
+                 logger.info(f"Sorting data by timestamp column '{ts_col_clean}' (Ascending)...")
+                 df = df.sort_values(by=ts_col_clean, ascending=True)
+                 context['data'] = df # Update context with sorted data? usage depends on flow. Safe to update.
+            elif timestamp_col in df.columns:
+                 logger.info(f"Sorting data by timestamp column '{timestamp_col}' (Ascending)...")
+                 df = df.sort_values(by=timestamp_col, ascending=True)
+                 context['data'] = df
+            else:
+                 logger.warning(f"Timestamp column '{timestamp_col}' (or '{ts_col_clean}') NOT found in DataFrame.")
+                 logger.warning(f"Available columns: {df.columns.tolist()}")
+                 # Proceeding might be dangerous if order is wrong.
+        else:
+             if forecasting_horizons:
+                 logger.warning("Forecasting horizons provided but NO timestamp_col. Data order depends on upstream source.")
         if not os.path.exists(script_path):
             logger.info(f"Preprocessing script not found at {script_path}. Creating default template.")
             try:
@@ -82,12 +106,8 @@ class PreprocessingStep(PipelineStepHandler):
         DataPreprocessorClass = load_class_from_file(script_path, 'DataPreprocessor')
         preprocessor = DataPreprocessorClass()
         
-        forecasting_config = config.get('forecasting', {})
-        forecasting_horizons = forecasting_config.get('horizons')
-        timestamp_col = forecasting_config.get('timestamp_col')
-        
-        if timestamp_col:
-            context['timestamp_col'] = timestamp_col
+        # forecasting_config already fetched above
+
 
         if target_col:
             # Training mode preprocessing
