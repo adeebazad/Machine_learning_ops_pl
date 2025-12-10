@@ -8,6 +8,7 @@ import uuid
 
 logger = logging.getLogger(__name__)
 
+# Default Preprocessing Script Template
 DEFAULT_PREPROCESS_TEMPLATE = '''import pandas as pd
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.model_selection import train_test_split
@@ -21,16 +22,37 @@ class DataPreprocessor:
         self.label_encoder = LabelEncoder()
 
     def preprocess_train(self, df: pd.DataFrame, target_col: str, forecasting_horizons: list = None, timestamp_col: str = None) -> Tuple[Any, Any, Any, Any]:
+        """
+        Preprocesses training data: splits into X/y, scales features, encodes target.
+        """
+        # Drops rows where target is NaN (Robustness fix)
+        if target_col in df.columns:
+            df = df.dropna(subset=[target_col])
+            
         X = df.drop(columns=[target_col])
         y = df[target_col]
+        
         numerical_cols = X.select_dtypes(include=['number']).columns
+        
         X_scaled = X.copy()
-        X_scaled[numerical_cols] = self.scaler.fit_transform(X[numerical_cols])
-        y_encoded = self.label_encoder.fit_transform(y)
+        if len(numerical_cols) > 0:
+             # Basic handling for NaN features
+             X_scaled[numerical_cols] = X_scaled[numerical_cols].fillna(0)
+             X_scaled[numerical_cols] = self.scaler.fit_transform(X[numerical_cols])
+        
+        # Determine if we encode y
+        if not pd.api.types.is_numeric_dtype(y):
+             y_encoded = self.label_encoder.fit_transform(y)
+        else:
+             y_encoded = y
+
         return train_test_split(X_scaled, y_encoded, test_size=0.2, random_state=42)
 
     def preprocess_inference(self, df: pd.DataFrame) -> Any:
+        # Simplified inference preprocessing
         numerical_cols = df.select_dtypes(include=['number']).columns
+        # Handle missings
+        df[numerical_cols] = df[numerical_cols].fillna(0)
         return self.scaler.transform(df[numerical_cols])
 
     def save_preprocessors(self, path: str):
@@ -46,93 +68,166 @@ class DataPreprocessor:
 '''
 
 def _load_class_robust(file_path: str, class_name: str):
-    """Load a class from file bypassing Python cache."""
+    """
+    Robustly loads a class from file, bypassing cache using UUIDs.
+    Inlined here to ensure this logic is active even if src/utils/dynamic_loader.py is stale.
+    """
     import importlib.util
+    import os
+    import sys
+    import uuid
+    
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"File not found: {file_path}")
 
+    # Use unique module name to avoid caching issues
     module_name = f"{os.path.splitext(os.path.basename(file_path))[0]}_{uuid.uuid4().hex}"
-    spec = importlib.util.spec_from_file_location(module_name, file_path)
-    module = importlib.util.module_from_spec(spec)
-    sys.modules[module_name] = module
-    spec.loader.exec_module(module)
-
-    if not hasattr(module, class_name):
-        raise ValueError(f"Class '{class_name}' not found in {file_path}")
-    return getattr(module, class_name)
-
+    
+    try:
+        spec = importlib.util.spec_from_file_location(module_name, file_path)
+        if spec is None or spec.loader is None:
+             raise ImportError(f"Could not load spec for module: {module_name}")
+             
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[module_name] = module
+        spec.loader.exec_module(module)
+        
+        if not hasattr(module, class_name):
+            raise ValueError(f"Class '{class_name}' not found in {file_path}")
+            
+        return getattr(module, class_name)
+    except Exception as e:
+        raise ImportError(f"Failed to load class '{class_name}' from '{file_path}': {e}")
 
 class PreprocessingStep(PipelineStepHandler):
+    """
+    Step to preprocess the data using a custom script.
+    """
     def execute(self, context: Dict[str, Any], config: Dict[str, Any]) -> None:
+        logger.info("Starting Preprocessing Step...")
+        
         if 'data' not in context:
             raise ValueError("No data found in context for preprocessing")
-
+        
         df = context['data']
         script_path = config.get('script_path', 'src/features/preprocess.py')
-        target_col = config.get('target_col')
-        context['target_col'] = target_col
-
+        target_col = config.get('target_col', 'target')
+        # ... (rest of config extraction)
+        
+        if target_col:
+             context['target_col'] = target_col
+             
         forecasting_config = config.get('forecasting', {})
         forecasting_horizons = forecasting_config.get('horizons')
         timestamp_col = forecasting_config.get('timestamp_col')
         
-        # Sort by timestamp if provided
-        if timestamp_col and timestamp_col in df.columns:
-            df = df.sort_values(timestamp_col).reset_index(drop=True)
-            context['data'] = df
-
-        # Create default script if missing
+        if timestamp_col:
+            context['timestamp_col'] = timestamp_col
+            # Force sort here to ensure consistency and correct Train/Test split
+            ts_col_clean = timestamp_col.strip()
+            if ts_col_clean in df.columns:
+                 logger.info(f"Sorting data by timestamp column '{ts_col_clean}' (Ascending)...")
+                 df = df.sort_values(by=ts_col_clean, ascending=True)
+                 df = df.reset_index(drop=True) # CRITICAL: Reset index so it matches X after flattening
+                 context['data'] = df
+            elif timestamp_col in df.columns:
+                 logger.info(f"Sorting data by timestamp column '{timestamp_col}' (Ascending)...")
+                 df = df.sort_values(by=timestamp_col, ascending=True)
+                 df = df.reset_index(drop=True) # CRITICAL: Reset index to align with X (which gets reset in flatten)
+                 context['data'] = df
+            else:
+                 logger.warning(f"Timestamp column '{timestamp_col}' (or '{ts_col_clean}') NOT found in DataFrame.")
+                 logger.warning(f"Available columns: {df.columns.tolist()}")
+        else:
+             if forecasting_horizons:
+                 logger.warning("Forecasting horizons provided but NO timestamp_col. Data order depends on upstream source.")
+        
         if not os.path.exists(script_path):
-            os.makedirs(os.path.dirname(script_path), exist_ok=True)
-            with open(script_path, 'w') as f:
-                f.write(DEFAULT_PREPROCESS_TEMPLATE)
+            logger.warning(f"CRITICAL WARNING: Preprocessing script not found at {script_path}. Creating DEFAULT template. This may not be what you want!")
+            logger.info(f"Creating default template at {script_path}...")
+            try:
+                os.makedirs(os.path.dirname(script_path), exist_ok=True)
+                with open(script_path, 'w') as f:
+                    f.write(DEFAULT_PREPROCESS_TEMPLATE)
+            except Exception as e:
+                logger.error(f"Failed to create default preprocessing script: {e}")
+                raise ValueError(f"Script not found and failed to create default: {e}")
 
-        # Load DataPreprocessor robustly (avoiding cache)
-        DataPreprocessorClass = _load_class_robust(script_path, 'DataPreprocessor')
+        # New robust loader usage 
+        DataPreprocessorClass = _load_class_robust(script_path, 'DataPreprocessor')   # NEW
         preprocessor = DataPreprocessorClass()
 
         if target_col:
+            # Training mode preprocessing
             import inspect
             sig = inspect.signature(preprocessor.preprocess_train)
-
-            # Convert string horizons to list
+            logger.info(f"DEBUG: DataPreprocessor.preprocess_train signature: {sig}")
+            
+            # Ensure forecasting_horizons is a list
             if forecasting_horizons and isinstance(forecasting_horizons, str):
-                forecasting_horizons = [h.strip() for h in forecasting_horizons.split(',')]
+                 forecasting_horizons = [h.strip() for h in forecasting_horizons.split(',')]
+                 logger.info(f"Converted forecasting_horizons string to list: {forecasting_horizons}")
 
+            # Call directly. 
             try:
-                ret_val = preprocessor.preprocess_train(
-                    df, target_col,
-                    forecasting_horizons=forecasting_horizons,
-                    timestamp_col=timestamp_col
-                )
+                ret_val = preprocessor.preprocess_train(df, target_col, forecasting_horizons=forecasting_horizons, timestamp_col=timestamp_col)
             except TypeError as e:
-                # Server file likely stale
+                # If we get here, it means the method signature doesn't match the arguments we passed.
+                # Since we know the code in git HAS the arguments, this means the server file is stale.
+                import inspect
                 sig = inspect.signature(preprocessor.preprocess_train)
                 error_msg = (
-                    f"Deployment Mismatch Error! The 'preprocess_train' method on the server does not accept the expected arguments.\n"
-                    f"Server Signature: {sig}\n"
-                    f"Expected Arguments: forecasting_horizons, timestamp_col\n"
+                    f"Deployment Mismatch Error! The 'preprocess_train' method on the server does not accept the expected arguments.\\n"
+                    f"Server Signature: {sig}\\n"
+                    f"Expected Arguments: forecasting_horizons, timestamp_col\\n"
+                    f"This usually means the 'src/features/preprocess.py' file on the server has not been updated with the latest changes.\\n"
                     f"Please RE-DEPLOY or sync your server files."
                 )
                 logger.error(error_msg)
                 raise ValueError(error_msg) from e
-
-            # Handle 4 or 5 return values
+            
+            # Handle 5-value return (list or tuple)
             if len(ret_val) == 5:
                 X_train, X_test, y_train, y_test, X_latest = ret_val
-            else:
+                logger.info("Successfully identified X_latest from preprocessing.")
+            elif len(ret_val) == 4:
                 X_train, X_test, y_train, y_test = ret_val
                 X_latest = None
+                logger.info("Preprocessing returned 4 values (Standard split).")
+            else:
+                raise ValueError(f"Unexpected return length from preprocess_train: {len(ret_val)}")
 
-            context.update({
-                'X_train': X_train,
-                'X_test': X_test,
-                'y_train': y_train,
-                'y_test': y_test,
-                'X_latest': X_latest,
-                'preprocessor': preprocessor
-            })
+            context['X_train'] = X_train
+            context['X_test'] = X_test
+            context['y_train'] = y_train
+            context['y_test'] = y_test
+            context['X_latest'] = X_latest
+            context['preprocessor'] = preprocessor
+            
+            # IMPORTANT: Save unscaled X_test for Prediction step to use when testing pipeline flow
+            if hasattr(X_test, 'index') and not X_test.empty:
+                try:
+                    # We need the original timestamps. 
+                    # If df was sorted and reset_index, and X_test has the same index, we can just grab rows from df.
+                    X_test_original = df.loc[X_test.index].copy()
+                    context['X_test_original'] = X_test_original
+                    logger.info("Saved X_test_original for unscaled prediction output.")
+                except Exception as e:
+                    logger.warning(f"Could not save X_test_original: {e}")
+            else:
+                logger.warning("X_test is not a DataFrame or missing index. specific timestamp recovery might fail.")
+            
+            if forecasting_horizons:
+                 context['task_type'] = 'forecasting'
+                 context['forecasting_horizons'] = forecasting_horizons
+                 logger.info(f"Preprocessing completed (Forecasting mode). Horizons: {forecasting_horizons}")
+            else:
+                 logger.info("Preprocessing completed (Train/Test split).")
         else:
-            # Inference mode
+            # Inference mode preprocessing
+            # Save original data for prediction output
             context['original_data'] = df.copy()
-            context['data'] = preprocessor.preprocess_inference(df)
+            
+            processed_data = preprocessor.preprocess_inference(df)
+            context['data'] = processed_data
+            logger.info("Preprocessing completed (Inference mode).")
