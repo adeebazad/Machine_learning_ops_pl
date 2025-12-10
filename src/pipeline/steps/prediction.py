@@ -204,4 +204,95 @@ class PredictionStep(PipelineStepHandler):
             logger.info(f"Prediction completed. Output column: {pred_col_name}")
         
         context['data'] = result_df
-        logger.info(f"Prediction completed. Output column: {pred_col_name}")
+        logger.info(f"Prediction completed. Output column(s) attached.")
+        
+        # --- Forecasting Future Timestamp Logic ---
+        # Robust Logic: Check context for horizons, or infer from columns
+        timestamp_col = context.get('timestamp_col')
+        forecasting_horizons = context.get('forecasting_horizons')
+        
+        # If horizons not in context, try to infer from single 1h config? 
+        # But prediction step config doesn't have it usually. rely on context or column names.
+        
+        if timestamp_col and timestamp_col in result_df.columns:
+             import re
+             
+             # Determine which columns are predictions and what their horizons are.
+             # List of tuples: (prediction_column_name, horizon_str)
+             horizons_to_process = []
+             
+             if forecasting_horizons:
+                  # We have explicit horizons from preprocessing
+                  # We need to map them to columns.
+                  # If multi-output, we generated specific names.
+                  # If single output (len(forecasting_horizons)==1), it's the single pred column
+                  if len(forecasting_horizons) == 1:
+                       # Single output case
+                       # Find the prediction column.
+                       # It's usually 'prediction_{target_col}' or just 'prediction'
+                       target_col = context.get('target_col', '')
+                       pred_col = f"prediction_{target_col}" if target_col else "prediction"
+                       # Check if this column exists
+                       if pred_col in result_df.columns:
+                            horizons_to_process.append((pred_col, forecasting_horizons[0]))
+                       elif f"prediction_{forecasting_horizons[0]}" in result_df.columns:
+                            # Maybe it was named with horizon
+                            horizons_to_process.append((f"prediction_{forecasting_horizons[0]}", forecasting_horizons[0]))
+                  else:
+                       # Multi output
+                       for h in forecasting_horizons:
+                            # Try to find corresponding column
+                            # Logic used in prediction.py naming: 'prediction_target_+1h' usually
+                            # But if names were inferred generic 'prediction_0', this breaks.
+                            # Let's try standard names.
+                            possible_names = [f"prediction_target_+{h}", f"prediction_{h}", f"prediction_target_{h}"]
+                            for name in possible_names:
+                                 if name in result_df.columns:
+                                      horizons_to_process.append((name, h))
+                                      break
+             else:
+                  # Fallback to Regex on columns if context missing
+                  for col in result_df.columns:
+                      if col.startswith("prediction"):
+                           match = re.search(r'prediction_target_\+(\d+[hd])', col)
+                           if match:
+                                horizons_to_process.append((col, match.group(1)))
+            
+             # Process timestamps
+             for pred_col, horizon_str in horizons_to_process:
+                   try:
+                       delta = None
+                       # Normalize horizon strings (handle '1h', '6h')
+                       h_str = str(horizon_str).lower().strip()
+                       
+                       if h_str.endswith('h'):
+                            hours = int(h_str[:-1])
+                            delta = pd.Timedelta(hours=hours)
+                       elif h_str.endswith('d'):
+                            days = int(h_str[:-1])
+                            delta = pd.Timedelta(days=days)
+                       elif h_str.isdigit():
+                            # Assume hours if just number provided? Or rows?
+                            # Without frequency info, this is ambiguous. Assume hours for now as per user context.
+                             delta = pd.Timedelta(hours=int(h_str))
+                       
+                       if delta:
+                           future_ts_col = f"timestamp_+{horizon_str}"
+                           
+                           # Check dtype of timestamp_col
+                           ts_series = result_df[timestamp_col]
+                           if pd.api.types.is_numeric_dtype(ts_series):
+                               # Assume milliseconds 
+                               ms_delta = delta.total_seconds() * 1000
+                               result_df[future_ts_col] = ts_series + ms_delta
+                           else:
+                               # Assume datetime object
+                               result_df[future_ts_col] = pd.to_datetime(ts_series) + delta
+                               
+                           logger.info(f"Created future timestamp column '{future_ts_col}' for horizon '{horizon_str}'")
+                   except Exception as e:
+                       logger.warning(f"Failed to calculate future timestamp for horizon {horizon_str}: {e}")
+                       
+             # Update context data with new columns
+             context['data'] = result_df
+        # ------------------------------------------

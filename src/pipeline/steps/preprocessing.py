@@ -135,6 +135,7 @@ class PreprocessingStep(PipelineStepHandler):
             
             if forecasting_horizons:
                  context['task_type'] = 'forecasting'
+                 context['forecasting_horizons'] = forecasting_horizons
                  logger.info(f"Preprocessing completed (Forecasting mode). Horizons: {forecasting_horizons}")
             else:
                  logger.info("Preprocessing completed (Train/Test split).")
