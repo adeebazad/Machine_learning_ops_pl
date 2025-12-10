@@ -17,6 +17,9 @@ class DataPreprocessor:
         """
         if target_col not in df.columns:
             raise ValueError(f"Target column '{target_col}' not found in DataFrame. Available: {df.columns.tolist()}")
+        
+        # Robustness: Drop rows where target is NaN immediately
+        df = df.dropna(subset=[target_col])
 
         # Sort by timestamp if provided
         # Sort by timestamp if provided
