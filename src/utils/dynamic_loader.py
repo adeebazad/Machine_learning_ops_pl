@@ -22,7 +22,9 @@ def load_class_from_file(file_path: str, class_name: str):
         raise FileNotFoundError(f"File not found: {file_path}")
 
     # Get module name from file name
-    module_name = os.path.splitext(os.path.basename(file_path))[0]
+    import uuid
+    # Use unique module name to avoid caching issues when user updates script
+    module_name = f"{os.path.splitext(os.path.basename(file_path))[0]}_{uuid.uuid4().hex}"
     
     try:
         # Force reload if already loaded to pick up changes
