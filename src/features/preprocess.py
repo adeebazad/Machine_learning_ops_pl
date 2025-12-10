@@ -75,47 +75,44 @@ class DataPreprocessor:
         X_scaled = X.copy()
         if len(numerical_cols) > 0:
             # Handle NaNs in numerical columns before scaling to prevent crash
-            if X_scaled[numerical_cols].isnull().any().any():
-                print("Warning: NaNs detected in numerical features. Filling with 0 before scaling.")
-                X_scaled[numerical_cols] = X_scaled[numerical_cols].fillna(0)
+            if X[numerical_cols].isnull().any().any():
+                print("Warning: NaNs detected in numerical features. Filling with 0.")
+                X[numerical_cols] = X[numerical_cols].fillna(0)
+            
+            # Fill ANY remaining NaNs in X (e.g. categorical) to prevent dropna later
+            # This is critical for sparse sensor data
+            if X.isnull().any().any():
+                 print("Warning: NaNs detected in non-numerical features. Filling with 'Unknown' or 0.")
+                 X = X.fillna('Unknown') # Default strategy
 
-            X_scaled[numerical_cols] = self.scaler.fit_transform(X_scaled[numerical_cols])
+            X_scaled[numerical_cols] = self.scaler.fit_transform(X[numerical_cols])
+            
+            # Update X_scaled with the filled categorical columns too (if any were not numeric)
+            # Actually X_scaled was a copy, careful.
+            # We want X_scaled to have the FILLED values.
+            # Copy non-numericals back if needed? 
+            # Or just operate on X_scaled?
+            # Let's ensure X_scaled has no NaNs.
+            non_numeric = X.columns.difference(numerical_cols)
+            if len(non_numeric) > 0:
+                 X_scaled[non_numeric] = X[non_numeric]
 
         # Store scaler for later use
         self.fitted_numerical_cols = numerical_cols
         
         # Encode target if it's not a forecasting task (classification/single regression)
-        # If forecasting, we usually keep y as numeric (regression)
         if not forecasting_horizons:
-             # Check if y is numeric. If so, don't encode.
              if not pd.api.types.is_numeric_dtype(y):
                  y = self.label_encoder.fit_transform(y)
-        
-        # Drop NaNs created by shifting
-        # We need to align X and y
-        # X and y indices should match
         
         combined = pd.concat([X_scaled, y], axis=1)
         
         # Identification of "Future/Latest" rows: where y has NaNs (due to shifting)
-        # Assuming NaNs in y come ONLY from shifting.
-        # If dataset had missing values strictly in y before, this might be noisy, but for forecasting it's standard.
         if forecasting_horizons:
-            # Rows where ANY target column is NaN are likely the future-facing ones
-            # (Strictly speaking, for multiple horizons, we might have partials. 
-            #  e.g. +1h exists, +6h is NaN. We usually drop these for training multi-output models 
-            #  or use them if the model handles NaNs. Most sklearn models don't.
-            #  So we separate them.)
-            
-            # Simple logic: If any target is null, it's a candidate for "Latest" inference
-            # We want to save the X part of these rows.
-            # We use the scaled X for inference.
-            
             target_cols_list = y.columns.tolist()
             mask_future = y[target_cols_list].isnull().any(axis=1)
             
             X_latest = combined.loc[mask_future, X_scaled.columns]
-            y_latest_empty = combined.loc[mask_future, target_cols_list] # Just for debugging
             
             print(f"Identified {len(X_latest)} rows for future forecasting (latest data).")
             
@@ -123,15 +120,16 @@ class DataPreprocessor:
             print(f"DEBUG: Combined shape before dropna: {combined.shape}")
             print(f"DEBUG: NaNs per column:\n{combined.isnull().sum()}")
             
-            # Now drop them from training set
-            combined_clean = combined.dropna()
+            # CRITICAL FIX: Only drop rows where TARGETS are missing.
+            # Keep rows where features might be sparse (we already filled them above, but just in case)
+            combined_clean = combined.dropna(subset=target_cols_list)
             
             if combined_clean.empty:
                 raise ValueError(
                     f"Insufficient data for forecasting! "
                     f"After shifting for horizons {forecasting_horizons}, no rows remained directly for training. "
                     f"This usually means your dataset is shorter than the requested horizon (e.g. asking for 1d shift on <1d data) "
-                    f"or contains too many gaps. Please reduce the horizon or check data continuity."
+                    f"or contains too many gaps. Please reduce the horizon to '1h' or check data continuity."
                 )
         else:
              combined_clean = combined.dropna()
