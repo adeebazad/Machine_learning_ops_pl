@@ -69,11 +69,26 @@ class DataPreprocessor:
                  y = self.label_encoder.fit_transform(y)
         
         # Drop NaNs created by shifting
-        combined = pd.concat([X_scaled, y], axis=1).dropna()
-        X_final = combined[X_scaled.columns]
-        y_final = combined[y.columns if isinstance(y, pd.DataFrame) else y.name]
+        # Drop NaNs created by shifting? No, we need them for X_latest.
+        combined = pd.concat([X_scaled, y], axis=1)
+        
+        # Identification of "Future/Latest" rows: where y has NaNs (due to shifting)
+        if forecasting_horizons:
+            target_cols_list = y.columns.tolist()
+            mask_future = y[target_cols_list].isnull().any(axis=1)
+            
+            X_latest = combined.loc[mask_future, X_scaled.columns]
+            print(f"Identified {len(X_latest)} rows for future forecasting (latest data).")
+            
+            combined_clean = combined.dropna()
+        else:
+             combined_clean = combined.dropna()
+             X_latest = pd.DataFrame(columns=X_scaled.columns)
 
-        return train_test_split(X_final, y_final, test_size=0.2, shuffle=False if (timestamp_col or forecasting_horizons) else True, random_state=42 if not (timestamp_col or forecasting_horizons) else None)
+        X_final = combined_clean[X_scaled.columns]
+        y_final = combined_clean[y.columns if isinstance(y, pd.DataFrame) else y.name]
+
+        return train_test_split(X_final, y_final, test_size=0.2, shuffle=False if (timestamp_col or forecasting_horizons) else True, random_state=42 if not (timestamp_col or forecasting_horizons) else None) + [X_latest]
 
     def _create_forecasting_targets(self, df: pd.DataFrame, target_col: str, horizons: list) -> Tuple[pd.DataFrame, list]:
         """

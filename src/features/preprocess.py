@@ -115,7 +115,7 @@ class DataPreprocessor:
         X_final = combined_clean[X_scaled.columns]
         y_final = combined_clean[y.columns if isinstance(y, pd.DataFrame) else y.name]
 
-        return train_test_split(X_final, y_final, test_size=0.2, shuffle=False if (timestamp_col or forecasting_horizons) else True, random_state=42 if not (timestamp_col or forecasting_horizons) else None) + (X_latest,)
+        return train_test_split(X_final, y_final, test_size=0.2, shuffle=False if (timestamp_col or forecasting_horizons) else True, random_state=42 if not (timestamp_col or forecasting_horizons) else None) + [X_latest]
 
     def _create_forecasting_targets(self, df: pd.DataFrame, target_col: str, horizons: list) -> Tuple[pd.DataFrame, list]:
         """
