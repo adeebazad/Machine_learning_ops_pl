@@ -105,10 +105,54 @@ class PreprocessingStep(PipelineStepHandler):
                 logger.error(f"Failed to create default preprocessing script: {e}")
                 raise ValueError(f"Script not found and failed to create default: {e}")
 
-        DataPreprocessorClass = load_class_from_file(script_path, 'DataPreprocessor')
-        preprocessor = DataPreprocessorClass()
+def _load_class_robust(file_path: str, class_name: str):
+    """
+    Robustly loads a class from file, bypassing cache using UUIDs.
+    Inlined here to ensure this logic is active even if src/utils/dynamic_loader.py is stale.
+    """
+    import importlib.util
+    import os
+    import sys
+    import uuid
+    
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"File not found: {file_path}")
+
+    # Use unique module name to avoid caching issues
+    module_name = f"{os.path.splitext(os.path.basename(file_path))[0]}_{uuid.uuid4().hex}"
+    
+    try:
+        spec = importlib.util.spec_from_file_location(module_name, file_path)
+        if spec is None or spec.loader is None:
+             raise ImportError(f"Could not load spec for module: {module_name}")
+             
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[module_name] = module
+        spec.loader.exec_module(module)
         
-        # forecasting_config already fetched above
+        if not hasattr(module, class_name):
+            raise ValueError(f"Class '{class_name}' not found in {file_path}")
+            
+        return getattr(module, class_name)
+    except Exception as e:
+        raise ImportError(f"Failed to load class '{class_name}' from '{file_path}': {e}")
+
+class PreprocessingStep(PipelineStep):
+    """
+    Step to preprocess the data using a custom script.
+    """
+    def execute(self, context: dict, config: dict) -> bool:
+        logger.info("Starting Preprocessing Step...")
+        
+        script_path = config.get('script_path')
+        target_col = config.get('target_col', 'target')
+        # ... (rest of config extraction)
+        
+        # New robust loader usage 
+        # DataPreprocessorClass = load_class_from_file(script_path, 'DataPreprocessor') # OLD
+        DataPreprocessorClass = _load_class_robust(script_path, 'DataPreprocessor')   # NEW
+        preprocessor = DataPreprocessorClass()
+
 
 
         if target_col:
