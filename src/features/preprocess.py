@@ -50,6 +50,11 @@ class DataPreprocessor:
         # Identify numerical columns for scaling
         numerical_cols = X.select_dtypes(include=['number']).columns
         
+        # Exclude timestamp_col from scaling if present
+        if timestamp_col and timestamp_col in numerical_cols:
+            print(f"Excluding timestamp column '{timestamp_col}' from scaling.")
+            numerical_cols = numerical_cols.drop(timestamp_col)
+        
         # Scale numerical features
         X_scaled = X.copy()
         if len(numerical_cols) > 0:
