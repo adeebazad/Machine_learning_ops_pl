@@ -126,8 +126,23 @@ class PreprocessingStep(PipelineStepHandler):
                  forecasting_horizons = [h.strip() for h in forecasting_horizons.split(',')]
                  logger.info(f"Converted forecasting_horizons string to list: {forecasting_horizons}")
 
-            # Call directly. If it fails, let it crash so we see the error.
-            ret_val = preprocessor.preprocess_train(df, target_col, forecasting_horizons=forecasting_horizons, timestamp_col=timestamp_col)
+            # Call directly. 
+            try:
+                ret_val = preprocessor.preprocess_train(df, target_col, forecasting_horizons=forecasting_horizons, timestamp_col=timestamp_col)
+            except TypeError as e:
+                # If we get here, it means the method signature doesn't match the arguments we passed.
+                # Since we know the code in git HAS the arguments, this means the server file is stale.
+                import inspect
+                sig = inspect.signature(preprocessor.preprocess_train)
+                error_msg = (
+                    f"Deployment Mismatch Error! The 'preprocess_train' method on the server does not accept the expected arguments.\n"
+                    f"Server Signature: {sig}\n"
+                    f"Expected Arguments: forecasting_horizons, timestamp_col\n"
+                    f"This usually means the 'src/features/preprocess.py' file on the server has not been updated with the latest changes.\n"
+                    f"Please RE-DEPLOY or sync your server files."
+                )
+                logger.error(error_msg)
+                raise ValueError(error_msg) from e
             
             # Handle 5-value return (list or tuple)
             if len(ret_val) == 5:
