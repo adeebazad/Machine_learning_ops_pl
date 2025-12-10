@@ -117,35 +117,28 @@ class PreprocessingStep(PipelineStepHandler):
             # Actually, I updated the script, so it should be fine. But if it's a user-supplied script without the args, it might fail.
             # However, the task is to enable this feature. I assume the script is the one I just edited.
             
-            # Attempt to call with forecasting arguments
-            # We use try/except instead of inspect to be more robust against caching/reloading issues
-            try:
-                 import inspect
-                 sig = inspect.signature(preprocessor.preprocess_train)
-                 logger.info(f"DEBUG: DataPreprocessor.preprocess_train signature: {sig}")
-                 
-                 ret_val = preprocessor.preprocess_train(df, target_col, forecasting_horizons=forecasting_horizons, timestamp_col=timestamp_col)
-                 
-                 # Handle 5-value return (list or tuple)
-                 # train_test_split returns a list.
-                 if len(ret_val) == 5:
-                     X_train, X_test, y_train, y_test, X_latest = ret_val
-                     logger.info("Successfully identified X_latest from preprocessing.")
-                 elif len(ret_val) == 4:
-                     X_train, X_test, y_train, y_test = ret_val
-                     X_latest = None
-                     logger.info("Preprocessing returned 4 values (Standard split).")
-                 else:
-                     raise ValueError(f"Unexpected return length from preprocess_train: {len(ret_val)}")
-                     
-            except TypeError as e:
-                 # Fallback: Method doesn't accept the new arguments
-                 logger.error(f"DataPreprocessor.preprocess_train FAILED with forecasting args. Exception: {e}")
-                 import traceback
-                 logger.error(traceback.format_exc())
-                 logger.warning("Forecasting configuration (horizons/timestamp) will be IGNORED in split logic (Shuffle may occur!).")
-                 X_train, X_test, y_train, y_test = preprocessor.preprocess_train(df, target_col)
-                 X_latest = None
+            import inspect
+            sig = inspect.signature(preprocessor.preprocess_train)
+            logger.info(f"DEBUG: DataPreprocessor.preprocess_train signature: {sig}")
+            
+            # Ensure forecasting_horizons is a list
+            if forecasting_horizons and isinstance(forecasting_horizons, str):
+                 forecasting_horizons = [h.strip() for h in forecasting_horizons.split(',')]
+                 logger.info(f"Converted forecasting_horizons string to list: {forecasting_horizons}")
+
+            # Call directly. If it fails, let it crash so we see the error.
+            ret_val = preprocessor.preprocess_train(df, target_col, forecasting_horizons=forecasting_horizons, timestamp_col=timestamp_col)
+            
+            # Handle 5-value return (list or tuple)
+            if len(ret_val) == 5:
+                X_train, X_test, y_train, y_test, X_latest = ret_val
+                logger.info("Successfully identified X_latest from preprocessing.")
+            elif len(ret_val) == 4:
+                X_train, X_test, y_train, y_test = ret_val
+                X_latest = None
+                logger.info("Preprocessing returned 4 values (Standard split).")
+            else:
+                raise ValueError(f"Unexpected return length from preprocess_train: {len(ret_val)}")
 
             context['X_train'] = X_train
             context['X_test'] = X_test
