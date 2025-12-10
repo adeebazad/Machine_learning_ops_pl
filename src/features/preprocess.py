@@ -82,11 +82,40 @@ class DataPreprocessor:
         # We need to align X and y
         # X and y indices should match
         
-        combined = pd.concat([X_scaled, y], axis=1).dropna()
-        X_final = combined[X_scaled.columns]
-        y_final = combined[y.columns if isinstance(y, pd.DataFrame) else y.name]
+        combined = pd.concat([X_scaled, y], axis=1)
+        
+        # Identification of "Future/Latest" rows: where y has NaNs (due to shifting)
+        # Assuming NaNs in y come ONLY from shifting.
+        # If dataset had missing values strictly in y before, this might be noisy, but for forecasting it's standard.
+        if forecasting_horizons:
+            # Rows where ANY target column is NaN are likely the future-facing ones
+            # (Strictly speaking, for multiple horizons, we might have partials. 
+            #  e.g. +1h exists, +6h is NaN. We usually drop these for training multi-output models 
+            #  or use them if the model handles NaNs. Most sklearn models don't.
+            #  So we separate them.)
+            
+            # Simple logic: If any target is null, it's a candidate for "Latest" inference
+            # We want to save the X part of these rows.
+            # We use the scaled X for inference.
+            
+            target_cols_list = y.columns.tolist()
+            mask_future = y[target_cols_list].isnull().any(axis=1)
+            
+            X_latest = combined.loc[mask_future, X_scaled.columns]
+            y_latest_empty = combined.loc[mask_future, target_cols_list] # Just for debugging
+            
+            print(f"Identified {len(X_latest)} rows for future forecasting (latest data).")
+            
+            # Now drop them from training set
+            combined_clean = combined.dropna()
+        else:
+             combined_clean = combined.dropna()
+             X_latest = pd.DataFrame(columns=X_scaled.columns)
 
-        return train_test_split(X_final, y_final, test_size=0.2, shuffle=False if (timestamp_col or forecasting_horizons) else True, random_state=42 if not (timestamp_col or forecasting_horizons) else None)
+        X_final = combined_clean[X_scaled.columns]
+        y_final = combined_clean[y.columns if isinstance(y, pd.DataFrame) else y.name]
+
+        return train_test_split(X_final, y_final, test_size=0.2, shuffle=False if (timestamp_col or forecasting_horizons) else True, random_state=42 if not (timestamp_col or forecasting_horizons) else None) + (X_latest,)
 
     def _create_forecasting_targets(self, df: pd.DataFrame, target_col: str, horizons: list) -> Tuple[pd.DataFrame, list]:
         """

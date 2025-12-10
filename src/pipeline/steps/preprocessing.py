@@ -98,15 +98,30 @@ class PreprocessingStep(PipelineStepHandler):
             import inspect
             sig = inspect.signature(preprocessor.preprocess_train)
             if 'forecasting_horizons' in sig.parameters:
-                 X_train, X_test, y_train, y_test = preprocessor.preprocess_train(df, target_col, forecasting_horizons=forecasting_horizons, timestamp_col=timestamp_col)
+                 # preprocess_train might return 4 or 5 values depending on version. 
+                 # Since we just updated it to return 5 (X_latest appended), strictly expected to be 5 if updated.
+                 # Python unpacking is strict.
+                 try:
+                     ret_val = preprocessor.preprocess_train(df, target_col, forecasting_horizons=forecasting_horizons, timestamp_col=timestamp_col)
+                     if len(ret_val) == 5:
+                         X_train, X_test, y_train, y_test, X_latest = ret_val
+                     else:
+                         X_train, X_test, y_train, y_test = ret_val
+                         X_latest = None
+                 except ValueError:
+                     # Fallback if unpacking fails
+                     X_train, X_test, y_train, y_test = preprocessor.preprocess_train(df, target_col, forecasting_horizons=forecasting_horizons, timestamp_col=timestamp_col)
+                     X_latest = None
             else:
                  logger.warning("DataPreprocessor.preprocess_train does not accept forecasting_horizons. Ignoring forecasting config.")
                  X_train, X_test, y_train, y_test = preprocessor.preprocess_train(df, target_col)
+                 X_latest = None
 
             context['X_train'] = X_train
             context['X_test'] = X_test
             context['y_train'] = y_train
             context['y_test'] = y_test
+            context['X_latest'] = X_latest
             context['preprocessor'] = preprocessor
             
             # IMPORTANT: Save unscaled X_test for Prediction step to use when testing pipeline flow

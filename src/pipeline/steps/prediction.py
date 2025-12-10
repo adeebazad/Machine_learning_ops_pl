@@ -24,8 +24,42 @@ class PredictionStep(PipelineStepHandler):
              # but we must use the scaled 'data_to_predict' for the model input.
              if 'X_test_original' in context:
                  logger.info("Found X_test_original. Will use it for output DataFrame to preserve timestamps.")
-                 # We'll set a flag or just use it later when building result_df
-                 pass 
+                 pass
+             
+             # If we have X_latest (future rows), we want to PREDICT on them too.
+             # So data_to_predict should be X_test + X_latest
+             if 'X_latest' in context and context['X_latest'] is not None and not context['X_latest'].empty:
+                  logger.info(f"Found X_latest ({len(context['X_latest'])} rows) for explicit future forecasting.")
+                  
+                  # Concatenate features for input
+                  # X_test is scaled. X_latest is scaled.
+                  if isinstance(data_to_predict, pd.DataFrame) and isinstance(context['X_latest'], pd.DataFrame):
+                       # Align columns just in case
+                       X_latest_aligned = context['X_latest'][data_to_predict.columns]
+                       data_to_predict = pd.concat([data_to_predict, X_latest_aligned], axis=0)
+                       logger.info(f"Combined X_test and X_latest. Total rows: {len(data_to_predict)}")
+                       
+                       # Also need to handle X_test_original for output
+                       if 'X_test_original' in context:
+                            # We need the unscaled version of X_latest to join here?
+                            # X_latest coming from preprocessing is SCALED X.
+                            # We need original X_latest.
+                            # Preprocessing step didn't save unscaled X_latest explicitly?
+                            # Actually X_latest was derived from combined scaled X.
+                            # To get unscaled X_latest, we might need to inverse transform it?
+                            # Or better: Preprocessing step should return unscaled X_latest?
+                            # For now, let's use the scaled X_latest tokens for the output, OR
+                            # Since we have timestamp_col in context, maybe we can reconstruct?
+                            # Actually, if we use X_test_original + X_latest (scaled), the timestamps in X_latest might be scaled/missing?
+                            # X_latest has index. If index is preserved from original df, we can fetch from original df?
+                            # But original df is not saved in Training mode (unless we change that).
+                            
+                            # Workaround: Just append X_latest to result_df. timestamps will be missing/scaled if unscaled_X_latest not available.
+                            # BUT wait, the timestamp_col is EXCLUDED from scaling if config matches.
+                            # So X_latest should have unscaled timestamp_col!
+                            pass 
+                  else:
+                       logger.warning("X_latest or X_test format mismatch. Skipping combination.") 
         elif 'data' in context:
              # Inference mode
              data_to_predict = context['data']
@@ -77,6 +111,26 @@ class PredictionStep(PipelineStepHandler):
             # If we used X_test, it's already a DataFrame (likely scaled)
             if 'X_test_original' in context:
                 result_df = context['X_test_original'].copy()
+                
+                # Check if we combined X_latest into data_to_predict
+                # If so, result_df needs to include X_latest too
+                if len(data_to_predict) > len(result_df):
+                     # We have extra rows (X_latest).
+                     # We need to append them.
+                     # X_latest is in context['X_latest'] (scaled).
+                     # Ideally we want unscaled. But since timestamp wasn't scaled, we can use it.
+                     if 'X_latest' in context and context['X_latest'] is not None:
+                          X_latest = context['X_latest']
+                          # Reconcile columns
+                          # X_test_original has all cols (or most). X_latest has feature cols.
+                          # We align to X_test_original columns if possible.
+                          try:
+                               # Identify common columns
+                               common_cols = result_df.columns.intersection(X_latest.columns)
+                               X_latest_subset = X_latest[common_cols]
+                               result_df = pd.concat([result_df, X_latest_subset], axis=0) 
+                          except Exception as e:
+                               logger.warning(f"Failed to append X_latest to result_df: {e}")
             elif isinstance(data_to_predict, pd.DataFrame):
                 result_df = data_to_predict.copy()
             else:
