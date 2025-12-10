@@ -106,6 +106,30 @@ class PreprocessingStep(PipelineStepHandler):
             context['y_test'] = y_test
             context['preprocessor'] = preprocessor
             
+            # IMPORTANT: Save unscaled X_test for Prediction step to use when testing pipeline flow
+            # Since train_test_split is deterministic with same seed (42 or None) if we repeat it:
+            # But wait, 'preprocess_train' did the split. We don't have the indices.
+            # However, we can try to replicate the split on the original DF if forecasting horizons/timestamp logic matches.
+            # BETTER APPROACH: Modify 'preprocess_train' to return unscaled versions? No, breaks API.
+            # ALTERNATIVE: Use the fact that X_test index is preserved in pandas train_test_split.
+            
+            if hasattr(X_test, 'index'):
+                # Reconstruct X_test_original from df using indices
+                # Note: 'df' might have been modified (sorted) inside preprocess_train if timestamp_col was passed.
+                # So we need the sorted df? 
+                # Actually, preprocess_train sorts it internally.
+                # If we want to be safe, we should assume the indices in X_test match the original df indices (if unique).
+                try:
+                    X_test_original = df.loc[X_test.index].copy()
+                    # If target cols were dropped, they might be in df. But we want X features mainly.
+                    # We can just keep all cols from df corresponding to these rows.
+                    context['X_test_original'] = X_test_original
+                    logger.info("Saved X_test_original for unscaled prediction output.")
+                except Exception as e:
+                    logger.warning(f"Could not save X_test_original: {e}")
+            else:
+                logger.warning("X_test is not a DataFrame or missing index. specific timestamp recovery might fail.")
+            
             if forecasting_horizons:
                  context['task_type'] = 'forecasting'
                  logger.info(f"Preprocessing completed (Forecasting mode). Horizons: {forecasting_horizons}")

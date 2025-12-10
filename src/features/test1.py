@@ -43,14 +43,20 @@ class DataPreprocessor:
         numerical_cols = X.select_dtypes(include=['number']).columns
         
         # Exclude timestamp_col from scaling if present
-        if timestamp_col and timestamp_col in numerical_cols:
-            print(f"Excluding timestamp column '{timestamp_col}' from scaling.")
-            numerical_cols = numerical_cols.drop(timestamp_col)
+        if timestamp_col and timestamp_col.strip() in numerical_cols:
+            ts_col_clean = timestamp_col.strip()
+            print(f"Excluding timestamp column '{ts_col_clean}' from scaling.")
+            numerical_cols = numerical_cols.drop(ts_col_clean)
+        else:
+             if timestamp_col:
+                print(f"DEBUG: timestamp_col '{timestamp_col}' not found in numerical_cols or not provided.")
         
         # Scale numerical features
         X_scaled = X.copy()
         if len(numerical_cols) > 0:
             X_scaled[numerical_cols] = self.scaler.fit_transform(X[numerical_cols])
+            
+        self.fitted_numerical_cols = numerical_cols
         
         # Encode target if it's not a forecasting task (classification/single regression)
         # If forecasting, we usually keep y as numeric (regression)

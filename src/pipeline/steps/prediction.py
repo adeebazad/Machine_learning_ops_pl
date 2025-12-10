@@ -13,14 +13,23 @@ class PredictionStep(PipelineStepHandler):
         used_test_set = False
 
         # Priority 1: If X_test is available (from immediate training step), use it.
+        # But for the OUTPUT DataFrame, we prefer the unscaled original version 'X_test_original' if saved.
+        
         if 'X_test' in context:
              data_to_predict = context['X_test']
              used_test_set = True
              logger.info("Using X_test from training for prediction.")
              
-        # Priority 2: Use context['data'] (but might need preprocessing)
+             # If we have the unscaled version, we want to use THAT for the result_df, 
+             # but we must use the scaled 'data_to_predict' for the model input.
+             if 'X_test_original' in context:
+                 logger.info("Found X_test_original. Will use it for output DataFrame to preserve timestamps.")
+                 # We'll set a flag or just use it later when building result_df
+                 pass 
         elif 'data' in context:
+             # Inference mode
              data_to_predict = context['data']
+             logger.info("Using context['data'] for prediction.")
              if 'preprocessor' in context:
                  logger.info("Applying preprocessor to input data.")
                  try:
@@ -66,7 +75,9 @@ class PredictionStep(PipelineStepHandler):
         
         if used_test_set:
             # If we used X_test, it's already a DataFrame (likely scaled)
-            if isinstance(data_to_predict, pd.DataFrame):
+            if 'X_test_original' in context:
+                result_df = context['X_test_original'].copy()
+            elif isinstance(data_to_predict, pd.DataFrame):
                 result_df = data_to_predict.copy()
             else:
                 result_df = pd.DataFrame(data_to_predict)
