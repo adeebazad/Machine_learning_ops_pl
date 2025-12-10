@@ -19,9 +19,13 @@ class DataPreprocessor:
             raise ValueError(f"Target column '{target_col}' not found in DataFrame. Available: {df.columns.tolist()}")
 
         # Sort by timestamp if provided
+        # Sort by timestamp if provided
         if timestamp_col:
-            if timestamp_col in df.columns:
-                df = df.sort_values(by=timestamp_col)
+            ts_col_clean = timestamp_col.strip()
+            if ts_col_clean in df.columns:
+                df = df.sort_values(by=ts_col_clean)
+            elif timestamp_col in df.columns:
+                 df = df.sort_values(by=timestamp_col)
             else:
                 print(f"Warning: timestamp_col '{timestamp_col}' not found. assuming data is already sorted.")
 

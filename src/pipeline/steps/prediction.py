@@ -143,6 +143,52 @@ class PredictionStep(PipelineStepHandler):
             
             logger.info(f"Attached multi-output predictions: {pred_cols}")
             
+            # --- Forecasting Future Timestamp Logic ---
+            # Try to calculate future timestamps if we are in forecasting mode
+            timestamp_col = context.get('timestamp_col')
+            if timestamp_col and timestamp_col in result_df.columns:
+                 # Check if we have prediction columns with horizons
+                 import re
+                 
+                 for col in pred_cols:
+                      # Expected format: prediction_target_+1h or prediction_target_+6h
+                      # Regex specific to our naming convention
+                      match = re.search(r'prediction_target_\+(\d+[hd])', col)
+                      if match:
+                           horizon_str = match.group(1)
+                           try:
+                               delta = None
+                               if horizon_str.endswith('h'):
+                                    hours = int(horizon_str[:-1])
+                                    delta = pd.Timedelta(hours=hours)
+                                    # Handle milliseconds if timestamp is int
+                                    # If timestamp is int/long (millis), adding Timedelta won't work directly.
+                                    # Need check type of timestamp_col
+                                    
+                               elif horizon_str.endswith('d'):
+                                    days = int(horizon_str[:-1])
+                                    delta = pd.Timedelta(days=days)
+                               
+                               if delta:
+                                   future_ts_col = f"timestamp_+{horizon_str}"
+                                   
+                                   # Check dtype of timestamp_col
+                                   ts_series = result_df[timestamp_col]
+                                   if pd.api.types.is_numeric_dtype(ts_series):
+                                       # Assume milliseconds if large values (> 1e10). 
+                                       # If it was safe to assume millis:
+                                       # 1 hour = 3600 * 1000 ms
+                                       ms_delta = delta.total_seconds() * 1000
+                                       result_df[future_ts_col] = ts_series + ms_delta
+                                   else:
+                                       # Assume datetime object
+                                       result_df[future_ts_col] = pd.to_datetime(ts_series) + delta
+                                       
+                                   logger.info(f"Created future timestamp column '{future_ts_col}' from '{timestamp_col}' + {horizon_str}")
+                           except Exception as e:
+                               logger.warning(f"Failed to calculate future timestamp for {col}: {e}")
+            # ------------------------------------------
+            
         else:
             # Single output
             target_col = context.get('target_col', '')

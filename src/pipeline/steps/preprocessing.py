@@ -85,6 +85,9 @@ class PreprocessingStep(PipelineStepHandler):
         forecasting_config = config.get('forecasting', {})
         forecasting_horizons = forecasting_config.get('horizons')
         timestamp_col = forecasting_config.get('timestamp_col')
+        
+        if timestamp_col:
+            context['timestamp_col'] = timestamp_col
 
         if target_col:
             # Training mode preprocessing
