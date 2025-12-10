@@ -56,54 +56,6 @@ class DataPreprocessor:
         self.label_encoder = joblib.load(os.path.join(path, 'label_encoder.joblib'))
 '''
 
-class PreprocessingStep(PipelineStepHandler):
-    def execute(self, context: Dict[str, Any], config: Dict[str, Any]) -> None:
-        if 'data' not in context:
-            raise ValueError("No data found in context for preprocessing")
-        
-        df = context['data']
-        script_path = config.get('script_path', 'src/features/preprocess.py')
-        target_col = config.get('target_col')
-        print(f"DEBUG: target_col in PreprocessingStep: {target_col}") # Temporary debug
-        if target_col:
-            context['target_col'] = target_col
-            
-        forecasting_config = config.get('forecasting', {})
-        forecasting_horizons = forecasting_config.get('horizons')
-        timestamp_col = forecasting_config.get('timestamp_col')
-        
-        if timestamp_col:
-            context['timestamp_col'] = timestamp_col
-            # Force sort here to ensure consistency and correct Train/Test split
-            # The SQL query might return Newest->Oldest (DESC), but we need Oldest->Newest for sequential split.
-            # If sorting fails, we might end up training on Newest and Testing on Oldest (which is wrong).
-            ts_col_clean = timestamp_col.strip()
-            if ts_col_clean in df.columns:
-                 logger.info(f"Sorting data by timestamp column '{ts_col_clean}' (Ascending)...")
-                 df = df.sort_values(by=ts_col_clean, ascending=True)
-                 df = df.reset_index(drop=True) # CRITICAL: Reset index so it matches X after flattening
-                 context['data'] = df
-            elif timestamp_col in df.columns:
-                 logger.info(f"Sorting data by timestamp column '{timestamp_col}' (Ascending)...")
-                 df = df.sort_values(by=timestamp_col, ascending=True)
-                 df = df.reset_index(drop=True) # CRITICAL: Reset index to align with X (which gets reset in flatten)
-                 context['data'] = df
-            else:
-                 logger.warning(f"Timestamp column '{timestamp_col}' (or '{ts_col_clean}') NOT found in DataFrame.")
-                 logger.warning(f"Available columns: {df.columns.tolist()}")
-                 # Proceeding might be dangerous if order is wrong.
-        else:
-             if forecasting_horizons:
-                 logger.warning("Forecasting horizons provided but NO timestamp_col. Data order depends on upstream source.")
-        if not os.path.exists(script_path):
-            logger.info(f"Preprocessing script not found at {script_path}. Creating default template.")
-            try:
-                os.makedirs(os.path.dirname(script_path), exist_ok=True)
-                with open(script_path, 'w') as f:
-                    f.write(DEFAULT_PREPROCESS_TEMPLATE)
-            except Exception as e:
-                logger.error(f"Failed to create default preprocessing script: {e}")
-                raise ValueError(f"Script not found and failed to create default: {e}")
 
 def _load_class_robust(file_path: str, class_name: str):
     """
@@ -137,30 +89,59 @@ def _load_class_robust(file_path: str, class_name: str):
     except Exception as e:
         raise ImportError(f"Failed to load class '{class_name}' from '{file_path}': {e}")
 
-class PreprocessingStep(PipelineStep):
-    """
-    Step to preprocess the data using a custom script.
-    """
-    def execute(self, context: dict, config: dict) -> bool:
-        logger.info("Starting Preprocessing Step...")
+class PreprocessingStep(PipelineStepHandler):
+    def execute(self, context: Dict[str, Any], config: Dict[str, Any]) -> None:
+        if 'data' not in context:
+            raise ValueError("No data found in context for preprocessing")
         
-        script_path = config.get('script_path')
-        target_col = config.get('target_col', 'target')
-        # ... (rest of config extraction)
+        df = context['data']
+        script_path = config.get('script_path', 'src/features/preprocess.py')
+        target_col = config.get('target_col')
+        print(f"DEBUG: target_col in PreprocessingStep: {target_col}") # Temporary debug
+        if target_col:
+            context['target_col'] = target_col
+            
+        forecasting_config = config.get('forecasting', {})
+        forecasting_horizons = forecasting_config.get('horizons')
+        timestamp_col = forecasting_config.get('timestamp_col')
         
+        if timestamp_col:
+            context['timestamp_col'] = timestamp_col
+            # Force sort here to ensure consistency and correct Train/Test split
+            ts_col_clean = timestamp_col.strip()
+            if ts_col_clean in df.columns:
+                 logger.info(f"Sorting data by timestamp column '{ts_col_clean}' (Ascending)...")
+                 df = df.sort_values(by=ts_col_clean, ascending=True)
+                 df = df.reset_index(drop=True) # CRITICAL: Reset index so it matches X after flattening
+                 context['data'] = df
+            elif timestamp_col in df.columns:
+                 logger.info(f"Sorting data by timestamp column '{timestamp_col}' (Ascending)...")
+                 df = df.sort_values(by=timestamp_col, ascending=True)
+                 df = df.reset_index(drop=True) # CRITICAL: Reset index to align with X (which gets reset in flatten)
+                 context['data'] = df
+            else:
+                 logger.warning(f"Timestamp column '{timestamp_col}' (or '{ts_col_clean}') NOT found in DataFrame.")
+                 logger.warning(f"Available columns: {df.columns.tolist()}")
+        else:
+             if forecasting_horizons:
+                 logger.warning("Forecasting horizons provided but NO timestamp_col. Data order depends on upstream source.")
+        
+        if not os.path.exists(script_path):
+            logger.info(f"Preprocessing script not found at {script_path}. Creating default template.")
+            try:
+                os.makedirs(os.path.dirname(script_path), exist_ok=True)
+                with open(script_path, 'w') as f:
+                    f.write(DEFAULT_PREPROCESS_TEMPLATE)
+            except Exception as e:
+                logger.error(f"Failed to create default preprocessing script: {e}")
+                raise ValueError(f"Script not found and failed to create default: {e}")
+
         # New robust loader usage 
-        # DataPreprocessorClass = load_class_from_file(script_path, 'DataPreprocessor') # OLD
         DataPreprocessorClass = _load_class_robust(script_path, 'DataPreprocessor')   # NEW
         preprocessor = DataPreprocessorClass()
 
-
-
         if target_col:
             # Training mode preprocessing
-            # Check if preprocess_train accepts forecasting arguments (to maintain backward compatibility if user hasn't updated script)
-            # Actually, I updated the script, so it should be fine. But if it's a user-supplied script without the args, it might fail.
-            # However, the task is to enable this feature. I assume the script is the one I just edited.
-            
             import inspect
             sig = inspect.signature(preprocessor.preprocess_train)
             logger.info(f"DEBUG: DataPreprocessor.preprocess_train signature: {sig}")
@@ -179,10 +160,10 @@ class PreprocessingStep(PipelineStep):
                 import inspect
                 sig = inspect.signature(preprocessor.preprocess_train)
                 error_msg = (
-                    f"Deployment Mismatch Error! The 'preprocess_train' method on the server does not accept the expected arguments.\n"
-                    f"Server Signature: {sig}\n"
-                    f"Expected Arguments: forecasting_horizons, timestamp_col\n"
-                    f"This usually means the 'src/features/preprocess.py' file on the server has not been updated with the latest changes.\n"
+                    f"Deployment Mismatch Error! The 'preprocess_train' method on the server does not accept the expected arguments.\\n"
+                    f"Server Signature: {sig}\\n"
+                    f"Expected Arguments: forecasting_horizons, timestamp_col\\n"
+                    f"This usually means the 'src/features/preprocess.py' file on the server has not been updated with the latest changes.\\n"
                     f"Please RE-DEPLOY or sync your server files."
                 )
                 logger.error(error_msg)
@@ -206,23 +187,9 @@ class PreprocessingStep(PipelineStep):
             context['X_latest'] = X_latest
             context['preprocessor'] = preprocessor
             
-            # IMPORTANT: Save unscaled X_test for Prediction step to use when testing pipeline flow
-            # Since train_test_split is deterministic with same seed (42 or None) if we repeat it:
-            # But wait, 'preprocess_train' did the split. We don't have the indices.
-            # However, we can try to replicate the split on the original DF if forecasting horizons/timestamp logic matches.
-            # BETTER APPROACH: Modify 'preprocess_train' to return unscaled versions? No, breaks API.
-            # ALTERNATIVE: Use the fact that X_test index is preserved in pandas train_test_split.
-            
             if hasattr(X_test, 'index'):
-                # Reconstruct X_test_original from df using indices
-                # Note: 'df' might have been modified (sorted) inside preprocess_train if timestamp_col was passed.
-                # So we need the sorted df? 
-                # Actually, preprocess_train sorts it internally.
-                # If we want to be safe, we should assume the indices in X_test match the original df indices (if unique).
                 try:
                     X_test_original = df.loc[X_test.index].copy()
-                    # If target cols were dropped, they might be in df. But we want X features mainly.
-                    # We can just keep all cols from df corresponding to these rows.
                     context['X_test_original'] = X_test_original
                     logger.info("Saved X_test_original for unscaled prediction output.")
                 except Exception as e:
@@ -244,3 +211,4 @@ class PreprocessingStep(PipelineStep):
             processed_data = preprocessor.preprocess_inference(df)
             context['data'] = processed_data
             logger.info("Preprocessing completed (Inference mode).")
+
