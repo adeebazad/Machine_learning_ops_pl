@@ -81,10 +81,12 @@ class PreprocessingStep(PipelineStepHandler):
             if ts_col_clean in df.columns:
                  logger.info(f"Sorting data by timestamp column '{ts_col_clean}' (Ascending)...")
                  df = df.sort_values(by=ts_col_clean, ascending=True)
-                 context['data'] = df # Update context with sorted data? usage depends on flow. Safe to update.
+                 df = df.reset_index(drop=True) # CRITICAL: Reset index so it matches X after flattening
+                 context['data'] = df
             elif timestamp_col in df.columns:
                  logger.info(f"Sorting data by timestamp column '{timestamp_col}' (Ascending)...")
                  df = df.sort_values(by=timestamp_col, ascending=True)
+                 df = df.reset_index(drop=True) # CRITICAL: Reset index to align with X (which gets reset in flatten)
                  context['data'] = df
             else:
                  logger.warning(f"Timestamp column '{timestamp_col}' (or '{ts_col_clean}') NOT found in DataFrame.")
