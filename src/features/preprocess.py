@@ -27,8 +27,10 @@ class DataPreprocessor:
             ts_col_clean = timestamp_col.strip()
             if ts_col_clean in df.columns:
                 df = df.sort_values(by=ts_col_clean)
+                df = df.reset_index(drop=True)
             elif timestamp_col in df.columns:
                  df = df.sort_values(by=timestamp_col)
+                 df = df.reset_index(drop=True)
             else:
                 print(f"Warning: timestamp_col '{timestamp_col}' not found. assuming data is already sorted.")
 
