@@ -116,6 +116,14 @@ class DataPreprocessor:
             
             # Now drop them from training set
             combined_clean = combined.dropna()
+            
+            if combined_clean.empty:
+                raise ValueError(
+                    f"Insufficient data for forecasting! "
+                    f"After shifting for horizons {forecasting_horizons}, no rows remained directly for training. "
+                    f"This usually means your dataset is shorter than the requested horizon (e.g. asking for 1d shift on <1d data) "
+                    f"or contains too many gaps. Please reduce the horizon or check data continuity."
+                )
         else:
              combined_clean = combined.dropna()
              X_latest = pd.DataFrame(columns=X_scaled.columns)
