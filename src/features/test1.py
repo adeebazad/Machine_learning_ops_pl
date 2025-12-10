@@ -57,7 +57,13 @@ class DataPreprocessor:
         # Scale numerical features
         X_scaled = X.copy()
         if len(numerical_cols) > 0:
-            X_scaled[numerical_cols] = self.scaler.fit_transform(X[numerical_cols])
+            # Handle NaNs in numerical columns before scaling to prevent crash
+            # (User data had 'rain': null which caused issues)
+            if X_scaled[numerical_cols].isnull().any().any():
+                print("Warning: NaNs detected in numerical features. Filling with 0 before scaling.")
+                X_scaled[numerical_cols] = X_scaled[numerical_cols].fillna(0)
+                
+            X_scaled[numerical_cols] = self.scaler.fit_transform(X_scaled[numerical_cols])
             
         self.fitted_numerical_cols = numerical_cols
         
