@@ -18,8 +18,11 @@ class DataPreprocessor:
         if target_col not in df.columns:
             raise ValueError(f"Target column '{target_col}' not found in DataFrame. Available: {df.columns.tolist()}")
         
+        print(f"DEBUG: Initial DF shape: {df.shape}")
+        
         # Robustness: Drop rows where target is NaN immediately
         df = df.dropna(subset=[target_col])
+        print(f"DEBUG: DF shape after dropna(target): {df.shape}")
 
         # Sort by timestamp if provided
         # Sort by timestamp if provided
@@ -116,6 +119,10 @@ class DataPreprocessor:
             
             print(f"Identified {len(X_latest)} rows for future forecasting (latest data).")
             
+            # DIAGNOSTICS
+            print(f"DEBUG: Combined shape before dropna: {combined.shape}")
+            print(f"DEBUG: NaNs per column:\n{combined.isnull().sum()}")
+            
             # Now drop them from training set
             combined_clean = combined.dropna()
             
@@ -135,48 +142,83 @@ class DataPreprocessor:
 
         return train_test_split(X_final, y_final, test_size=0.2, shuffle=False if (timestamp_col or forecasting_horizons) else True, random_state=42 if not (timestamp_col or forecasting_horizons) else None) + [X_latest]
 
-    def _create_forecasting_targets(self, df: pd.DataFrame, target_col: str, horizons: list) -> Tuple[pd.DataFrame, list]:
+    def _create_forecasting_targets(self, df: pd.DataFrame, target_col: str, horizons: list, timestamp_col: str = None) -> Tuple[pd.DataFrame, list]:
         """
         Generates shifted target columns based on horizons.
-        Horizons can be '1h', '6h', '1d' or integers '1', '6'.
-        Assumes data is regularly spaced if using time suffix, or just treats as row steps.
-        Current implementation: treats '1h' as 1 step, '6h' as 6 steps if hourly is assumed, 
-        BUT to be safe and simple: checks if suffix exists.
-        If suffix 'h', 'd' exists -> creates shifts assuming specific step sizes relative to row frequency.
-        Simplification: Just interpret '1h' -> 1 step, '6h' -> 6 steps? No, that's dangerous.
-        Let's assume the user knows the data frequency. 
-        Better: Use pd.to_timedelta if index is datetime.
-        
-        Strategy:
-        1. Parse horizon. If it looks like 'Xh', extract X.
-        2. If integer, use as period.
+        Dynamically calculates 'steps' based on data frequency if timestamp_col is provided.
         """
         df = df.copy()
         new_target_cols = []
         
+        # Calculate Data Frequency
+        ms_per_row = None
+        if timestamp_col and timestamp_col in df.columns:
+            try:
+                # Assuming timestamp is numeric or convertible to datetime
+                # If numeric (epoch ms), diff gives ms.
+                # If datetime, diff gives timedelta (convert to total_seconds * 1000)
+                
+                # Sort first just in case
+                # (Data should be sorted by caller, but safe check)
+                
+                # Calculate median diff of first 1000 rows to estimate freq
+                # Convert to numeric if needed
+                ts_series = df[timestamp_col]
+                if pd.api.types.is_datetime64_any_dtype(ts_series):
+                    diffs = ts_series.diff().dt.total_seconds() * 1000
+                else:
+                    diffs = ts_series.diff() # Assume numeric ms
+                
+                median_diff = diffs.median()
+                
+                if median_diff > 0:
+                    ms_per_row = median_diff
+                    print(f"Detected data frequency: {ms_per_row} ms/row (approx {ms_per_row/1000/60:.1f} mins)")
+            except Exception as e:
+                print(f"Warning: Could not detect frequency from timestamp_col: {e}")
+
         for h in horizons:
             steps = 0
             name = f"target_+{h}"
             
-            # Simple parsing logic
-            if isinstance(h, int):
-                steps = h
-            elif isinstance(h, str):
-                if h.endswith('h'):
-                    steps = int(h[:-1]) # Assumption: 1 row = 1 hour. If data is 15min, this is wrong.
-                    # TODO: Infer frequency from timestamp_col if available.
-                elif h.endswith('d'):
-                    steps = int(h[:-1]) * 24 # Assumption: Hourly data
-                else:
-                    try:
-                        steps = int(h)
-                    except:
-                        # Fallback for '1d', etc if logic above failed or other unit
-                        print(f"Warning: Could not parse horizon '{h}'. skipping.")
-                        continue
+            # Parse Horizon Duration in MS
+            horizon_ms = 0
+            if isinstance(h, str):
+                h_clean = h.lower()
+                if h_clean.endswith('h'):
+                    horizon_ms = int(h_clean[:-1]) * 60 * 60 * 1000
+                elif h_clean.endswith('d'):
+                    horizon_ms = int(h_clean[:-1]) * 24 * 60 * 60 * 1000
+            
+            # Calculate Steps
+            if ms_per_row and horizon_ms > 0:
+                steps = int(horizon_ms / ms_per_row)
+                print(f"Horizon '{h}' ({horizon_ms} ms) requires {steps} steps based on frequency.")
+            else:
+                # Fallback to hardcoded assumptions
+                if isinstance(h, int):
+                    steps = h
+                elif isinstance(h, str):
+                    if h.endswith('h'):
+                        steps = int(h[:-1]) # Fallback: 1h = 1 row (DANGEROUS if not hourly)
+                    elif h.endswith('d'):
+                        steps = int(h[:-1]) * 24 # Fallback: 1d = 24 rows
+                    else:
+                        try:
+                            steps = int(h)
+                        except:
+                            print(f"Warning: Could not parse horizon '{h}'. skipping.")
+                            continue
+            
+            # Safety for Step Size
+            if steps <= 0:
+                steps = 1 # Minimum 1 step if valid horizon
+                
+            if steps >= len(df):
+                print(f"WARNING: accurate shift for '{h}' requires {steps} steps, but only {len(df)} rows available. This will drop ALL data.")
             
             if steps > 0:
-                print(f"Creating target '{name}' with shift -{steps}")
+                print(f"Creating target '{name}' with shift -{steps} for DataFrame of shape {df.shape}")
                 df[name] = df[target_col].shift(-steps)
                 new_target_cols.append(name)
         
