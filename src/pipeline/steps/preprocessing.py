@@ -111,6 +111,12 @@ class PreprocessingStep(PipelineStepHandler):
         
         df = context['data']
         script_path = config.get('script_path', 'src/features/preprocess.py')
+        
+        # Sanitize script path: remove 'app/' prefix if present (common when configuring from UI)
+        if script_path.startswith('app/') or script_path.startswith('app\\'):
+            logger.info(f"Sanitizing script path: '{script_path}' -> '{script_path[4:]}'")
+            script_path = script_path[4:]
+            
         target_col = config.get('target_col', 'target')
         # ... (rest of config extraction)
         
