@@ -237,3 +237,59 @@ class PreprocessingStep(PipelineStepHandler):
             processed_data = preprocessor.preprocess_inference(df)
             context['data'] = processed_data
             logger.info("Preprocessing completed (Inference mode).")
+        
+        # --- Data Freshness Check (UX Improvement) ---
+        if timestamp_col and 'data' in context:
+             try:
+                 # Check max timestamp in the processed data (or original df if available)
+                 # df variable holds the data used.
+                 if timestamp_col in df.columns:
+                      max_ts = df[timestamp_col].max()
+                      
+                      # Determine format and current time
+                      import time
+                      from datetime import datetime
+                      
+                      current_time_ms = time.time() * 1000
+                      last_data_ms = 0
+                      
+                      # Try parsing max_ts
+                      ts_val = df[timestamp_col].dropna().iloc[-1] if not df[timestamp_col].dropna().empty else None
+                      
+                      if ts_val is not None:
+                           is_numeric = isinstance(ts_val, (int, float))
+                           if is_numeric:
+                                # Assume ms if huge, seconds if small?
+                                # Simple heuristic: > 3e10 usually ms (year 1980+)
+                                if max_ts > 30000000000: 
+                                     last_data_ms = max_ts
+                                else:
+                                     last_data_ms = max_ts * 1000
+                           else:
+                                # Datetime object
+                                # Convert to timestamp
+                                if hasattr(max_ts, 'timestamp'):
+                                     last_data_ms = max_ts.timestamp() * 1000
+                                else:
+                                     # String or other? Try pandas conversion
+                                     try:
+                                         dt = pd.to_datetime(max_ts)
+                                         last_data_ms = dt.timestamp() * 1000
+                                     except:
+                                         pass
+                           
+                           if last_data_ms > 0:
+                                lag_ms = current_time_ms - last_data_ms
+                                lag_hours = lag_ms / (1000 * 60 * 60)
+                                
+                                if lag_hours > 2:
+                                     logger.warning(
+                                          f"DATA LATENCY WARNING: Your latest data point is {lag_hours:.1f} hours old. "
+                                          f"If your forecasting horizon is smaller than this (e.g. 1h), "
+                                          f"your 'future' prediction will still be in the past! "
+                                          f"Consider increasing your horizon (e.g. '1d') or checking your data ingestion."
+                                     )
+                                else:
+                                     logger.info(f"Data is fresh ({lag_hours:.1f} hours lag).")
+             except Exception as e:
+                 logger.warning(f"Could not verify data freshness: {e}")

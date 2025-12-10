@@ -350,3 +350,15 @@ class PredictionStep(PipelineStepHandler):
              # Update context data with new columns
              context['data'] = result_df
         # ------------------------------------------
+        
+        # UX Improvement: Sort Result Descending by Timestamp
+        # The user wants to see the LATEST predictions first.
+        # Preprocessing requires Ascending for Split, but Output should be Descending for Viewing.
+        if timestamp_col and timestamp_col in result_df.columns:
+             try:
+                 logger.info(f"Sorting output dataframe by '{timestamp_col}' descending (Newest First).")
+                 result_df = result_df.sort_values(by=timestamp_col, ascending=False)
+                 context['data'] = result_df
+             except Exception as e:
+                 logger.warning(f"Failed to sort output by timestamp: {e}")
+
