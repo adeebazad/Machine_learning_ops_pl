@@ -19,7 +19,7 @@ class DataPreprocessor:
         self.scaler = StandardScaler()
         self.label_encoder = LabelEncoder()
 
-    def preprocess_train(self, df: pd.DataFrame, target_col: str) -> Tuple[Any, Any, Any, Any]:
+    def preprocess_train(self, df: pd.DataFrame, target_col: str, forecasting_horizons: list = None, timestamp_col: str = None) -> Tuple[Any, Any, Any, Any]:
         """
         Preprocesses training data: splits into X/y, scales features, encodes target.
         """
@@ -127,7 +127,8 @@ class PreprocessingStep(PipelineStepHandler):
                  logger.warning("Forecasting horizons provided but NO timestamp_col. Data order depends on upstream source.")
         
         if not os.path.exists(script_path):
-            logger.info(f"Preprocessing script not found at {script_path}. Creating default template.")
+            logger.warning(f"CRITICAL WARNING: Preprocessing script not found at {script_path}. Creating DEFAULT template. This may not be what you want!")
+            logger.info(f"Creating default template at {script_path}...")
             try:
                 os.makedirs(os.path.dirname(script_path), exist_ok=True)
                 with open(script_path, 'w') as f:
