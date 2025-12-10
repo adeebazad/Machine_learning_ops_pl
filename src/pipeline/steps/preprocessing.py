@@ -117,25 +117,24 @@ class PreprocessingStep(PipelineStepHandler):
             # Actually, I updated the script, so it should be fine. But if it's a user-supplied script without the args, it might fail.
             # However, the task is to enable this feature. I assume the script is the one I just edited.
             
-            import inspect
-            sig = inspect.signature(preprocessor.preprocess_train)
-            if 'forecasting_horizons' in sig.parameters:
-                 # preprocess_train might return 4 or 5 values depending on version. 
-                 # Since we just updated it to return 5 (X_latest appended), strictly expected to be 5 if updated.
-                 # Python unpacking is strict.
-                 try:
-                     ret_val = preprocessor.preprocess_train(df, target_col, forecasting_horizons=forecasting_horizons, timestamp_col=timestamp_col)
-                     if len(ret_val) == 5:
-                         X_train, X_test, y_train, y_test, X_latest = ret_val
-                     else:
-                         X_train, X_test, y_train, y_test = ret_val
-                         X_latest = None
-                 except ValueError:
-                     # Fallback if unpacking fails
-                     X_train, X_test, y_train, y_test = preprocessor.preprocess_train(df, target_col, forecasting_horizons=forecasting_horizons, timestamp_col=timestamp_col)
+            # Attempt to call with forecasting arguments
+            # We use try/except instead of inspect to be more robust against caching/reloading issues
+            try:
+                 ret_val = preprocessor.preprocess_train(df, target_col, forecasting_horizons=forecasting_horizons, timestamp_col=timestamp_col)
+                 
+                 # Handle 5-tuple return (Start of support for X_latest)
+                 if isinstance(ret_val, tuple) and len(ret_val) == 5:
+                     X_train, X_test, y_train, y_test, X_latest = ret_val
+                     logger.info("Successfully identified X_latest from preprocessing.")
+                 else:
+                     X_train, X_test, y_train, y_test = ret_val
                      X_latest = None
-            else:
-                 logger.warning("DataPreprocessor.preprocess_train does not accept forecasting_horizons. Ignoring forecasting config.")
+                     logger.info("Preprocessing returned 4 values (Standard split).")
+                     
+            except TypeError as e:
+                 # Fallback: Method doesn't accept the new arguments
+                 logger.warning(f"DataPreprocessor.preprocess_train failed with forecasting args: {e}. Falling back to standard call.")
+                 logger.warning("Forecasting configuration (horizons/timestamp) will be IGNORED in split logic (Shuffle may occur!).")
                  X_train, X_test, y_train, y_test = preprocessor.preprocess_train(df, target_col)
                  X_latest = None
 
