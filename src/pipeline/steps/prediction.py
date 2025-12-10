@@ -71,9 +71,22 @@ class PredictionStep(PipelineStepHandler):
             else:
                 result_df = pd.DataFrame(data_to_predict)
         else:
+            # Inference mode
+            # If we have original unscaled data (saved by preprocessing step), use it.
+            if 'original_data' in context:
+                logger.info("Using original_data for output (preserving timestamps/metadata).")
+                result_df = context['original_data'].copy()
+                # Ensure length matches
+                if len(result_df) != len(predictions):
+                     logger.warning(f"Length mismatch between original_data ({len(result_df)}) and predictions ({len(predictions)}). Fallback to data_to_predict.")
+                     if isinstance(data_to_predict, pd.DataFrame):
+                        result_df = data_to_predict.copy()
+                     else:
+                        result_df = pd.DataFrame(data_to_predict)
+            
             # If we used inference mode, we want to attach predictions to the ORIGINAL data
             # context['data'] holds the original data before preprocessing (for this step)
-            if 'data' in context and len(context['data']) == len(predictions):
+            elif 'data' in context and len(context['data']) == len(predictions):
                 result_df = context['data'].copy()
             else:
                 # Fallback if lengths don't match or data missing

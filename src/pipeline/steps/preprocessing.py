@@ -113,6 +113,9 @@ class PreprocessingStep(PipelineStepHandler):
                  logger.info("Preprocessing completed (Train/Test split).")
         else:
             # Inference mode preprocessing
+            # Save original data for prediction output
+            context['original_data'] = df.copy()
+            
             processed_data = preprocessor.preprocess_inference(df)
             context['data'] = processed_data
             logger.info("Preprocessing completed (Inference mode).")
