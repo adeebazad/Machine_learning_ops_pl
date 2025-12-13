@@ -16,6 +16,12 @@ class DataPreprocessor:
         """
         Preprocesses training data: splits into X/y, scales features, encodes target.
         """
+        # Robustness: Check if target_col exists
+        if target_col and target_col not in df.columns:
+            print(f"WARNING: Target column '{target_col}' specified in config but NOT found in DataFrame.")
+            print("Assuming Unsupervised Learning (y=None).")
+            target_col = None
+
         # Handle optional target (Unsupervised support)
         if target_col and target_col in df.columns:
             # Drop target, scale numerics, encode target
