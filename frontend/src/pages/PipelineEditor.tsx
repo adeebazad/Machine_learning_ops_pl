@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Save, Trash2, ArrowUp, ArrowDown, Play, Plus, X } from 'lucide-react';
+import { Save, Trash2, ArrowUp, ArrowDown, Play, Plus, X, LayoutDashboard, Edit3 } from 'lucide-react';
 import { pipelineService, fileService, experimentService } from '../services/api';
+import AnalyticsDashboard from '../components/AnalyticsDashboard';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ScatterChart, Scatter, BarChart, Bar, Cell } from 'recharts';
 
 interface PipelineStep {
     id?: number;
@@ -49,6 +51,7 @@ const PipelineEditor: React.FC = () => {
     const [editingScriptIndex, setEditingScriptIndex] = useState<number | null>(null);
     const [scriptContent, setScriptContent] = useState('');
     const [scriptLoading, setScriptLoading] = useState(false);
+    const [activeTab, setActiveTab] = useState<'editor' | 'analytics'>('editor');
 
     // Config Modal state
     const [showConfigModal, setShowConfigModal] = useState(false);
@@ -408,504 +411,533 @@ const PipelineEditor: React.FC = () => {
                 </div>
             </div>
 
-            {/* Config Modal */}
-            {showConfigModal && (
-                <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-                    <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 w-96">
-                        <h3 className="text-xl font-bold text-white mb-4">Save Configuration</h3>
-                        <div className="mb-4">
-                            <label className="block text-sm text-gray-400 mb-1">Select Experiment</label>
-                            <select
-                                value={selectedExperimentId}
-                                onChange={(e) => setSelectedExperimentId(e.target.value)}
-                                className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
-                            >
-                                {experiments.map(e => (
-                                    <option key={e.id} value={e.id}>{e.name}</option>
-                                ))}
-                            </select>
-                        </div>
-                        <div className="mb-6">
-                            <label className="block text-sm text-gray-400 mb-1">Config Name</label>
-                            <input
-                                type="text"
-                                value={newConfigName}
-                                onChange={(e) => setNewConfigName(e.target.value)}
-                                className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
-                                placeholder="e.g. V1 Config"
-                            />
-                        </div>
-                        <div className="flex justify-end gap-3">
-                            <button
-                                onClick={() => setShowConfigModal(false)}
-                                className="px-4 py-2 text-gray-400 hover:text-white"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={handleSaveToConfig}
-                                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded"
-                            >
-                                Save
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* Basic Info */}
-            <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-6 mb-8">
-                <div className="grid gap-4">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-400 mb-1">Name</label>
-                        <input
-                            type="text"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-blue-500 outline-none"
-                            placeholder="My Pipeline"
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-400 mb-1">Description</label>
-                        <textarea
-                            value={description}
-                            onChange={(e) => setDescription(e.target.value)}
-                            className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-blue-500 outline-none h-24"
-                            placeholder="Describe what this pipeline does..."
-                        />
-                    </div>
+            {/* Tab Navigation */}
+            <div className="flex justify-center mb-8">
+                <div className="bg-gray-800 p-1 rounded-xl flex gap-1 border border-gray-700">
+                    <button
+                        onClick={() => setActiveTab('editor')}
+                        className={`flex items-center gap-2 px-6 py-2 rounded-lg text-sm font-medium transition-all duration-200
+                            ${activeTab === 'editor' ? 'bg-blue-600 text-white shadow-lg' : 'text-gray-400 hover:text-white hover:bg-gray-700'}`}
+                    >
+                        <Edit3 size={16} /> Editor
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('analytics')}
+                        className={`flex items-center gap-2 px-6 py-2 rounded-lg text-sm font-medium transition-all duration-200
+                            ${activeTab === 'analytics' ? 'bg-blue-600 text-white shadow-lg' : 'text-gray-400 hover:text-white hover:bg-gray-700'}`}
+                    >
+                        <LayoutDashboard size={16} /> Analytics Dashboard
+                    </button>
                 </div>
             </div>
 
-            {/* Scheduling */}
-            <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-6 mb-8">
-                <h3 className="text-lg font-semibold text-white mb-4">Scheduling</h3>
-                <div className="flex flex-col gap-4">
-                    <div className="flex items-center gap-2">
-                        <input
-                            type="checkbox"
-                            id="schedule_enabled"
-                            checked={scheduleEnabled}
-                            onChange={(e) => setScheduleEnabled(e.target.checked)}
-                            className="w-5 h-5 rounded border-gray-700 bg-gray-900 text-blue-600 focus:ring-blue-500"
-                        />
-                        <label htmlFor="schedule_enabled" className="text-gray-300">Enable Scheduling</label>
-                    </div>
-
-                    {scheduleEnabled && (
-                        <div className="flex gap-6 ml-6">
-                            <div className="flex items-center gap-2">
-                                <input
-                                    type="radio"
-                                    id="schedule_daily"
-                                    name="schedule_type"
-                                    checked={scheduleInterval === 0}
-                                    onChange={() => setScheduleInterval(0)}
-                                    className="text-blue-600 bg-gray-900"
-                                />
-                                <label htmlFor="schedule_daily" className="text-gray-400">Run Daily</label>
-                            </div>
-
-                            <div className="flex items-center gap-2">
-                                <input
-                                    type="radio"
-                                    id="schedule_interval"
-                                    name="schedule_type"
-                                    checked={scheduleInterval > 0}
-                                    onChange={() => setScheduleInterval(1)}
-                                    className="text-blue-600 bg-gray-900"
-                                />
-                                <label htmlFor="schedule_interval" className="text-gray-400">Run Interval</label>
+            {/* Tab Content */}
+            {activeTab === 'analytics' ? (
+                <AnalyticsDashboard steps={steps} stepResults={stepResults} stepError={stepError} />
+            ) : (
+                <>
+                    {/* Config Modal */}
+                    {showConfigModal && (
+                        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+                            <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 w-96">
+                                <h3 className="text-xl font-bold text-white mb-4">Save Configuration</h3>
+                                <div className="mb-4">
+                                    <label className="block text-sm text-gray-400 mb-1">Select Experiment</label>
+                                    <select
+                                        value={selectedExperimentId}
+                                        onChange={(e) => setSelectedExperimentId(e.target.value)}
+                                        className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
+                                    >
+                                        {experiments.map(e => (
+                                            <option key={e.id} value={e.id}>{e.name}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div className="mb-6">
+                                    <label className="block text-sm text-gray-400 mb-1">Config Name</label>
+                                    <input
+                                        type="text"
+                                        value={newConfigName}
+                                        onChange={(e) => setNewConfigName(e.target.value)}
+                                        className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
+                                        placeholder="e.g. V1 Config"
+                                    />
+                                </div>
+                                <div className="flex justify-end gap-3">
+                                    <button
+                                        onClick={() => setShowConfigModal(false)}
+                                        className="px-4 py-2 text-gray-400 hover:text-white"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        onClick={handleSaveToConfig}
+                                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded"
+                                    >
+                                        Save
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     )}
 
-                    {scheduleEnabled && scheduleInterval === 0 && (
-                        <div className="flex items-center gap-2 ml-6">
-                            <label className="text-sm text-gray-400">At Time (IST):</label>
-                            <input
-                                type="time"
-                                value={scheduleTime}
-                                onChange={(e) => setScheduleTime(e.target.value)}
-                                className="bg-gray-900 border border-gray-700 rounded px-3 py-1 text-white focus:ring-2 focus:ring-blue-500 outline-none"
-                            />
-                        </div>
-                    )}
-
-                    {scheduleEnabled && scheduleInterval > 0 && (
-                        <div className="flex items-center gap-2 ml-6">
-                            <label className="text-sm text-gray-400">Run every:</label>
-                            <input
-                                type="text"
-                                key={scheduleInterval} // Force re-render when loaded
-                                defaultValue={secondsToHms(scheduleInterval)}
-                                onBlur={(e) => setScheduleInterval(hmsToSeconds(e.target.value))}
-                                className="bg-gray-900 border border-gray-700 rounded px-3 py-1 text-white w-28 text-center"
-                                placeholder="HH:MM:SS"
-                            />
-                            <span className="text-sm text-gray-400">(HH:MM:SS)</span>
-                        </div>
-                    )}
-                </div>
-            </div>
-
-            {/* Steps */}
-            <div className="space-y-4">
-                {steps.map((step, index) => (
-                    <div key={index} className="bg-gray-800 border border-gray-700 rounded-xl p-6 relative group">
-                        <div className="flex justify-between items-start mb-4">
-                            <div className="flex items-center gap-3">
-                                <span className="bg-blue-500/20 text-blue-400 px-2 py-1 rounded text-xs uppercase font-bold">
-                                    {step.step_type}
-                                </span>
+                    {/* Basic Info */}
+                    <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-6 mb-8">
+                        <div className="grid gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-400 mb-1">Name</label>
                                 <input
                                     type="text"
-                                    value={step.name}
-                                    onChange={(e) => updateStep(index, 'name', e.target.value)}
-                                    className="bg-transparent border-b border-transparent hover:border-gray-600 focus:border-blue-500 outline-none text-lg font-semibold text-white"
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                    className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                                    placeholder="My Pipeline"
                                 />
                             </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-400 mb-1">Description</label>
+                                <textarea
+                                    value={description}
+                                    onChange={(e) => setDescription(e.target.value)}
+                                    className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-blue-500 outline-none h-24"
+                                    placeholder="Describe what this pipeline does..."
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Scheduling */}
+                    <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-6 mb-8">
+                        <h3 className="text-lg font-semibold text-white mb-4">Scheduling</h3>
+                        <div className="flex flex-col gap-4">
                             <div className="flex items-center gap-2">
-                                <button onClick={() => moveStep(index, 'up')} disabled={index === 0} className="p-1 text-gray-500 hover:text-white disabled:opacity-30"><ArrowUp size={18} /></button>
-                                <button onClick={() => moveStep(index, 'down')} disabled={index === steps.length - 1} className="p-1 text-gray-500 hover:text-white disabled:opacity-30"><ArrowDown size={18} /></button>
-                                <button onClick={() => removeStep(index)} className="p-1 text-red-500 hover:bg-red-500/10 rounded"><Trash2 size={18} /></button>
+                                <input
+                                    type="checkbox"
+                                    id="schedule_enabled"
+                                    checked={scheduleEnabled}
+                                    onChange={(e) => setScheduleEnabled(e.target.checked)}
+                                    className="w-5 h-5 rounded border-gray-700 bg-gray-900 text-blue-600 focus:ring-blue-500"
+                                />
+                                <label htmlFor="schedule_enabled" className="text-gray-300">Enable Scheduling</label>
                             </div>
-                        </div>
 
-                        {/* Config Area - Simplified for brevity in this repair, relying on generic JSON/Input handling could be better but sticking to previous structure */}
-                        <div className="space-y-4">
-                            {step.step_type === 'extraction' && (
-                                <div className="space-y-3">
-                                    <div>
-                                        <label className="block text-xs text-gray-500 mb-1">SQL Query</label>
-                                        <textarea
-                                            value={step.config_json.query || ''}
-                                            onChange={(e) => updateStepConfig(index, 'query', e.target.value)}
-                                            className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white font-mono text-sm h-24"
-                                            placeholder="SELECT * FROM table"
-                                        />
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="block text-xs text-gray-500 mb-1">DB Type</label>
-                                            <select
-                                                value={step.config_json.database?.type || 'mysql'}
-                                                onChange={(e) => updateNestedConfig(index, 'database', 'type', e.target.value)}
-                                                className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
-                                            >
-                                                <option value="mysql">MySQL</option>
-                                                <option value="postgresql">PostgreSQL</option>
-                                                <option value="cratedb">CrateDB</option>
-                                                <option value="sqlite">SQLite</option>
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <label className="block text-xs text-gray-500 mb-1">Host</label>
-                                            <input
-                                                type="text"
-                                                value={step.config_json.database?.host || ''}
-                                                onChange={(e) => updateNestedConfig(index, 'database', 'host', e.target.value)}
-                                                className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
-                                                placeholder="localhost"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-xs text-gray-500 mb-1">Port</label>
-                                            <input
-                                                type="text"
-                                                value={step.config_json.database?.port || ''}
-                                                onChange={(e) => updateNestedConfig(index, 'database', 'port', e.target.value)}
-                                                className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
-                                                placeholder="3306"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-xs text-gray-500 mb-1">User</label>
-                                            <input
-                                                type="text"
-                                                value={step.config_json.database?.user || ''}
-                                                onChange={(e) => updateNestedConfig(index, 'database', 'user', e.target.value)}
-                                                className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-xs text-gray-500 mb-1">Password</label>
-                                            <input
-                                                type="password"
-                                                value={step.config_json.database?.password || ''}
-                                                onChange={(e) => updateNestedConfig(index, 'database', 'password', e.target.value)}
-                                                className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-xs text-gray-500 mb-1">Database Name</label>
-                                            <input
-                                                type="text"
-                                                value={step.config_json.database?.database || ''}
-                                                onChange={(e) => updateNestedConfig(index, 'database', 'database', e.target.value)}
-                                                className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-
-                            {step.step_type === 'preprocessing' && (
-                                <div className="space-y-3">
-                                    <div>
-                                        <label className="block text-xs text-gray-500 mb-1">Script Path</label>
-                                        <div className="flex gap-2">
-                                            <input
-                                                type="text"
-                                                value={step.config_json.script_path || ''}
-                                                onChange={(e) => updateStepConfig(index, 'script_path', e.target.value)}
-                                                className="flex-1 bg-gray-900 border border-gray-700 rounded p-2 text-white"
-                                            />
-                                            <button
-                                                onClick={() => handleLoadScript(index)}
-                                                className="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded text-sm text-white"
-                                            >
-                                                Edit
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label className="block text-xs text-gray-500 mb-1">Target Column</label>
+                            {scheduleEnabled && (
+                                <div className="flex gap-6 ml-6">
+                                    <div className="flex items-center gap-2">
                                         <input
-                                            type="text"
-                                            value={step.config_json.target_col || ''}
-                                            onChange={(e) => updateStepConfig(index, 'target_col', e.target.value)}
-                                            className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
+                                            type="radio"
+                                            id="schedule_daily"
+                                            name="schedule_type"
+                                            checked={scheduleInterval === 0}
+                                            onChange={() => setScheduleInterval(0)}
+                                            className="text-blue-600 bg-gray-900"
                                         />
+                                        <label htmlFor="schedule_daily" className="text-gray-400">Run Daily</label>
                                     </div>
-                                    <div className="pt-2 border-t border-gray-700 mt-2">
-                                        <label className="block text-xs text-gray-400 font-semibold mb-2">Forecasting (Optional)</label>
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div>
-                                                <label className="block text-xs text-gray-500 mb-1">Horizons (comma-sep)</label>
-                                                <input
-                                                    type="text"
-                                                    value={step.config_json.forecasting?.horizons?.join(',') || ''}
-                                                    onChange={(e) => {
-                                                        const val = e.target.value;
-                                                        const horizons = val.split(',').map(h => h.trim()).filter(h => h);
-                                                        updateNestedConfig(index, 'forecasting', 'horizons', horizons);
-                                                    }}
-                                                    className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
-                                                    placeholder="e.g. 1h, 6h, 1d"
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="block text-xs text-gray-500 mb-1">Timestamp Column</label>
-                                                <input
-                                                    type="text"
-                                                    value={step.config_json.forecasting?.timestamp_col || ''}
-                                                    onChange={(e) => updateNestedConfig(index, 'forecasting', 'timestamp_col', e.target.value)}
-                                                    className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
-                                                    placeholder="e.g. timestamp"
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
 
-                            {step.step_type === 'training' && (
-                                <div className="space-y-3">
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="block text-xs text-gray-500 mb-1">Task Type</label>
-                                            <select
-                                                value={step.config_json.model?.task_type || 'classification'}
-                                                onChange={(e) => {
-                                                    const newTask = e.target.value;
-                                                    // Reset model when task changes
-                                                    const firstModel = AVAILABLE_MODELS[newTask as keyof typeof AVAILABLE_MODELS]?.[0] || '';
-                                                    const newSteps = [...steps];
-                                                    const currentConfig = newSteps[index].config_json;
-                                                    newSteps[index].config_json = {
-                                                        ...currentConfig,
-                                                        model: {
-                                                            ...currentConfig.model,
-                                                            task_type: newTask,
-                                                            name: firstModel,
-                                                            params: getDefaultParams(firstModel)
-                                                        }
-                                                    };
-                                                    setSteps(newSteps);
-                                                }}
-                                                className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
-                                            >
-                                                <option value="classification">Classification</option>
-                                                <option value="regression">Regression</option>
-                                                <option value="time_series">Time Series</option>
-                                                <option value="clustering">Clustering</option>
-                                                <option value="anomaly_detection">Anomaly Detection</option>
-                                                <option value="deep_learning">Deep Learning</option>
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <label className="block text-xs text-gray-500 mb-1">Model Name</label>
-                                            <select
-                                                value={step.config_json.model?.name || ''}
-                                                onChange={(e) => {
-                                                    const newModel = e.target.value;
-                                                    const newSteps = [...steps];
-                                                    const currentConfig = newSteps[index].config_json;
-                                                    newSteps[index].config_json = {
-                                                        ...currentConfig,
-                                                        model: {
-                                                            ...currentConfig.model,
-                                                            name: newModel,
-                                                            params: getDefaultParams(newModel)
-                                                        }
-                                                    };
-                                                    setSteps(newSteps);
-                                                }}
-                                                className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
-                                            >
-                                                {AVAILABLE_MODELS[step.config_json.model?.task_type as keyof typeof AVAILABLE_MODELS]?.map((model) => (
-                                                    <option key={model} value={model}>
-                                                        {model}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label className="block text-xs text-gray-500 mb-1">MLflow Experiment</label>
+                                    <div className="flex items-center gap-2">
                                         <input
-                                            type="text"
-                                            value={step.config_json.mlflow?.experiment_name || ''}
-                                            onChange={(e) => updateNestedConfig(index, 'mlflow', 'experiment_name', e.target.value)}
-                                            className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
+                                            type="radio"
+                                            id="schedule_interval"
+                                            name="schedule_type"
+                                            checked={scheduleInterval > 0}
+                                            onChange={() => setScheduleInterval(1)}
+                                            className="text-blue-600 bg-gray-900"
                                         />
+                                        <label htmlFor="schedule_interval" className="text-gray-400">Run Interval</label>
                                     </div>
                                 </div>
                             )}
 
-                            {step.step_type === 'save' && (
-                                <div className="space-y-3">
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="block text-xs text-gray-500 mb-1">DB Type</label>
-                                            <select
-                                                value={step.config_json.database?.type || 'mysql'}
-                                                onChange={(e) => updateNestedConfig(index, 'database', 'type', e.target.value)}
-                                                className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
-                                            >
-                                                <option value="mysql">MySQL</option>
-                                                <option value="postgresql">PostgreSQL</option>
-                                                <option value="cratedb">CrateDB</option>
-                                                <option value="sqlite">SQLite</option>
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <label className="block text-xs text-gray-500 mb-1">Host</label>
-                                            <input
-                                                type="text"
-                                                value={step.config_json.database?.host || ''}
-                                                onChange={(e) => updateNestedConfig(index, 'database', 'host', e.target.value)}
-                                                className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
-                                                placeholder="localhost"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-xs text-gray-500 mb-1">Port</label>
-                                            <input
-                                                type="text"
-                                                value={step.config_json.database?.port || ''}
-                                                onChange={(e) => updateNestedConfig(index, 'database', 'port', e.target.value)}
-                                                className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
-                                                placeholder="3306"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-xs text-gray-500 mb-1">User</label>
-                                            <input
-                                                type="text"
-                                                value={step.config_json.database?.user || ''}
-                                                onChange={(e) => updateNestedConfig(index, 'database', 'user', e.target.value)}
-                                                className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-xs text-gray-500 mb-1">Password</label>
-                                            <input
-                                                type="password"
-                                                value={step.config_json.database?.password || ''}
-                                                onChange={(e) => updateNestedConfig(index, 'database', 'password', e.target.value)}
-                                                className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-xs text-gray-500 mb-1">Database Name</label>
-                                            <input
-                                                type="text"
-                                                value={step.config_json.database?.database || ''}
-                                                onChange={(e) => updateNestedConfig(index, 'database', 'database', e.target.value)}
-                                                className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
-                                            />
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label className="block text-xs text-gray-500 mb-1">Table Name</label>
-                                        <input
-                                            type="text"
-                                            value={step.config_json.table_name || ''}
-                                            onChange={(e) => updateStepConfig(index, 'table_name', e.target.value)}
-                                            className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
-                                        />
-                                    </div>
+                            {scheduleEnabled && scheduleInterval === 0 && (
+                                <div className="flex items-center gap-2 ml-6">
+                                    <label className="text-sm text-gray-400">At Time (IST):</label>
+                                    <input
+                                        type="time"
+                                        value={scheduleTime}
+                                        onChange={(e) => setScheduleTime(e.target.value)}
+                                        className="bg-gray-900 border border-gray-700 rounded px-3 py-1 text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                                    />
                                 </div>
                             )}
 
-                        </div>
-
-                        {/* Run Step Button & Output */}
-                        <div className="mt-4 pt-4 border-t border-gray-700">
-                            <div className="flex justify-between items-center">
-                                <span className="text-xs text-gray-500">Test this step independently</span>
-                                <button
-                                    onClick={() => handleRunStep(index)}
-                                    disabled={stepLoading[index]}
-                                    className="flex items-center gap-2 px-3 py-1.5 bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 rounded text-xs font-bold transition-colors disabled:opacity-50"
-                                >
-                                    <Play size={14} />
-                                    {stepLoading[index] ? 'Running...' : 'Run Step'}
-                                </button>
-                            </div>
-                            {stepError[index] && (
-                                <div className="mt-2 text-xs text-red-400 bg-red-500/10 p-2 rounded border border-red-500/20">
-                                    Error: {stepError[index]}
+                            {scheduleEnabled && scheduleInterval > 0 && (
+                                <div className="flex items-center gap-2 ml-6">
+                                    <label className="text-sm text-gray-400">Run every:</label>
+                                    <input
+                                        type="text"
+                                        key={scheduleInterval} // Force re-render when loaded
+                                        defaultValue={secondsToHms(scheduleInterval)}
+                                        onBlur={(e) => setScheduleInterval(hmsToSeconds(e.target.value))}
+                                        className="bg-gray-900 border border-gray-700 rounded px-3 py-1 text-white w-28 text-center"
+                                        placeholder="HH:MM:SS"
+                                    />
+                                    <span className="text-sm text-gray-400">(HH:MM:SS)</span>
                                 </div>
                             )}
-                            <StepOutput result={stepResults[index]} stepConfig={step.config_json} />
                         </div>
                     </div>
-                ))}
 
-                {steps.length === 0 && (
-                    <div className="text-center py-12 bg-gray-800/30 border border-dashed border-gray-700 rounded-xl">
-                        <p className="text-gray-400">No steps defined. Add a step to get started.</p>
+                    {/* Steps */}
+                    <div className="space-y-4">
+                        {steps.map((step, index) => (
+                            <div key={index} className="bg-gray-800 border border-gray-700 rounded-xl p-6 relative group">
+                                <div className="flex justify-between items-start mb-4">
+                                    <div className="flex items-center gap-3">
+                                        <span className="bg-blue-500/20 text-blue-400 px-2 py-1 rounded text-xs uppercase font-bold">
+                                            {step.step_type}
+                                        </span>
+                                        <input
+                                            type="text"
+                                            value={step.name}
+                                            onChange={(e) => updateStep(index, 'name', e.target.value)}
+                                            className="bg-transparent border-b border-transparent hover:border-gray-600 focus:border-blue-500 outline-none text-lg font-semibold text-white"
+                                        />
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <button onClick={() => moveStep(index, 'up')} disabled={index === 0} className="p-1 text-gray-500 hover:text-white disabled:opacity-30"><ArrowUp size={18} /></button>
+                                        <button onClick={() => moveStep(index, 'down')} disabled={index === steps.length - 1} className="p-1 text-gray-500 hover:text-white disabled:opacity-30"><ArrowDown size={18} /></button>
+                                        <button onClick={() => removeStep(index)} className="p-1 text-red-500 hover:bg-red-500/10 rounded"><Trash2 size={18} /></button>
+                                    </div>
+                                </div>
+
+                                {/* Config Area - Simplified for brevity in this repair, relying on generic JSON/Input handling could be better but sticking to previous structure */}
+                                <div className="space-y-4">
+                                    {step.step_type === 'extraction' && (
+                                        <div className="space-y-3">
+                                            <div>
+                                                <label className="block text-xs text-gray-500 mb-1">SQL Query</label>
+                                                <textarea
+                                                    value={step.config_json.query || ''}
+                                                    onChange={(e) => updateStepConfig(index, 'query', e.target.value)}
+                                                    className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white font-mono text-sm h-24"
+                                                    placeholder="SELECT * FROM table"
+                                                />
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div>
+                                                    <label className="block text-xs text-gray-500 mb-1">DB Type</label>
+                                                    <select
+                                                        value={step.config_json.database?.type || 'mysql'}
+                                                        onChange={(e) => updateNestedConfig(index, 'database', 'type', e.target.value)}
+                                                        className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
+                                                    >
+                                                        <option value="mysql">MySQL</option>
+                                                        <option value="postgresql">PostgreSQL</option>
+                                                        <option value="cratedb">CrateDB</option>
+                                                        <option value="sqlite">SQLite</option>
+                                                    </select>
+                                                </div>
+                                                <div>
+                                                    <label className="block text-xs text-gray-500 mb-1">Host</label>
+                                                    <input
+                                                        type="text"
+                                                        value={step.config_json.database?.host || ''}
+                                                        onChange={(e) => updateNestedConfig(index, 'database', 'host', e.target.value)}
+                                                        className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
+                                                        placeholder="localhost"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-xs text-gray-500 mb-1">Port</label>
+                                                    <input
+                                                        type="text"
+                                                        value={step.config_json.database?.port || ''}
+                                                        onChange={(e) => updateNestedConfig(index, 'database', 'port', e.target.value)}
+                                                        className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
+                                                        placeholder="3306"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-xs text-gray-500 mb-1">User</label>
+                                                    <input
+                                                        type="text"
+                                                        value={step.config_json.database?.user || ''}
+                                                        onChange={(e) => updateNestedConfig(index, 'database', 'user', e.target.value)}
+                                                        className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-xs text-gray-500 mb-1">Password</label>
+                                                    <input
+                                                        type="password"
+                                                        value={step.config_json.database?.password || ''}
+                                                        onChange={(e) => updateNestedConfig(index, 'database', 'password', e.target.value)}
+                                                        className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-xs text-gray-500 mb-1">Database Name</label>
+                                                    <input
+                                                        type="text"
+                                                        value={step.config_json.database?.database || ''}
+                                                        onChange={(e) => updateNestedConfig(index, 'database', 'database', e.target.value)}
+                                                        className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {step.step_type === 'preprocessing' && (
+                                        <div className="space-y-3">
+                                            <div>
+                                                <label className="block text-xs text-gray-500 mb-1">Script Path</label>
+                                                <div className="flex gap-2">
+                                                    <input
+                                                        type="text"
+                                                        value={step.config_json.script_path || ''}
+                                                        onChange={(e) => updateStepConfig(index, 'script_path', e.target.value)}
+                                                        className="flex-1 bg-gray-900 border border-gray-700 rounded p-2 text-white"
+                                                    />
+                                                    <button
+                                                        onClick={() => handleLoadScript(index)}
+                                                        className="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded text-sm text-white"
+                                                    >
+                                                        Edit
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs text-gray-500 mb-1">Target Column</label>
+                                                <input
+                                                    type="text"
+                                                    value={step.config_json.target_col || ''}
+                                                    onChange={(e) => updateStepConfig(index, 'target_col', e.target.value)}
+                                                    className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
+                                                />
+                                            </div>
+                                            <div className="pt-2 border-t border-gray-700 mt-2">
+                                                <label className="block text-xs text-gray-400 font-semibold mb-2">Forecasting (Optional)</label>
+                                                <div className="grid grid-cols-2 gap-4">
+                                                    <div>
+                                                        <label className="block text-xs text-gray-500 mb-1">Horizons (comma-sep)</label>
+                                                        <input
+                                                            type="text"
+                                                            value={step.config_json.forecasting?.horizons?.join(',') || ''}
+                                                            onChange={(e) => {
+                                                                const val = e.target.value;
+                                                                const horizons = val.split(',').map(h => h.trim()).filter(h => h);
+                                                                updateNestedConfig(index, 'forecasting', 'horizons', horizons);
+                                                            }}
+                                                            className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
+                                                            placeholder="e.g. 1h, 6h, 1d"
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-xs text-gray-500 mb-1">Timestamp Column</label>
+                                                        <input
+                                                            type="text"
+                                                            value={step.config_json.forecasting?.timestamp_col || ''}
+                                                            onChange={(e) => updateNestedConfig(index, 'forecasting', 'timestamp_col', e.target.value)}
+                                                            className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
+                                                            placeholder="e.g. timestamp"
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {step.step_type === 'training' && (
+                                        <div className="space-y-3">
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div>
+                                                    <label className="block text-xs text-gray-500 mb-1">Task Type</label>
+                                                    <select
+                                                        value={step.config_json.model?.task_type || 'classification'}
+                                                        onChange={(e) => {
+                                                            const newTask = e.target.value;
+                                                            // Reset model when task changes
+                                                            const firstModel = AVAILABLE_MODELS[newTask as keyof typeof AVAILABLE_MODELS]?.[0] || '';
+                                                            const newSteps = [...steps];
+                                                            const currentConfig = newSteps[index].config_json;
+                                                            newSteps[index].config_json = {
+                                                                ...currentConfig,
+                                                                model: {
+                                                                    ...currentConfig.model,
+                                                                    task_type: newTask,
+                                                                    name: firstModel,
+                                                                    params: getDefaultParams(firstModel)
+                                                                }
+                                                            };
+                                                            setSteps(newSteps);
+                                                        }}
+                                                        className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
+                                                    >
+                                                        <option value="classification">Classification</option>
+                                                        <option value="regression">Regression</option>
+                                                        <option value="time_series">Time Series</option>
+                                                        <option value="clustering">Clustering</option>
+                                                        <option value="anomaly_detection">Anomaly Detection</option>
+                                                        <option value="deep_learning">Deep Learning</option>
+                                                    </select>
+                                                </div>
+                                                <div>
+                                                    <label className="block text-xs text-gray-500 mb-1">Model Name</label>
+                                                    <select
+                                                        value={step.config_json.model?.name || ''}
+                                                        onChange={(e) => {
+                                                            const newModel = e.target.value;
+                                                            const newSteps = [...steps];
+                                                            const currentConfig = newSteps[index].config_json;
+                                                            newSteps[index].config_json = {
+                                                                ...currentConfig,
+                                                                model: {
+                                                                    ...currentConfig.model,
+                                                                    name: newModel,
+                                                                    params: getDefaultParams(newModel)
+                                                                }
+                                                            };
+                                                            setSteps(newSteps);
+                                                        }}
+                                                        className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
+                                                    >
+                                                        {AVAILABLE_MODELS[step.config_json.model?.task_type as keyof typeof AVAILABLE_MODELS]?.map((model) => (
+                                                            <option key={model} value={model}>
+                                                                {model}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs text-gray-500 mb-1">MLflow Experiment</label>
+                                                <input
+                                                    type="text"
+                                                    value={step.config_json.mlflow?.experiment_name || ''}
+                                                    onChange={(e) => updateNestedConfig(index, 'mlflow', 'experiment_name', e.target.value)}
+                                                    className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {step.step_type === 'save' && (
+                                        <div className="space-y-3">
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div>
+                                                    <label className="block text-xs text-gray-500 mb-1">DB Type</label>
+                                                    <select
+                                                        value={step.config_json.database?.type || 'mysql'}
+                                                        onChange={(e) => updateNestedConfig(index, 'database', 'type', e.target.value)}
+                                                        className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
+                                                    >
+                                                        <option value="mysql">MySQL</option>
+                                                        <option value="postgresql">PostgreSQL</option>
+                                                        <option value="cratedb">CrateDB</option>
+                                                        <option value="sqlite">SQLite</option>
+                                                    </select>
+                                                </div>
+                                                <div>
+                                                    <label className="block text-xs text-gray-500 mb-1">Host</label>
+                                                    <input
+                                                        type="text"
+                                                        value={step.config_json.database?.host || ''}
+                                                        onChange={(e) => updateNestedConfig(index, 'database', 'host', e.target.value)}
+                                                        className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
+                                                        placeholder="localhost"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-xs text-gray-500 mb-1">Port</label>
+                                                    <input
+                                                        type="text"
+                                                        value={step.config_json.database?.port || ''}
+                                                        onChange={(e) => updateNestedConfig(index, 'database', 'port', e.target.value)}
+                                                        className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
+                                                        placeholder="3306"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-xs text-gray-500 mb-1">User</label>
+                                                    <input
+                                                        type="text"
+                                                        value={step.config_json.database?.user || ''}
+                                                        onChange={(e) => updateNestedConfig(index, 'database', 'user', e.target.value)}
+                                                        className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-xs text-gray-500 mb-1">Password</label>
+                                                    <input
+                                                        type="password"
+                                                        value={step.config_json.database?.password || ''}
+                                                        onChange={(e) => updateNestedConfig(index, 'database', 'password', e.target.value)}
+                                                        className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-xs text-gray-500 mb-1">Database Name</label>
+                                                    <input
+                                                        type="text"
+                                                        value={step.config_json.database?.database || ''}
+                                                        onChange={(e) => updateNestedConfig(index, 'database', 'database', e.target.value)}
+                                                        className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs text-gray-500 mb-1">Table Name</label>
+                                                <input
+                                                    type="text"
+                                                    value={step.config_json.table_name || ''}
+                                                    onChange={(e) => updateStepConfig(index, 'table_name', e.target.value)}
+                                                    className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
+
+                                </div>
+
+                                {/* Run Step Button & Output */}
+                                <div className="mt-4 pt-4 border-t border-gray-700">
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-xs text-gray-500">Test this step independently</span>
+                                        <button
+                                            onClick={() => handleRunStep(index)}
+                                            disabled={stepLoading[index]}
+                                            className="flex items-center gap-2 px-3 py-1.5 bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 rounded text-xs font-bold transition-colors disabled:opacity-50"
+                                        >
+                                            <Play size={14} />
+                                            {stepLoading[index] ? 'Running...' : 'Run Step'}
+                                        </button>
+                                    </div>
+                                    {stepError[index] && (
+                                        <div className="mt-2 text-xs text-red-400 bg-red-500/10 p-2 rounded border border-red-500/20">
+                                            Error: {stepError[index]}
+                                        </div>
+                                    )}
+                                    <StepOutput result={stepResults[index]} stepConfig={step.config_json} />
+                                </div>
+                            </div>
+                        ))}
+
+                        {steps.length === 0 && (
+                            <div className="text-center py-12 bg-gray-800/30 border border-dashed border-gray-700 rounded-xl">
+                                <p className="text-gray-400">No steps defined. Add a step to get started.</p>
+                            </div>
+                        )}
                     </div>
-                )}
-            </div>
 
-            {/* Add Step Bar */}
-            <div className="mt-8 flex justify-center gap-3">
-                {['extraction', 'preprocessing', 'training', 'prediction', 'save'].map((type) => (
-                    <button
-                        key={type}
-                        onClick={() => addStep(type as PipelineStep['step_type'])}
-                        className="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-full text-sm text-gray-300 transition-colors capitalize"
-                    >
-                        <Plus size={16} />
-                        {type}
-                    </button>
-                ))}
-            </div>
+                    {/* Add Step Bar */}
+                    <div className="mt-8 flex justify-center gap-3">
+                        {['extraction', 'preprocessing', 'training', 'prediction', 'save'].map((type) => (
+                            <button
+                                key={type}
+                                onClick={() => addStep(type as PipelineStep['step_type'])}
+                                className="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-full text-sm text-gray-300 transition-colors capitalize"
+                            >
+                                <Plus size={16} />
+                                {type}
+                            </button>
+                        ))}
+                    </div>
+
+
+                </>
+            )}
 
             {/* Script Modal */}
             {editingScriptIndex !== null && (
@@ -936,7 +968,7 @@ const PipelineEditor: React.FC = () => {
     );
 };
 
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ScatterChart, Scatter, BarChart, Bar, Cell } from 'recharts';
+
 
 const StepOutput = ({ result, stepConfig }: { result: any, stepConfig?: any }) => {
     const [viewMode, setViewMode] = useState<'table' | 'chart'>('table');
