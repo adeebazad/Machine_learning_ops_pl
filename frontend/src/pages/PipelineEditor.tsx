@@ -741,6 +741,7 @@ const PipelineEditor: React.FC = () => {
                                                 <option value="regression">Regression</option>
                                                 <option value="time_series">Time Series</option>
                                                 <option value="clustering">Clustering</option>
+                                                <option value="anomaly_detection">Anomaly Detection</option>
                                                 <option value="deep_learning">Deep Learning</option>
                                             </select>
                                         </div>
