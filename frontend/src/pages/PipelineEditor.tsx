@@ -973,8 +973,15 @@ const StepOutput = ({ result }: { result: any }) => {
                                     dataKey={dateCol}
                                     type="category"
                                     allowDuplicatedCategory={false}
-                                    tickFormatter={(str) => new Date(str).toLocaleDateString()}
+                                    tickFormatter={(str) => {
+                                        try {
+                                            const d = new Date(Number(str) || str);
+                                            return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                                        }
+                                        catch { return str; }
+                                    }}
                                     stroke="#9CA3AF"
+                                    minTickGap={30}
                                 />
                                 <YAxis dataKey={valueCol} stroke="#9CA3AF" />
                                 <Tooltip
@@ -999,10 +1006,14 @@ const StepOutput = ({ result }: { result: any }) => {
                             <XAxis
                                 dataKey={dateCol}
                                 tickFormatter={(str) => {
-                                    try { return new Date(str).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }); }
+                                    try {
+                                        const d = new Date(Number(str) || str);
+                                        return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                                    }
                                     catch { return str; }
                                 }}
                                 stroke="#9CA3AF"
+                                minTickGap={30}
                             />
                             <YAxis stroke="#9CA3AF" />
                             <Tooltip contentStyle={{ backgroundColor: '#1F2937', borderColor: '#374151', color: '#fff' }} />
