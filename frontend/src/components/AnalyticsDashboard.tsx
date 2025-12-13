@@ -366,6 +366,9 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ steps, stepResu
 
                     <h3 className="text-gray-400 font-bold mb-4 uppercase text-xs tracking-wider mt-6">Pipeline Steps</h3>
                     {steps.map((step, index) => {
+                        // Filter: Only show Preprocessing and Prediction steps
+                        if (!['preprocessing', 'prediction'].includes(step.step_type)) return null;
+
                         const hasResult = !!stepResults[index];
                         const hasError = !!stepError[index];
                         const isSelected = selectedStepIndex === index;
