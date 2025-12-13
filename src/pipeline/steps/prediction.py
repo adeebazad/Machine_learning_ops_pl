@@ -351,10 +351,13 @@ class PredictionStep(PipelineStepHandler):
                                 horizons_to_process.append((col, match.group(1)))
             
              # Process timestamps
+             
+             # Process timestamps and MELT into new rows for the chart
+             future_rows_list = []
+             
              for pred_col, horizon_str in horizons_to_process:
                    try:
                        delta = None
-                       # Normalize horizon strings (handle '1h', '6h')
                        h_str = str(horizon_str).lower().strip()
                        
                        if h_str.endswith('h'):
@@ -364,28 +367,56 @@ class PredictionStep(PipelineStepHandler):
                             days = int(h_str[:-1])
                             delta = pd.Timedelta(days=days)
                        elif h_str.isdigit():
-                            # Assume hours if just number provided? Or rows?
-                            # Without frequency info, this is ambiguous. Assume hours for now as per user context.
-                             delta = pd.Timedelta(hours=int(h_str))
+                            delta = pd.Timedelta(hours=int(h_str))
                        
                        if delta:
-                           future_ts_col = f"timestamp_+{horizon_str}"
+                           # Create a copy of the dataframe for this horizon
+                           horizon_df = result_df.copy()
                            
-                           # Check dtype of timestamp_col
-                           ts_series = result_df[timestamp_col]
+                           # Update timestamp column
+                           ts_series = horizon_df[timestamp_col]
                            if pd.api.types.is_numeric_dtype(ts_series):
-                               # Assume milliseconds 
                                ms_delta = delta.total_seconds() * 1000
-                               result_df[future_ts_col] = ts_series + ms_delta
+                               horizon_df[timestamp_col] = ts_series + ms_delta
                            else:
-                               # Assume datetime object
-                               result_df[future_ts_col] = pd.to_datetime(ts_series) + delta
-                               
-                           logger.info(f"Created future timestamp column '{future_ts_col}' for horizon '{horizon_str}'")
+                               horizon_df[timestamp_col] = pd.to_datetime(ts_series) + delta
+                           
+                           # Update prediction column: The 'prediction' column should take values from the horizon-specific prediction
+                           # The original 'prediction' column has t+0.
+                           # We want this row to have prediction = value of pred_col (e.g., prediction_+4d)
+                           if pred_col in horizon_df.columns:
+                                # Primary prediction column for this row becomes the forecast value
+                                # Assuming standard 'prediction' column is what UI plots
+                                # We need to overwrite 'prediction' variable or column if it exists?
+                                # Ideally, we want one 'prediction' column for the chart line.
+                                # If there is a 'prediction' column (t+0), we overwrite it with 'prediction_+4d'
+                                main_pred_col = f"prediction_{context.get('target_col', '')}" if context.get('target_col') else "prediction"
+                                if main_pred_col in horizon_df.columns:
+                                     horizon_df[main_pred_col] = horizon_df[pred_col]
+                                else:
+                                     horizon_df['prediction'] = horizon_df[pred_col]
+
+                           # Set Actuals to NaN to distinguish Forecast from History in Chart
+                           target_col_name = context.get('target_col')
+                           if target_col_name and target_col_name in horizon_df.columns:
+                                horizon_df[target_col_name] = None # NaN
+                           
+                           # Add metadata
+                           horizon_df['is_forecast'] = True
+                           horizon_df['forecast_horizon'] = horizon_str
+                           
+                           future_rows_list.append(horizon_df)
+                           
+                           logger.info(f"Created {len(horizon_df)} future rows for horizon '{horizon_str}'")
                    except Exception as e:
-                       logger.warning(f"Failed to calculate future timestamp for horizon {horizon_str}: {e}")
-                       
-             # Update context data with new columns
+                       logger.warning(f"Failed to calculate future rows for horizon {horizon_str}: {e}")
+            
+             if future_rows_list:
+                  future_df = pd.concat(future_rows_list, ignore_index=True)
+                  result_df = pd.concat([result_df, future_df], ignore_index=True)
+                  logger.info(f"Appended {len(future_df)} total future rows to output.")
+
+             # Update context data with new columns/rows
              context['data'] = result_df
         # ------------------------------------------
         
