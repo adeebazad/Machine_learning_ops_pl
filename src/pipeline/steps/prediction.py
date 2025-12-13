@@ -104,6 +104,31 @@ class PredictionStep(PipelineStepHandler):
             
         predictions = model.predict(data_to_predict)
         
+        
+        # INVERSE TRANSFORM PREDICTIONS (for Regression/Time Series)
+        # Check if we have a target scaler in the preprocessor
+        if 'preprocessor' in context:
+             prep = context['preprocessor']
+             if hasattr(prep, 'target_scaler') and prep.target_scaler is not None:
+                 # Only inverse transform if we are not doing Classification (or check model type?)
+                 # Actually, target_scaler is only populated for Regression in our new logic.
+                 # So if it exists, use it?
+                 # Double check if classification label encoder is also there?
+                 # DataPreprocessor has attributes initialized to default. Check if 'mean_' attribute exists on scaler to see if fitted.
+                 
+                 is_scaler_fitted = hasattr(prep.target_scaler, 'mean_') or hasattr(prep.target_scaler, 'center_') # StandardScaler/MinMaxScaler
+                 
+                 if is_scaler_fitted:
+                     logger.info("Target Scaler found and fitted. Inverse transforming predictions...")
+                     try:
+                         # Predictions shape
+                         if predictions.ndim == 1:
+                             predictions = prep.target_scaler.inverse_transform(predictions.reshape(-1, 1)).ravel()
+                         else:
+                             predictions = prep.target_scaler.inverse_transform(predictions)
+                     except Exception as e:
+                         logger.warning(f"Failed to inverse transform predictions: {e}")
+
         # Attach predictions to data
         result_df = None
         

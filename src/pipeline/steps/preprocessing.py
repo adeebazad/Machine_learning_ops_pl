@@ -187,9 +187,17 @@ class PreprocessingStep(PipelineStepHandler):
                  forecasting_horizons = [h.strip() for h in forecasting_horizons.split(',')]
                  logger.info(f"Converted forecasting_horizons string to list: {forecasting_horizons}")
 
+            # Infer task_type for target encoding
+            task_type_inferred = 'classification'
+            if target_col and target_col in df.columns:
+                if pd.api.types.is_numeric_dtype(df[target_col]):
+                    task_type_inferred = 'regression'
+            
+            logger.info(f"Inferred task_type for preprocessing: {task_type_inferred}")
+
             # Call directly. 
             try:
-                ret_val = preprocessor.preprocess_train(df, target_col, forecasting_horizons=forecasting_horizons, timestamp_col=timestamp_col)
+                ret_val = preprocessor.preprocess_train(df, target_col, forecasting_horizons=forecasting_horizons, timestamp_col=timestamp_col, task_type=task_type_inferred)
             except TypeError as e:
                 # If we get here, it means the method signature doesn't match the arguments we passed.
                 # Since we know the code in git HAS the arguments, this means the server file is stale.
