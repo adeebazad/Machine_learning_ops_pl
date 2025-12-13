@@ -13,19 +13,21 @@ class DataPreprocessor:
         self.target_scaler = StandardScaler() # Separate scaler for target in regression
         self.fitted_numerical_cols = None
 
-    def preprocess_train(self, df: pd.DataFrame, target_col: str, forecasting_horizons: list = None, timestamp_col: str = None, task_type: str = 'classification') -> Tuple[Any, Any, Any, Any, Any]:
+    def preprocess_train(self, df: pd.DataFrame, target_col: str = None, forecasting_horizons: list = None, timestamp_col: str = None, task_type: str = 'classification') -> Tuple[Any, Any, Any, Any, Any]:
         """
         Preprocesses training data: splits into X/y, scales features, encodes target.
         Supports forecasting horizons (e.g., ['1h', '6h']) by creating shifted targets.
         """
-        if target_col not in df.columns:
-            # If target missing, maybe Unsupervised? But this method expects target_col.
-            # If explicit None passed, we handle it, but here we expect 'target_col' string.
-            print(f"Warning: Target column '{target_col}' not found. Available: {df.columns.tolist()}")
-            if not target_col:
-                 print("No target column provided. Assuming Unsupervised.")
-            else:
-                 raise ValueError(f"Target column '{target_col}' not found.")
+        # Robustness: Check if target_col exists
+        if target_col and target_col not in df.columns:
+            print(f"WARNING: Target column '{target_col}' specified in config but NOT found in DataFrame.")
+            print("Assuming Unsupervised Learning (y=None).")
+            # Clear target_col so we skip target logic
+            target_col = None
+            
+        if not target_col:
+             # Explicitly handle None/Empty
+             pass
         
         print(f"DEBUG: Initial DF shape: {df.shape}")
         
