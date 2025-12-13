@@ -5,7 +5,7 @@ import logging
 import importlib
 import sys
 import uuid
-
+import pandas as pd
 logger = logging.getLogger(__name__)
 
 # Default Preprocessing Script Template
