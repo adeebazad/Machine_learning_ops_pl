@@ -46,14 +46,28 @@ class ProphetWrapper:
         
         # Ensure 'ds' column exists. If not, try to find a date column or use index
         if 'ds' not in df.columns:
-            date_cols = df.select_dtypes(include=['datetime']).columns
-            if len(date_cols) > 0:
-                df = df.rename(columns={date_cols[0]: 'ds'})
-            elif isinstance(df.index, pd.DatetimeIndex):
-                df['ds'] = df.index
-                df = df.reset_index(drop=False)
-            else:
-                 raise ValueError("Prophet requires a 'ds' column or DatetimeIndex")
+                
+                # Try to find a column that looks like a date (even if string)
+                if len(date_cols) == 0:
+                     # Check for common names like 'date', 'timestamp'
+                     for col in df.columns:
+                          if col.lower() in ['date', 'timestamp', 'time', 'ds', 'dateissuedutc', 'datetime']:
+                               try:
+                                    df[col] = pd.to_datetime(df[col])
+                                    df = df.rename(columns={col: 'ds'})
+                                    break
+                               except: pass
+                
+                # Check again after potential conversion
+                if 'ds' not in df.columns:
+                     date_cols = df.select_dtypes(include=['datetime']).columns
+                     if len(date_cols) > 0:
+                         df = df.rename(columns={date_cols[0]: 'ds'})
+                     elif isinstance(df.index, pd.DatetimeIndex):
+                         df['ds'] = df.index
+                         df = df.reset_index(drop=False)
+                     else:
+                          raise ValueError(f"Prophet requires a 'ds' column. Available columns: {df.columns.tolist()}")
 
         self.model.fit(df)
         return self
@@ -69,10 +83,27 @@ class ProphetWrapper:
         if isinstance(X, pd.DataFrame):
              if 'ds' not in X.columns:
                  # Try to infer like in fit
+                 # Try to infer like in fit
+                # Auto-detect date column (string or datetime)
+                date_found = False
+                
+                # Check known date columns first
                 date_cols = X.select_dtypes(include=['datetime']).columns
                 if len(date_cols) > 0:
                     X = X.rename(columns={date_cols[0]: 'ds'})
-                elif isinstance(X.index, pd.DatetimeIndex):
+                    date_found = True
+                
+                if not date_found:
+                     for col in X.columns:
+                          if col.lower() in ['date', 'timestamp', 'time', 'ds', 'dateissuedutc', 'datetime']:
+                               try:
+                                    X[col] = pd.to_datetime(X[col])
+                                    X = X.rename(columns={col: 'ds'})
+                                    date_found = True
+                                    break
+                               except: pass
+                               
+                if not date_found and isinstance(X.index, pd.DatetimeIndex):
                     X['ds'] = X.index
                     X = X.reset_index(drop=False)
         
