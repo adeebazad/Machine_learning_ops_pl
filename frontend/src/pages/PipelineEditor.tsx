@@ -881,7 +881,7 @@ const PipelineEditor: React.FC = () => {
                                     Error: {stepError[index]}
                                 </div>
                             )}
-                            <StepOutput result={stepResults[index]} />
+                            <StepOutput result={stepResults[index]} stepConfig={step.config_json} />
                         </div>
                     </div>
                 ))}
@@ -938,7 +938,7 @@ const PipelineEditor: React.FC = () => {
 
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ScatterChart, Scatter, BarChart, Bar, Cell } from 'recharts';
 
-const StepOutput = ({ result }: { result: any }) => {
+const StepOutput = ({ result, stepConfig }: { result: any, stepConfig?: any }) => {
     const [viewMode, setViewMode] = useState<'table' | 'chart'>('table');
 
     if (!result) return null;
@@ -954,11 +954,21 @@ const StepOutput = ({ result }: { result: any }) => {
 
         // Smartly find the "Actual" value column
         let valueCol = null;
-        if (predCol && predCol.startsWith('prediction_')) {
+
+        // 1. Priority: User Config provided target_col (either directly or in forecasting)
+        if (stepConfig?.target_col && columns.includes(stepConfig.target_col)) {
+            valueCol = stepConfig.target_col;
+        } else if (stepConfig?.forecasting?.target_col && columns.includes(stepConfig.forecasting.target_col)) {
+            valueCol = stepConfig.forecasting.target_col;
+        }
+
+        // 2. Fallback: Derive from prediction column name
+        if (!valueCol && predCol && predCol.startsWith('prediction_')) {
             const derived = predCol.replace('prediction_', '');
             if (columns.includes(derived)) valueCol = derived;
         }
 
+        // 3. Fallback: Hardcoded list
         if (!valueCol) {
             valueCol = columns.find(c => ['aqi', 'pm10', 'pm2_5', 'value', 'price', 'target', 'y'].includes(c.toLowerCase())) ||
                 columns.find(c => !['dateissuedutc', 'timestamp', 'prediction', 'run_id', 'model_type', 'address', 'is_forecast', 'forecast_horizon'].includes(c) && typeof data[0][c] === 'number');
