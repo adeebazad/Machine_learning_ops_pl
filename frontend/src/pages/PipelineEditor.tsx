@@ -1035,7 +1035,7 @@ const StepOutput = ({ result }: { result: any }) => {
                             <YAxis stroke="#9CA3AF" />
                             <Tooltip contentStyle={{ backgroundColor: '#1F2937', borderColor: '#374151', color: '#fff' }} />
                             <Bar dataKey="count" fill="#8884d8">
-                                {chartData.map((entry, index) => (
+                                {chartData.map((_, index) => (
                                     <Cell key={`cell-${index}`} fill={['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'][index % 5]} />
                                 ))}
                             </Bar>
