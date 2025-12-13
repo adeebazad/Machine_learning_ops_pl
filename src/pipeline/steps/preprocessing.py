@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 DEFAULT_PREPROCESS_TEMPLATE = '''import pandas as pd
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.model_selection import train_test_split
-from typing import Tuple, Any
+from typing import Tuple, Any, List
 import joblib
 import os
 
@@ -21,16 +21,20 @@ class DataPreprocessor:
         self.scaler = StandardScaler()
         self.label_encoder = LabelEncoder()
 
-    def preprocess_train(self, df: pd.DataFrame, target_col: str, forecasting_horizons: list = None, timestamp_col: str = None) -> Tuple[Any, Any, Any, Any]:
+    def preprocess_train(self, df: pd.DataFrame, target_col: str = None, forecasting_horizons: list = None, timestamp_col: str = None) -> Tuple[Any, Any, Any, Any]:
         """
-        Preprocesses training data: splits into X/y, scales features, encodes target.
+        Preprocesses training data.
+        If target_col is provided: Splits into X/y, scales features, encodes target, returns (X_train, X_test, y_train, y_test).
+        If target_col is None: Returns (X_train, X_test, None, None) for unsupervised learning.
         """
-        # Drops rows where target is NaN (Robustness fix)
-        if target_col in df.columns:
+        # Drops rows where target is NaN (if target exists)
+        if target_col and target_col in df.columns:
             df = df.dropna(subset=[target_col])
-            
-        X = df.drop(columns=[target_col])
-        y = df[target_col]
+            y = df[target_col]
+            X = df.drop(columns=[target_col])
+        else:
+            y = None
+            X = df.copy()
         
         numerical_cols = X.select_dtypes(include=['number']).columns
         
@@ -41,12 +45,17 @@ class DataPreprocessor:
              X_scaled[numerical_cols] = self.scaler.fit_transform(X[numerical_cols])
         
         # Determine if we encode y
-        if not pd.api.types.is_numeric_dtype(y):
-             y_encoded = self.label_encoder.fit_transform(y)
+        if y is not None:
+            if not pd.api.types.is_numeric_dtype(y):
+                 y_encoded = self.label_encoder.fit_transform(y)
+            else:
+                 y_encoded = y
+            
+            return train_test_split(X_scaled, y_encoded, test_size=0.2, random_state=42)
         else:
-             y_encoded = y
-
-        return train_test_split(X_scaled, y_encoded, test_size=0.2, random_state=42)
+            # Unsupervised: just split X
+            X_train, X_test = train_test_split(X_scaled, test_size=0.2, random_state=42)
+            return X_train, X_test, None, None
 
     def preprocess_inference(self, df: pd.DataFrame) -> Any:
         # Simplified inference preprocessing
@@ -117,11 +126,13 @@ class PreprocessingStep(PipelineStepHandler):
             logger.info(f"Sanitizing script path: '{script_path}' -> '{script_path[4:]}'")
             script_path = script_path[4:]
             
-        target_col = config.get('target_col', 'target')
+        target_col = config.get('target_col', None)
         # ... (rest of config extraction)
         
         if target_col:
              context['target_col'] = target_col
+        else:
+             logger.info("No target_col provided. Assuming Unsupervised Learning (Clustering/Anomaly Detection).")
              
         forecasting_config = config.get('forecasting', {})
         forecasting_horizons = forecasting_config.get('horizons')
@@ -159,12 +170,14 @@ class PreprocessingStep(PipelineStepHandler):
                 logger.error(f"Failed to create default preprocessing script: {e}")
                 raise ValueError(f"Script not found and failed to create default: {e}")
 
+        # Call with target_col (which might be None)
         # New robust loader usage 
         DataPreprocessorClass = _load_class_robust(script_path, 'DataPreprocessor')   # NEW
         preprocessor = DataPreprocessorClass()
 
-        if target_col:
+        if 'data' in context:
             # Training mode preprocessing
+
             import inspect
             sig = inspect.signature(preprocessor.preprocess_train)
             logger.info(f"DEBUG: DataPreprocessor.preprocess_train signature: {sig}")

@@ -54,7 +54,15 @@ class TrainingStep(PipelineStepHandler):
                                 logger.info(f"Dropping non-numeric columns for task ({task_type}): {list(cols_to_drop)}")
                                 context[dataset_name] = df.drop(columns=cols_to_drop)
     
-                model.fit(context['X_train'], context['y_train'])
+                if task_type in ['clustering', 'anomaly_detection', 'unsupervised']:
+                    logger.info(f"Training Unsupervised Model ({task_type})...")
+                    if hasattr(model, 'fit_predict'):
+                        # some models like DBSCAN don't have a separate predict for new data easily, but fit_predict works
+                         model.fit(context['X_train'])
+                    else:
+                         model.fit(context['X_train'])
+                else:
+                    model.fit(context['X_train'], context['y_train'])
                 
                 # Log Feature Importance (if available)
                 if hasattr(model, 'feature_importances_'):
@@ -91,17 +99,46 @@ class TrainingStep(PipelineStepHandler):
                         "test_recall_weighted": rec,
                         "test_f1_weighted": f1
                     }
-                    for k, v in metrics.items():
-                        try:
-                            # Sanitize: Skip NaN or Infinite values
-                            import math
-                            if isinstance(v, float) and (math.isnan(v) or math.isinf(v)):
-                                logger.warning(f"Skipping NaN/Inf metric {k}")
-                                continue
-                            mlflow.log_metric(k, v)
-                        except Exception as e:
-                            logger.warning(f"Failed to log metric {k}: {e}")
-                    logger.info(f"Classification Metrics: {metrics}")
+                elif task_type in ['clustering', 'anomaly_detection', 'unsupervised']:
+                     from sklearn.metrics import silhouette_score, davies_bouldin_score, calinski_harabasz_score
+                     
+                     # Check if we have enough samples and if labels are generated
+                     # For some models (DBSCAN), predictions might be -1 (noise)
+                     if hasattr(model, 'labels_'):
+                         labels = model.labels_
+                         # If we used X_test for prediction, we should evaluate on that.
+                         # But clustering usually evaluates directly on the data it was effectively 'predicted' on.
+                         # If model.predict exists, we use predictions from X_test.
+                         if hasattr(model, 'predict'):
+                             eval_data = context['X_test']
+                             eval_labels = predictions
+                         else:
+                             # For transductive estimators like DBSCAN (no predict method usually), 
+                             # we might have to rely on training labels, or skip test eval.
+                             # Let's assume we use training data for evaluation if no predict
+                             eval_data = context['X_train']
+                             eval_labels = labels
+                     else:
+                         eval_data = context['X_test']
+                         eval_labels = predictions
+                         
+                     # Metrics require > 1 unique label
+                     unique_labels = set(eval_labels)
+                     if len(unique_labels) > 1:
+                         sil = silhouette_score(eval_data, eval_labels)
+                         db = davies_bouldin_score(eval_data, eval_labels)
+                         ch = calinski_harabasz_score(eval_data, eval_labels)
+                         
+                         metrics = {
+                             "silhouette_score": sil,
+                             "davies_bouldin_score": db,
+                             "calinski_harabasz_score": ch,
+                             "n_clusters": len(unique_labels) - (1 if -1 in unique_labels else 0)
+                         }
+                     else:
+                         metrics = {"n_clusters": len(unique_labels)}
+                         logger.warning("Clustering resulted in only 1 cluster (or only noise). Skipping score calc.")
+
                 else:
                     from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
                     import numpy as np
@@ -117,17 +154,20 @@ class TrainingStep(PipelineStepHandler):
                         "test_mae": mae,
                         "test_r2_score": r2
                     }
-                    for k, v in metrics.items():
-                        try:
-                            # Sanitize: Skip NaN or Infinite values
-                            import math
-                            if isinstance(v, float) and (math.isnan(v) or math.isinf(v)):
-                                logger.warning(f"Skipping NaN/Inf metric {k}")
-                                continue
-                            mlflow.log_metric(k, v)
-                        except Exception as e:
-                            logger.warning(f"Failed to log metric {k}: {e}")
-                    logger.info(f"Regression Metrics: {metrics}")
+                
+                # Log metrics common block
+                for k, v in metrics.items():
+                    try:
+                        # Sanitize: Skip NaN or Infinite values
+                        import math
+                        if isinstance(v, float) and (math.isnan(v) or math.isinf(v)):
+                            logger.warning(f"Skipping NaN/Inf metric {k}")
+                            continue
+                        mlflow.log_metric(k, v)
+                    except Exception as e:
+                        logger.warning(f"Failed to log metric {k}: {e}")
+                
+                logger.info(f"{task_type.capitalize()} Metrics: {metrics}")
                     
                 # Log Model & Preprocessor
                 # Note: autolog logs model automatically, but we might want to log it explicitly as 'model' if autolog uses a different name

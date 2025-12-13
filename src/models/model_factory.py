@@ -17,6 +17,9 @@ from sklearn.cluster import (
 )
 from sklearn.mixture import GaussianMixture
 from sklearn.decomposition import PCA, LatentDirichletAllocation
+from sklearn.ensemble import IsolationForest
+from sklearn.svm import OneClassSVM
+from sklearn.neighbors import LocalOutlierFactor
 
 # Try importing external libraries
 try:
@@ -79,6 +82,11 @@ class ModelFactory:
             "dimensionality_reduction": {
                 "PCA": PCA,
                 "LDA": LatentDirichletAllocation
+            },
+            "anomaly_detection": {
+                "IsolationForest": IsolationForest,
+                "OneClassSVM": OneClassSVM,
+                "LocalOutlierFactor": LocalOutlierFactor
             },
             "time_series": {
                 "Prophet": ProphetWrapper,
