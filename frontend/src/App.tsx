@@ -11,6 +11,7 @@ import { ModelRegistry } from './pages/ModelRegistry';
 import { NewExperiment } from './pages/NewExperiment';
 import Pipelines from './pages/Pipelines';
 import PipelineEditor from './pages/PipelineEditor';
+import StandAloneAnalytics from './pages/StandAloneAnalytics';
 
 const App: React.FC = () => {
   // CRITICAL: Block access on port 3000 (raw container)
@@ -48,6 +49,9 @@ const App: React.FC = () => {
 
   return (
     <BrowserRouter>
+      <Routes>
+        <Route path="/dashboard/analytics" element={<StandAloneAnalytics />} />
+      </Routes>
       <Layout>
         <Routes>
           <Route path="/" element={<Dashboard />} />
