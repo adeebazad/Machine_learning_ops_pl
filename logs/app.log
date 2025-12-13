@@ -894,3 +894,26 @@ Feature names seen at fit time, yet now missing:
 2025-12-06 22:06:55,754 - src.scheduler - INFO - Pipeline Scheduler started.
 2025-12-07 00:26:51,522 - src.scheduler - INFO - Pipeline Scheduler started.
 2025-12-07 00:27:10,547 - src.scheduler - INFO - Pipeline Scheduler stopped.
+2025-12-13 07:30:05,297 - src.scheduler - INFO - Pipeline Scheduler started.
+2025-12-13 07:37:14,415 - src.pipeline_engine - INFO - Executing step: extraction (extraction)
+2025-12-13 07:37:14,674 - src.data.cratedb_connector - INFO - Successfully connected to CrateDB at 172.30.70.156:30001
+2025-12-13 07:37:17,610 - src.data.cratedb_connector - INFO - Fetched 125018 rows from CrateDB.
+2025-12-13 07:37:17,611 - src.data.cratedb_connector - INFO - CrateDB connection closed.
+2025-12-13 07:37:41,352 - src.pipeline_engine - INFO - Executing step: preprocessing (preprocessing)
+2025-12-13 07:40:48,981 - src.pipeline_engine - INFO - Executing step: extraction (extraction)
+2025-12-13 07:40:48,982 - src.data.cratedb_connector - INFO - Successfully connected to CrateDB at 172.30.70.156:30001
+2025-12-13 07:40:50,484 - src.data.cratedb_connector - INFO - Fetched 7354 rows from CrateDB.
+2025-12-13 07:40:50,485 - src.data.cratedb_connector - INFO - CrateDB connection closed.
+2025-12-13 07:41:02,508 - src.pipeline_engine - INFO - Executing step: preprocessing (preprocessing)
+2025-12-13 07:43:56,547 - src.scheduler - INFO - Pipeline Scheduler stopped.
+2025-12-13 07:45:06,252 - src.scheduler - INFO - Pipeline Scheduler started.
+2025-12-13 07:47:02,193 - src.pipeline_engine - INFO - Executing step: extraction (extraction)
+2025-12-13 07:47:02,260 - src.data.cratedb_connector - INFO - Successfully connected to CrateDB at 172.30.70.156:30001
+2025-12-13 07:47:03,659 - src.data.cratedb_connector - INFO - Fetched 7354 rows from CrateDB.
+2025-12-13 07:47:03,660 - src.data.cratedb_connector - INFO - CrateDB connection closed.
+2025-12-13 07:47:12,644 - src.pipeline_engine - INFO - Executing step: preprocessing (preprocessing)
+2025-12-13 07:47:57,730 - src.pipeline_engine - INFO - Executing step: training (training)
+2025-12-13 07:48:14,878 - src.pipeline_engine - INFO - Executing step: New prediction step (prediction)
+2025-12-13 07:50:56,637 - src.pipeline_engine - INFO - Executing step: preprocessing (preprocessing)
+2025-12-13 07:50:59,764 - src.pipeline_engine - INFO - Executing step: training (training)
+2025-12-13 07:51:06,415 - src.pipeline_engine - INFO - Executing step: New prediction step (prediction)
