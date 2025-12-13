@@ -353,11 +353,17 @@ class PredictionStep(PipelineStepHandler):
         
         # UX Improvement: Sort Result Descending by Timestamp
         # The user wants to see the LATEST predictions first.
-        # Preprocessing requires Ascending for Split, but Output should be Descending for Viewing.
-        if timestamp_col and timestamp_col in result_df.columns:
+        # Priority: explicit 'dateissuedutc' (from user data) > configured 'timestamp_col'
+        sort_col = None
+        if 'dateissuedutc' in result_df.columns:
+            sort_col = 'dateissuedutc'
+        elif timestamp_col and timestamp_col in result_df.columns:
+            sort_col = timestamp_col
+            
+        if sort_col:
              try:
-                 logger.info(f"Sorting output dataframe by '{timestamp_col}' descending (Newest First).")
-                 result_df = result_df.sort_values(by=timestamp_col, ascending=False)
+                 logger.info(f"Sorting output dataframe by '{sort_col}' descending (Newest First).")
+                 result_df = result_df.sort_values(by=sort_col, ascending=False)
                  context['data'] = result_df
              except Exception as e:
                  logger.warning(f"Failed to sort output by timestamp: {e}")

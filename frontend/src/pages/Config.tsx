@@ -339,14 +339,55 @@ export const Config = () => {
                             >
                                 <option value="classification">Classification</option>
                                 <option value="regression">Regression</option>
+                                <option value="clustering">Clustering</option>
+                                <option value="anomaly_detection">Anomaly Detection</option>
+                                <option value="time_series">Forecasting (Time Series)</option>
                             </select>
                         </div>
-                        <InputField
-                            label="Model Name"
-                            value={configData?.model?.name || ''}
-                            onChange={(e: any) => updateConfig('model', 'name', e.target.value)}
-                            placeholder="e.g. RandomForestClassifier"
-                        />
+                        <div className="group">
+                            <label className="block text-xs font-medium text-gray-400 mb-1 uppercase tracking-wider">Model Name</label>
+                            <select
+                                value={configData?.model?.name || ''}
+                                onChange={(e) => updateConfig('model', 'name', e.target.value)}
+                                className="w-full bg-[#0B0C10] border border-gray-800 rounded-lg p-3 text-white focus:outline-none focus:border-blue-500/50"
+                            >
+                                <option value="">Select Model</option>
+                                {configData?.model?.task_type === 'classification' && (
+                                    <>
+                                        <option value="RandomForestClassifier">Random Forest Classifier</option>
+                                        <option value="SimpleRuleClassifier">Rule Based Classifier</option>
+                                        <option value="LogisticRegression">Logistic Regression</option>
+                                        <option value="SVC">SVC</option>
+                                    </>
+                                )}
+                                {configData?.model?.task_type === 'regression' && (
+                                    <>
+                                        <option value="RandomForestRegressor">Random Forest Regressor</option>
+                                        <option value="LinearRegression">Linear Regression</option>
+                                    </>
+                                )}
+                                {configData?.model?.task_type === 'clustering' && (
+                                    <>
+                                        <option value="KMeans">K-Means</option>
+                                        <option value="DBSCAN">DBSCAN</option>
+                                        <option value="GaussianMixture">Gaussian Mixture</option>
+                                    </>
+                                )}
+                                {configData?.model?.task_type === 'anomaly_detection' && (
+                                    <>
+                                        <option value="IsolationForest">Isolation Forest</option>
+                                        <option value="OneClassSVM">One Class SVM</option>
+                                        <option value="LocalOutlierFactor">Local Outlier Factor</option>
+                                    </>
+                                )}
+                                {configData?.model?.task_type === 'time_series' && (
+                                    <>
+                                        <option value="Prophet">Prophet</option>
+                                        <option value="ARIMA">ARIMA</option>
+                                    </>
+                                )}
+                            </select>
+                        </div>
                         <div className="group">
                             <label className="block text-xs font-medium text-gray-400 mb-1 uppercase tracking-wider">Target Column</label>
                             <select
