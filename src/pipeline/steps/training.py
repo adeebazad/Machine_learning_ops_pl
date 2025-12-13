@@ -62,6 +62,15 @@ class TrainingStep(PipelineStepHandler):
                     else:
                          model.fit(context['X_train'])
                 else:
+                    if context.get('y_train') is None:
+                        err_msg = (
+                            f"Target column is missing for Supervised Learning task ({task_type}). "
+                            "Please go back to the Preprocessing step and select a valid Target Column, "
+                            "or switch to an Unsupervised task type (Clustering/Anomaly Detection)."
+                        )
+                        logger.error(err_msg)
+                        raise ValueError(err_msg)
+                        
                     model.fit(context['X_train'], context['y_train'])
                 
                 # Log Feature Importance (if available)
