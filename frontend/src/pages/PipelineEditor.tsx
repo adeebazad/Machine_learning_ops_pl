@@ -15,7 +15,8 @@ const AVAILABLE_MODELS = {
     classification: [
         "RandomForestClassifier", "LogisticRegression", "DecisionTreeClassifier",
         "KNeighborsClassifier", "GradientBoostingClassifier", "SVC", "MLPClassifier",
-        "NaiveBayes", "ExtraTreesClassifier", "XGBClassifier", "LGBMClassifier", "CatBoostClassifier"
+        "NaiveBayes", "ExtraTreesClassifier", "XGBClassifier", "LGBMClassifier", "CatBoostClassifier",
+        "SimpleRuleClassifier"
     ],
     regression: [
         "RandomForestRegressor", "LinearRegression", "Ridge", "Lasso", "ElasticNet",
@@ -24,6 +25,7 @@ const AVAILABLE_MODELS = {
     ],
     time_series: ["Prophet", "ARIMA", "SARIMA"],
     clustering: ["KMeans", "DBSCAN", "GaussianMixture"],
+    anomaly_detection: ["IsolationForest", "OneClassSVM", "LocalOutlierFactor"],
     deep_learning: ["DNN (MLP)", "LSTM", "CNN"]
 };
 
