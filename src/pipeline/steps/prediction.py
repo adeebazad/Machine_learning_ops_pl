@@ -118,7 +118,20 @@ class PredictionStep(PipelineStepHandler):
                  
                  is_scaler_fitted = hasattr(prep.target_scaler, 'mean_') or hasattr(prep.target_scaler, 'center_') # StandardScaler/MinMaxScaler
                  
-                 if is_scaler_fitted:
+                 # CRITICAL FIX: Do NOT inverse transform for Classification or Anomaly Detection tasks!
+                 # Even if a scaler exists (e.g. from a previous run or misconfiguration), we shouldn't scale labels (0,1 or -1,1)
+                 task_type_check = context.get('task_type', 'unknown')
+                 model_type_check = type(model).__name__
+                 
+                 skip_inverse = (
+                     task_type_check in ['classification', 'anomaly_detection', 'clustering'] or
+                     'Classifier' in model_type_check or
+                     'IsolationForest' in model_type_check or
+                     'OneClassSVM' in model_type_check or
+                     'LocalOutlierFactor' in model_type_check
+                 )
+
+                 if is_scaler_fitted and not skip_inverse:
                      logger.info("Target Scaler found and fitted. Inverse transforming predictions...")
                      try:
                          # Predictions shape
