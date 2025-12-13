@@ -59,6 +59,14 @@ export const Config = () => {
                 mlflow: {
                     tracking_uri: 'http://localhost:5000',
                     experiment_name: 'Default'
+                },
+                model: {
+                    task_type: 'classification',
+                    name: '',
+                    target_col: ''
+                },
+                preprocessing: {
+                    script_path: 'src/features/preprocess.py'
                 }
             });
             setConfigName('');
@@ -352,7 +360,7 @@ export const Config = () => {
                                 className="w-full bg-[#0B0C10] border border-gray-800 rounded-lg p-3 text-white focus:outline-none focus:border-blue-500/50"
                             >
                                 <option value="">Select Model</option>
-                                {configData?.model?.task_type === 'classification' && (
+                                {(configData?.model?.task_type || 'classification') === 'classification' && (
                                     <>
                                         <option value="RandomForestClassifier">Random Forest Classifier</option>
                                         <option value="SimpleRuleClassifier">Rule Based Classifier</option>
