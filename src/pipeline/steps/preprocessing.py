@@ -250,8 +250,40 @@ class PreprocessingStep(PipelineStepHandler):
             processed_data = preprocessor.preprocess_inference(df)
             context['data'] = processed_data
             logger.info("Preprocessing completed (Inference mode).")
+            context['data'] = processed_data
+            logger.info("Preprocessing completed (Inference mode).")
         
-        # --- Data Freshness Check (UX Improvement) ---
+        # --- Correlation Analysis (Root Cause) ---
+        if 'data' in context and hasattr(context['data'], 'columns'):
+             try:
+                 # Check if we have X_train or just data
+                 # Prefer X_train for training correlation
+                 if 'X_train' in context and hasattr(context['X_train'], 'select_dtypes'):
+                     corr_df = context['X_train']
+                 elif isinstance(context['data'], pd.DataFrame):
+                     corr_df = context['data']
+                 else:
+                     corr_df = None
+                 
+                 if corr_df is not None:
+                     numerical_feats = corr_df.select_dtypes(include=['number'])
+                     if not numerical_feats.empty:
+                         corr_matrix = numerical_feats.corr()
+                         
+                         # Save locally
+                         corr_path = "correlation_matrix.csv"
+                         corr_matrix.to_csv(corr_path)
+                         logger.info(f"Calculated Correlation Matrix for {len(numerical_feats.columns)} features.")
+                         
+                         # Log to MLflow if active run exists (it might not be active in preprocessing step, 
+                         # usually TrainingStep starts the run. But if we are in a pipeline, maybe we want to save it to context 
+                         # and let TrainingStep log it? Or just save it to disk and TrainingStep picks it up?)
+                         # Re-thinking: Preprocessing doesn't usually start an MLflow run. TrainingStep does.
+                         # Better to save to context and let TrainingStep log it as artifact.
+                         context['correlation_matrix_path'] = corr_path
+                         logger.info("Saved correlation matrix to context.")
+             except Exception as e:
+                 logger.warning(f"Failed to calculate correlation matrix: {e}")
         if timestamp_col and 'data' in context:
              try:
                  # Check max timestamp in the processed data (or original df if available)

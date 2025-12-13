@@ -39,6 +39,7 @@ except ImportError:
 
 # Import Wrappers
 from src.models.wrappers import ProphetWrapper, DLWrapper, ArimaWrapper
+from src.models.rules import SimpleRuleClassifier
 
 class ModelFactory:
     """
@@ -58,6 +59,7 @@ class ModelFactory:
                 "NaiveBayes": GaussianNB,
                 "SVC": SVC,
                 "MLPClassifier": MLPClassifier,
+                "SimpleRuleClassifier": SimpleRuleClassifier,
             },
             "regression": {
                 "LinearRegression": LinearRegression,

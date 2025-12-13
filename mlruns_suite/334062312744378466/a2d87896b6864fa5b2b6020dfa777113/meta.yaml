@@ -1,0 +1,14 @@
+artifact_uri: file:G:/Machine_learning_ops_pl/mlruns_suite/334062312744378466/a2d87896b6864fa5b2b6020dfa777113/artifacts
+end_time: 1765612597657
+entry_point_name: ''
+experiment_id: '334062312744378466'
+lifecycle_stage: active
+run_id: a2d87896b6864fa5b2b6020dfa777113
+run_name: unequaled-crane-95
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1765612554751
+status: 3
+tags: []
+user_id: hp

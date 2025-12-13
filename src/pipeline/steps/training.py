@@ -212,6 +212,13 @@ class TrainingStep(PipelineStepHandler):
                         logger.error(f"Expected signature: {sig}")
                         raise e
                     
+                if 'correlation_matrix_path' in context:
+                    try:
+                        mlflow.log_artifact(context['correlation_matrix_path'])
+                        logger.info(f"Logged correlation matrix artifact from {context['correlation_matrix_path']}")
+                    except Exception as e:
+                        logger.warning(f"Failed to log correlation matrix artifact: {e}")
+
                 context['model'] = model
                 context['run_id'] = mlflow.active_run().info.run_id
                 logger.info(f"Training completed. Run ID: {context['run_id']}")
