@@ -1,11 +1,11 @@
 import React, { useState, useMemo } from 'react';
 import {
     LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-    ScatterChart, Scatter, BarChart, Bar, Cell
+    ScatterChart, Scatter, BarChart, Bar, Cell, AreaChart, Area
 } from 'recharts';
 import {
     Activity, Database, Brain, Clock, AlertTriangle, CheckCircle,
-    FileText, LayoutDashboard, Table as TableIcon
+    FileText, LayoutDashboard, Table as TableIcon, GitCompare
 } from 'lucide-react';
 
 interface StepResult {
@@ -32,10 +32,88 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ steps, stepResu
         const successRate = totalSteps > 0 ? ((executedSteps - failedSteps) / totalSteps) * 100 : 0;
 
         return { totalSteps, executedSteps, failedSteps, successRate };
+        return { totalSteps, executedSteps, failedSteps, successRate };
     }, [steps, stepResults, stepError]);
 
-    const activeResult = stepResults[selectedStepIndex];
-    const activeStep = steps[selectedStepIndex];
+    // Comparison Data Logic
+    const comparisonData = useMemo(() => {
+        const prepIndex = steps.findIndex(s => s.step_type === 'preprocessing');
+        const predIndex = steps.findIndex(s => s.step_type === 'prediction');
+
+        if (prepIndex === -1 || predIndex === -1) return null;
+
+        const prepResult = stepResults[prepIndex];
+        const predResult = stepResults[predIndex];
+
+        if (!prepResult?.data || !predResult?.data) return null;
+
+        // Identify columns
+        const prepCols = Object.keys(prepResult.data[0] || {});
+        const predCols = Object.keys(predResult.data[0] || {});
+
+        const dateCol = prepCols.find(c => ['date', 'timestamp', 'dateissuedutc', 'ds'].includes(c.toLowerCase()));
+        if (!dateCol) return null;
+
+        // Find Target and Prediction columns
+        const targetCol = steps[prepIndex].config_json?.target_col ||
+            prepCols.find(c => c.toLowerCase().includes('target') || c.toLowerCase() === 'y');
+
+        const predCol = predCols.find(c => c === 'prediction' || c.startsWith('prediction_'));
+
+        if (!targetCol || !predCol) return null;
+
+        // Merge datasets
+        // 1. Create Map of Actuals
+        const actualsMap = new Map();
+        prepResult.data.forEach(row => {
+            const dateStr = new Date(row[dateCol]).toISOString();
+            actualsMap.set(dateStr, row[targetCol]);
+        });
+
+        // 2. Build Merged Data
+        const merged: any[] = [];
+        const processedDates = new Set();
+
+        // Add Predictions (keeping track of dates)
+        predResult.data.forEach(row => {
+            const d = new Date(row[dateCol]);
+            if (isNaN(d.getTime())) return;
+            const dateStr = d.toISOString();
+
+            processedDates.add(dateStr);
+            const actual = actualsMap.get(dateStr);
+
+            merged.push({
+                date: row[dateCol], // Keep original format for display
+                timestamp: d.getTime(), // For sorting
+                actual: actual !== undefined ? Number(actual) : null,
+                predicted: Number(row[predCol]),
+                isForecast: actual === undefined // If no actual, it's a future forecast
+            });
+        });
+
+        // Add remaining Actuals that didn't have predictions (historical context)
+        prepResult.data.forEach(row => {
+            const d = new Date(row[dateCol]);
+            if (isNaN(d.getTime())) return;
+            const dateStr = d.toISOString();
+
+            if (!processedDates.has(dateStr)) {
+                merged.push({
+                    date: row[dateCol],
+                    timestamp: d.getTime(),
+                    actual: Number(row[targetCol]),
+                    predicted: null,
+                    isForecast: false
+                });
+            }
+        });
+
+        return merged.sort((a, b) => a.timestamp - b.timestamp);
+    }, [steps, stepResults]);
+
+    const activeResult = selectedStepIndex === -1 ? null : stepResults[selectedStepIndex];
+    const activeStep = selectedStepIndex === -1 ? { name: 'Model Evaluation', step_type: 'analysis', config_json: {} } : steps[selectedStepIndex];
 
     // Chart Rendering Logic (Reused & Enhanced)
     const renderVisualization = (result: StepResult, stepConfig: any) => {
@@ -151,6 +229,85 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ steps, stepResu
         return <div className="p-8 text-center text-gray-500">Data structure does not support automatic visualization. View as Table.</div>;
     };
 
+    // New Comparison Chart Component
+    const renderComparisonChart = () => {
+        if (!comparisonData || comparisonData.length === 0) {
+            return (
+                <div className="flex flex-col items-center justify-center h-full text-gray-500">
+                    <AlertTriangle size={48} className="mb-4 opacity-20" />
+                    <p>Insufficient data for comparison.</p>
+                    <p className="text-sm mt-2">Ensure both 'Preprocessing' and 'Prediction' steps have run successfully.</p>
+                </div>
+            );
+        }
+
+        return (
+            <div className="h-[600px] w-full bg-gray-900 rounded-xl p-4 border border-gray-800">
+                <div className="flex justify-between items-center mb-6">
+                    <h4 className="text-xl font-bold text-white">Actual vs Predicted</h4>
+                    <div className="flex gap-4 text-sm">
+                        <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                            <span className="text-gray-400">Actual (Historical)</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                            <span className="text-gray-400">Predicted (Model)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <ResponsiveContainer width="100%" height="90%">
+                    <AreaChart data={comparisonData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                        <defs>
+                            <linearGradient id="colorActual" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3} />
+                                <stop offset="95%" stopColor="#3B82F6" stopOpacity={0} />
+                            </linearGradient>
+                            <linearGradient id="colorPred" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor="#10B981" stopOpacity={0.3} />
+                                <stop offset="95%" stopColor="#10B981" stopOpacity={0} />
+                            </linearGradient>
+                        </defs>
+                        <XAxis
+                            dataKey="date"
+                            stroke="#6B7280"
+                            tickFormatter={(str) => {
+                                try { return new Date(str).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }); }
+                                catch { return str; }
+                            }}
+                            minTickGap={50}
+                        />
+                        <YAxis stroke="#6B7280" />
+                        <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.3} />
+                        <Tooltip
+                            contentStyle={{ backgroundColor: '#1F2937', borderColor: '#374151', color: '#fff' }}
+                            labelFormatter={(label) => new Date(label).toLocaleString()}
+                        />
+                        <Area
+                            type="monotone"
+                            dataKey="actual"
+                            stroke="#3B82F6"
+                            fillOpacity={1}
+                            fill="url(#colorActual)"
+                            name="Actual"
+                            strokeWidth={2}
+                        />
+                        <Area
+                            type="monotone"
+                            dataKey="predicted"
+                            stroke="#10B981"
+                            fillOpacity={1}
+                            fill="url(#colorPred)"
+                            name="Predicted"
+                            strokeWidth={2}
+                        />
+                    </AreaChart>
+                </ResponsiveContainer>
+            </div>
+        );
+    };
+
     return (
         <div className="bg-gray-950 min-h-screen p-6 animate-in fade-in duration-500">
             {/* Summary Cards */}
@@ -190,7 +347,24 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ steps, stepResu
 
                 {/* Sidebar Step Selector */}
                 <div className="w-full lg:w-1/4 space-y-3">
-                    <h3 className="text-gray-400 font-bold mb-4 uppercase text-xs tracking-wider">Pipeline Steps</h3>
+                    <h3 className="text-gray-400 font-bold mb-4 uppercase text-xs tracking-wider">Analysis</h3>
+                    <button
+                        onClick={() => setSelectedStepIndex(-1)}
+                        className={`w-full text-left p-4 rounded-xl border transition-all duration-200 flex items-center justify-between group
+                            ${selectedStepIndex === -1
+                                ? 'bg-gradient-to-r from-purple-600 to-indigo-600 border-purple-500 text-white shadow-lg'
+                                : 'bg-gray-900 border-gray-800 text-gray-400 hover:bg-gray-800 hover:border-gray-700'
+                            }`}
+                    >
+                        <div className="flex items-center gap-3">
+                            <div className={`p-2 rounded-lg ${selectedStepIndex === -1 ? 'bg-white/20' : 'bg-gray-800'}`}>
+                                <GitCompare size={16} />
+                            </div>
+                            <span className="font-medium">Model Comparison</span>
+                        </div>
+                    </button>
+
+                    <h3 className="text-gray-400 font-bold mb-4 uppercase text-xs tracking-wider mt-6">Pipeline Steps</h3>
                     {steps.map((step, index) => {
                         const hasResult = !!stepResults[index];
                         const hasError = !!stepError[index];
@@ -258,7 +432,9 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ steps, stepResu
 
                         {/* Content */}
                         <div className="p-6">
-                            {activeResult ? (
+                            {selectedStepIndex === -1 ? (
+                                renderComparisonChart()
+                            ) : activeResult ? (
                                 viewMode === 'chart' ? (
                                     renderVisualization(activeResult, activeStep?.config_json)
                                 ) : (
