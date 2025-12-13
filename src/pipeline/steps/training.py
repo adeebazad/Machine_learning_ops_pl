@@ -87,18 +87,22 @@ class TrainingStep(PipelineStepHandler):
                 
                 # Basic Metrics
                 if task_type == 'classification':
-                    from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
-                    acc = accuracy_score(context['y_test'], predictions)
-                    prec = precision_score(context['y_test'], predictions, average='weighted', zero_division=0)
-                    rec = recall_score(context['y_test'], predictions, average='weighted', zero_division=0)
-                    f1 = f1_score(context['y_test'], predictions, average='weighted', zero_division=0)
-                    
-                    metrics = {
-                        "test_accuracy": acc,
-                        "test_precision_weighted": prec,
-                        "test_recall_weighted": rec,
-                        "test_f1_weighted": f1
-                    }
+                    if context.get('y_test') is not None:
+                        from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+                        acc = accuracy_score(context['y_test'], predictions)
+                        prec = precision_score(context['y_test'], predictions, average='weighted', zero_division=0)
+                        rec = recall_score(context['y_test'], predictions, average='weighted', zero_division=0)
+                        f1 = f1_score(context['y_test'], predictions, average='weighted', zero_division=0)
+                        
+                        metrics = {
+                            "test_accuracy": acc,
+                            "test_precision_weighted": prec,
+                            "test_recall_weighted": rec,
+                            "test_f1_weighted": f1
+                        }
+                    else:
+                        logger.info("Skipping classification metrics: y_test is None (Unsupervised/Rule-Based).")
+                        metrics = {}
                 elif task_type in ['clustering', 'anomaly_detection', 'unsupervised']:
                      from sklearn.metrics import silhouette_score, davies_bouldin_score, calinski_harabasz_score
                      
@@ -140,20 +144,24 @@ class TrainingStep(PipelineStepHandler):
                          logger.warning("Clustering resulted in only 1 cluster (or only noise). Skipping score calc.")
 
                 else:
-                    from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
-                    import numpy as np
-                    
-                    mse = mean_squared_error(context['y_test'], predictions)
-                    rmse = np.sqrt(mse)
-                    mae = mean_absolute_error(context['y_test'], predictions)
-                    r2 = r2_score(context['y_test'], predictions)
-                    
-                    metrics = {
-                        "test_mse": mse,
-                        "test_rmse": rmse,
-                        "test_mae": mae,
-                        "test_r2_score": r2
-                    }
+                    if context.get('y_test') is not None:
+                        from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+                        import numpy as np
+                        
+                        mse = mean_squared_error(context['y_test'], predictions)
+                        rmse = np.sqrt(mse)
+                        mae = mean_absolute_error(context['y_test'], predictions)
+                        r2 = r2_score(context['y_test'], predictions)
+                        
+                        metrics = {
+                            "test_mse": mse,
+                            "test_rmse": rmse,
+                            "test_mae": mae,
+                            "test_r2_score": r2
+                        }
+                    else:
+                        logger.info("Skipping regression metrics: y_test is None.")
+                        metrics = {}
                 
                 # Log metrics common block
                 for k, v in metrics.items():
