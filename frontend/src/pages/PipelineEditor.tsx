@@ -936,33 +936,164 @@ const PipelineEditor: React.FC = () => {
     );
 };
 
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ScatterChart, Scatter, BarChart, Bar, Cell } from 'recharts';
+
 const StepOutput = ({ result }: { result: any }) => {
+    const [viewMode, setViewMode] = useState<'table' | 'chart'>('table');
+
     if (!result) return null;
+
+    const renderChart = (data: any[]) => {
+        if (!data || data.length === 0) return <p className="text-gray-400 p-4">No data to visualize</p>;
+
+        const columns = Object.keys(data[0]);
+        const hasPrediction = columns.includes('prediction') || columns.some(c => c.startsWith('prediction_'));
+        const dateCol = columns.find(c => ['date', 'timestamp', 'dateissuedutc', 'ds', 'time'].includes(c.toLowerCase()));
+        const valueCol = columns.find(c => ['aqi', 'value', 'price', 'target', 'y'].includes(c.toLowerCase())) || columns.find(c => !['dateissuedutc', 'timestamp', 'prediction', 'run_id', 'model_type', 'address'].includes(c) && typeof data[0][c] === 'number');
+        const predCol = columns.find(c => c === 'prediction' || c.startsWith('prediction_'));
+
+        if (!hasPrediction && !valueCol) return <p className="text-gray-400 p-4">No numeric data found for visualization</p>;
+
+        // 1. Time Series / Regression (Date + Value + Prediction)
+        if (dateCol && (valueCol || predCol)) {
+            // Sort data by date
+            const sortedData = [...data].sort((a, b) => new Date(a[dateCol]).getTime() - new Date(b[dateCol]).getTime());
+
+            // Check for Anomaly Detection (-1/1)
+            const isAnomaly = predCol && sortedData.some(d => d[predCol] === -1);
+
+            if (isAnomaly && valueCol) {
+                return (
+                    <div className="h-80 w-full mt-4">
+                        <h4 className="text-white mb-2 text-center text-sm">Anomaly Detection (Red = Anomaly)</h4>
+                        <ResponsiveContainer width="100%" height="100%">
+                            <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+                                <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                                <XAxis
+                                    dataKey={dateCol}
+                                    type="category"
+                                    allowDuplicatedCategory={false}
+                                    tickFormatter={(str) => new Date(str).toLocaleDateString()}
+                                    stroke="#9CA3AF"
+                                />
+                                <YAxis dataKey={valueCol} stroke="#9CA3AF" />
+                                <Tooltip
+                                    contentStyle={{ backgroundColor: '#1F2937', borderColor: '#374151', color: '#fff' }}
+                                    cursor={{ strokeDasharray: '3 3' }}
+                                />
+                                <Legend />
+                                <Scatter name="Normal" data={sortedData.filter(d => d[predCol] !== -1)} fill="#3B82F6" shape="circle" />
+                                <Scatter name="Anomaly" data={sortedData.filter(d => d[predCol] === -1)} fill="#EF4444" shape="cross" />
+                            </ScatterChart>
+                        </ResponsiveContainer>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="h-80 w-full mt-4">
+                    <h4 className="text-white mb-2 text-center text-sm">Trend & Forecast</h4>
+                    <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={sortedData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                            <XAxis
+                                dataKey={dateCol}
+                                tickFormatter={(str) => {
+                                    try { return new Date(str).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }); }
+                                    catch { return str; }
+                                }}
+                                stroke="#9CA3AF"
+                            />
+                            <YAxis stroke="#9CA3AF" />
+                            <Tooltip contentStyle={{ backgroundColor: '#1F2937', borderColor: '#374151', color: '#fff' }} />
+                            <Legend />
+                            {valueCol && <Line type="monotone" dataKey={valueCol} stroke="#3B82F6" strokeWidth={2} dot={false} name="Actual" />}
+                            {predCol && <Line type="monotone" dataKey={predCol} stroke="#10B981" strokeWidth={2} dot={false} strokeDasharray="5 5" name="Predicted" />}
+                        </LineChart>
+                    </ResponsiveContainer>
+                </div>
+            );
+        }
+
+        // 2. Classification / Clustering Distribution (Counts)
+        if (predCol) {
+            // Aggregate counts
+            const counts: { [key: string]: number } = {};
+            data.forEach(d => {
+                const val = d[predCol];
+                counts[val] = (counts[val] || 0) + 1;
+            });
+            const chartData = Object.keys(counts).map(k => ({ name: k, count: counts[k] }));
+
+            return (
+                <div className="h-80 w-full mt-4">
+                    <h4 className="text-white mb-2 text-center text-sm">Class/Cluster Distribution</h4>
+                    <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                            <XAxis dataKey="name" stroke="#9CA3AF" />
+                            <YAxis stroke="#9CA3AF" />
+                            <Tooltip contentStyle={{ backgroundColor: '#1F2937', borderColor: '#374151', color: '#fff' }} />
+                            <Bar dataKey="count" fill="#8884d8">
+                                {chartData.map((entry, index) => (
+                                    <Cell key={`cell-${index}`} fill={['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'][index % 5]} />
+                                ))}
+                            </Bar>
+                        </BarChart>
+                    </ResponsiveContainer>
+                </div>
+            );
+        }
+
+        return <p className="text-gray-400 p-4">No supported chart type for this data structure.</p>;
+    };
 
     if (result.type === 'dataframe' || result.type === 'table') {
         const columns = result.columns || Object.keys(result.data[0] || {});
         return (
             <div className="mt-4 bg-gray-900 rounded-lg overflow-hidden border border-gray-700">
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left text-xs text-gray-400">
-                        <thead className="bg-gray-800 text-gray-200 uppercase font-bold">
-                            <tr>
-                                {columns.map((col: string) => <th key={col} className="p-2 border-b border-gray-700">{col}</th>)}
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-800">
-                            {result.data.slice(0, 10).map((row: any, i: number) => (
-                                <tr key={i} className="hover:bg-gray-800/50">
-                                    {columns.map((col: string) => (
-                                        <td key={`${i}-${col}`} className="p-2 border-b border-gray-800 font-mono whitespace-nowrap max-w-xs truncate" title={typeof row[col] === 'object' ? JSON.stringify(row[col]) : String(row[col])}>
-                                            {typeof row[col] === 'object' ? JSON.stringify(row[col]) : String(row[col])}
-                                        </td>
-                                    ))}
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                <div className="flex border-b border-gray-700">
+                    <button
+                        onClick={() => setViewMode('table')}
+                        className={`px-4 py-2 text-sm font-medium transition-colors ${viewMode === 'table' ? 'bg-gray-800 text-white' : 'text-gray-400 hover:text-white'}`}
+                    >
+                        Table
+                    </button>
+                    <button
+                        onClick={() => setViewMode('chart')}
+                        className={`px-4 py-2 text-sm font-medium transition-colors ${viewMode === 'chart' ? 'bg-gray-800 text-white' : 'text-gray-400 hover:text-white'}`}
+                    >
+                        Chart
+                    </button>
                 </div>
+
+                {viewMode === 'table' ? (
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left text-xs text-gray-400">
+                            <thead className="bg-gray-800 text-gray-200 uppercase font-bold">
+                                <tr>
+                                    {columns.map((col: string) => <th key={col} className="p-2 border-b border-gray-700">{col}</th>)}
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-800">
+                                {result.data.slice(0, 50).map((row: any, i: number) => (
+                                    <tr key={i} className="hover:bg-gray-800/50">
+                                        {columns.map((col: string) => (
+                                            <td key={`${i}-${col}`} className="p-2 border-b border-gray-800 font-mono whitespace-nowrap max-w-xs truncate" title={typeof row[col] === 'object' ? JSON.stringify(row[col]) : String(row[col])}>
+                                                {typeof row[col] === 'object' ? JSON.stringify(row[col]) : String(row[col])}
+                                            </td>
+                                        ))}
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                        {result.data.length > 50 && <div className="p-2 text-center text-gray-500 text-xs italic">Showing first 50 rows only</div>}
+                    </div>
+                ) : (
+                    <div className="p-4 bg-gray-900">
+                        {renderChart(result.data)}
+                    </div>
+                )}
             </div>
         );
     }
