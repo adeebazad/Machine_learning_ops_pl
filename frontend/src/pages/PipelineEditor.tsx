@@ -949,8 +949,20 @@ const StepOutput = ({ result }: { result: any }) => {
         const columns = Object.keys(data[0]);
         const hasPrediction = columns.includes('prediction') || columns.some(c => c.startsWith('prediction_'));
         const dateCol = columns.find(c => ['date', 'timestamp', 'dateissuedutc', 'ds', 'time'].includes(c.toLowerCase()));
-        const valueCol = columns.find(c => ['aqi', 'value', 'price', 'target', 'y'].includes(c.toLowerCase())) || columns.find(c => !['dateissuedutc', 'timestamp', 'prediction', 'run_id', 'model_type', 'address'].includes(c) && typeof data[0][c] === 'number');
+
         const predCol = columns.find(c => c === 'prediction' || c.startsWith('prediction_'));
+
+        // Smartly find the "Actual" value column
+        let valueCol = null;
+        if (predCol && predCol.startsWith('prediction_')) {
+            const derived = predCol.replace('prediction_', '');
+            if (columns.includes(derived)) valueCol = derived;
+        }
+
+        if (!valueCol) {
+            valueCol = columns.find(c => ['aqi', 'pm10', 'pm2_5', 'value', 'price', 'target', 'y'].includes(c.toLowerCase())) ||
+                columns.find(c => !['dateissuedutc', 'timestamp', 'prediction', 'run_id', 'model_type', 'address', 'is_forecast', 'forecast_horizon'].includes(c) && typeof data[0][c] === 'number');
+        }
 
         if (!hasPrediction && !valueCol) return <p className="text-gray-400 p-4">No numeric data found for visualization</p>;
 

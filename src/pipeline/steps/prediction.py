@@ -381,6 +381,14 @@ class PredictionStep(PipelineStepHandler):
                            else:
                                horizon_df[timestamp_col] = pd.to_datetime(ts_series) + delta
                            
+                           # FIX: Also update 'dateissuedutc' if it exists, as UI prefers this for plotting
+                           if 'dateissuedutc' in horizon_df.columns and timestamp_col != 'dateissuedutc':
+                               d_series = horizon_df['dateissuedutc']
+                               if pd.api.types.is_numeric_dtype(d_series):
+                                   horizon_df['dateissuedutc'] = d_series + ms_delta
+                               else:
+                                   horizon_df['dateissuedutc'] = pd.to_datetime(d_series) + delta
+                           
                            # Update prediction column: The 'prediction' column should take values from the horizon-specific prediction
                            # The original 'prediction' column has t+0.
                            # We want this row to have prediction = value of pred_col (e.g., prediction_+4d)
