@@ -10,25 +10,35 @@ class DataPreprocessor:
         self.scaler = StandardScaler()
         self.label_encoder = LabelEncoder()
 
-    def preprocess_train(self, df: pd.DataFrame, target_col: str) -> Tuple[Any, Any, Any, Any]:
+    def preprocess_train(self, df: pd.DataFrame, target_col: str = None, forecasting_horizons: list = None, timestamp_col: str = None) -> Tuple[Any, Any, Any, Any]:
         """
         Preprocesses training data: splits into X/y, scales features, encodes target.
         """
-        # Basic implementation: Drop target, scale numerics, encode target
-        X = df.drop(columns=[target_col])
-        y = df[target_col]
+        # Handle optional target (Unsupervised support)
+        if target_col and target_col in df.columns:
+            # Drop target, scale numerics, encode target
+            X = df.drop(columns=[target_col])
+            y = df[target_col]
+        else:
+            X = df.copy()
+            y = None
         
         # Select numerical columns
         numerical_cols = X.select_dtypes(include=['number']).columns
         
         # Scale
         X_scaled = X.copy()
-        X_scaled[numerical_cols] = self.scaler.fit_transform(X[numerical_cols])
+        if len(numerical_cols) > 0:
+            X_scaled[numerical_cols] = self.scaler.fit_transform(X[numerical_cols])
         
-        # Encode target
-        y_encoded = self.label_encoder.fit_transform(y)
-
-        return train_test_split(X_scaled, y_encoded, test_size=0.2, random_state=42)
+        # Encode target if present
+        if y is not None:
+            y_encoded = self.label_encoder.fit_transform(y)
+            return train_test_split(X_scaled, y_encoded, test_size=0.2, random_state=42)
+        else:
+            # Unsupervised split
+            X_train, X_test = train_test_split(X_scaled, test_size=0.2, random_state=42)
+            return X_train, X_test, None, None
 
     def preprocess_inference(self, df: pd.DataFrame) -> Any:
         """
