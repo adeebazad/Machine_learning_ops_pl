@@ -145,6 +145,11 @@ class ModelFactory:
             raise ValueError(f"Unsupported model '{model_name}' for task '{task_type}'. Available: {list(models[task_type].keys())}")
             
         model_class = models[task_type][model_name]
+
+        # Fix for LocalOutlierFactor: Must set novelty=True for predict() support
+        if model_name == 'LocalOutlierFactor':
+             if 'novelty' not in params:
+                 params['novelty'] = True
         
         # Special handling for wrappers that might need specific init params
         if model_class == DLWrapper:
