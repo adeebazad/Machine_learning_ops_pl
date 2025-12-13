@@ -227,11 +227,26 @@ const StandAloneAnalytics: React.FC = () => {
                                 <RefreshCw className="animate-spin" /> Loading Pipeline Configuration...
                             </div>
                         ) : (
-                            <AnalyticsDashboard
-                                steps={steps}
-                                stepResults={stepResults}
-                                stepError={stepError}
-                            />
+                            <div className="flex flex-col h-full">
+                                {/* Pipeline Description Section */}
+                                <div className="bg-gray-900 border-b border-gray-800 p-6">
+                                    <div className="max-w-7xl mx-auto">
+                                        <h2 className="text-xl font-bold text-white mb-2">
+                                            {pipelines.find(p => p.id.toString() === selectedPipelineId)?.name}
+                                        </h2>
+                                        <p className="text-gray-400 text-sm leading-relaxed max-w-3xl">
+                                            {pipelines.find(p => p.id.toString() === selectedPipelineId)?.description || 'No description provided for this pipeline.'}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="flex-1 overflow-auto bg-gray-950 p-6">
+                                    <AnalyticsDashboard
+                                        steps={steps}
+                                        stepResults={stepResults}
+                                        stepError={stepError}
+                                    />
+                                </div>
+                            </div>
                         )}
                     </div>
                 )}
