@@ -50,23 +50,28 @@ const App: React.FC = () => {
   return (
     <BrowserRouter>
       <Routes>
+        {/* Standalone Route (No Layout) */}
         <Route path="/dashboard/analytics" element={<StandAloneAnalytics />} />
+
+        {/* Main App Routes (Wrapped in Layout) */}
+        <Route path="/*" element={
+          <Layout>
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/config" element={<Config />} />
+              <Route path="/training" element={<Training />} />
+              <Route path="/inference" element={<Inference />} />
+              <Route path="/code" element={<CodeStudio />} />
+              <Route path="/scheduler" element={<Scheduler />} />
+              <Route path="/models" element={<ModelRegistry />} />
+              <Route path="/experiments/new" element={<NewExperiment />} />
+              <Route path="/pipelines" element={<Pipelines />} />
+              <Route path="/pipelines/new" element={<PipelineEditor />} />
+              <Route path="/pipelines/:id" element={<PipelineEditor />} />
+            </Routes>
+          </Layout>
+        } />
       </Routes>
-      <Layout>
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/config" element={<Config />} />
-          <Route path="/training" element={<Training />} />
-          <Route path="/inference" element={<Inference />} />
-          <Route path="/code" element={<CodeStudio />} />
-          <Route path="/scheduler" element={<Scheduler />} />
-          <Route path="/models" element={<ModelRegistry />} />
-          <Route path="/experiments/new" element={<NewExperiment />} />
-          <Route path="/pipelines" element={<Pipelines />} />
-          <Route path="/pipelines/new" element={<PipelineEditor />} />
-          <Route path="/pipelines/:id" element={<PipelineEditor />} />
-        </Routes>
-      </Layout>
     </BrowserRouter>
   );
 };
