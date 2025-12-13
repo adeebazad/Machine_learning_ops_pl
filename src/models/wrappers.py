@@ -44,30 +44,30 @@ class ProphetWrapper:
             if 'y' not in df.columns:
                 df['y'] = y
         
-        # Ensure 'ds' column exists. If not, try to find a date column or use index
         if 'ds' not in df.columns:
-                
-                # Try to find a column that looks like a date (even if string)
-                if len(date_cols) == 0:
-                     # Check for common names like 'date', 'timestamp'
-                     for col in df.columns:
-                          if col.lower() in ['date', 'timestamp', 'time', 'ds', 'dateissuedutc', 'datetime']:
-                               try:
-                                    df[col] = pd.to_datetime(df[col])
-                                    df = df.rename(columns={col: 'ds'})
-                                    break
-                               except: pass
-                
-                # Check again after potential conversion
-                if 'ds' not in df.columns:
-                     date_cols = df.select_dtypes(include=['datetime']).columns
-                     if len(date_cols) > 0:
-                         df = df.rename(columns={date_cols[0]: 'ds'})
-                     elif isinstance(df.index, pd.DatetimeIndex):
-                         df['ds'] = df.index
-                         df = df.reset_index(drop=False)
-                     else:
-                          raise ValueError(f"Prophet requires a 'ds' column. Available columns: {df.columns.tolist()}")
+             date_cols = df.select_dtypes(include=['datetime']).columns
+             
+             # Try to find a column that looks like a date (even if string)
+             if len(date_cols) == 0:
+                  # Check for common names like 'date', 'timestamp'
+                  for col in df.columns:
+                       if col.lower() in ['date', 'timestamp', 'time', 'ds', 'dateissuedutc', 'datetime']:
+                            try:
+                                 df[col] = pd.to_datetime(df[col])
+                                 df = df.rename(columns={col: 'ds'})
+                                 break
+                            except: pass
+             
+             # Check again after potential conversion
+             if 'ds' not in df.columns:
+                  date_cols = df.select_dtypes(include=['datetime']).columns
+                  if len(date_cols) > 0:
+                      df = df.rename(columns={date_cols[0]: 'ds'})
+                  elif isinstance(df.index, pd.DatetimeIndex):
+                      df['ds'] = df.index
+                      df = df.reset_index(drop=False)
+                  else:
+                       raise ValueError(f"Prophet requires a 'ds' column. Available columns: {df.columns.tolist()}")
 
         self.model.fit(df)
         return self
