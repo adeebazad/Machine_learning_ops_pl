@@ -77,6 +77,7 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ steps, stepResu
             const actual = actualsMap.get(dateStr);
 
             merged.push({
+                ...row, // Include all other columns from prediction output
                 date: row[dateCol],
                 timestamp: d.getTime(),
                 actual: actual !== undefined ? Number(actual) : null,
@@ -92,10 +93,11 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ steps, stepResu
 
             if (!processedDates.has(dateStr)) {
                 merged.push({
+                    ...row, // Include all columns from historical data
                     date: row[dateCol],
                     timestamp: d.getTime(),
                     actual: Number(row[targetCol]),
-                    predicted: null,
+                    predicted: null, // No prediction for this historical point in this view
                     isForecast: false
                 });
             }

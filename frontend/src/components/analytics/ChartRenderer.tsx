@@ -43,9 +43,17 @@ const ChartRenderer: React.FC<ChartRendererProps> = ({
                 stroke="#9CA3AF"
                 tick={{ fontSize: 11 }}
                 tickFormatter={(val) => {
-                    // Try formatting dates
-                    if (typeof val === 'string' && val.length > 10 && !isNaN(Date.parse(val))) {
-                        return new Date(val).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+                    // Try formatting dates (Handle string ISO and Number Epoch)
+                    const d = new Date(val);
+                    if (!isNaN(d.getTime())) {
+                        // Check if it's likely a timestamp (e.g., not a small number like index 0, 1, 2)
+                        // Epoch for 2000 is 946684800000. Low numbers might be categories.
+                        if (typeof val === 'number' && val < 10000000000) return val; // Assume it's a category/index if < 10 billion and number? Actually epoch is huge. 
+
+                        return d.toLocaleString(undefined, {
+                            month: 'short', day: 'numeric',
+                            hour: '2-digit', minute: '2-digit', second: '2-digit'
+                        });
                     }
                     return val;
                 }}
