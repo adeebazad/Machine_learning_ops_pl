@@ -28,7 +28,10 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title }) => {
 
     const numericCols = useMemo(() => {
         if (!data || data.length === 0) return [];
-        return columns.filter(c => typeof data[0][c] === 'number');
+        return columns.filter(c => {
+            // Check first 100 rows to find if it holds numeric data (handling nulls)
+            return data.slice(0, 100).some(row => typeof row[c] === 'number');
+        });
     }, [data, columns]);
 
     const categoricalCols = useMemo(() => {
