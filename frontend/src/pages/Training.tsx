@@ -85,24 +85,24 @@ export const Training = () => {
     return (
         <div className="h-[calc(100vh-140px)] flex flex-col gap-6">
             {/* Header / Actions */}
-            <div className="glass-card p-6 flex justify-between items-center">
+            <div className="glass-card p-6 flex justify-between items-center bg-white dark:bg-slate-800">
                 <div className="flex items-center gap-4">
-                    <div className="p-3 rounded-xl bg-blue-500/10 text-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.2)]">
+                    <div className="p-3 rounded-xl bg-blue-500/10 text-blue-500 shadow-sm">
                         <Activity size={24} />
                     </div>
                     <div>
-                        <h2 className="text-2xl font-bold text-white tracking-wide">Model Training</h2>
-                        <p className="text-gray-400 text-sm">Execute and monitor training pipelines</p>
+                        <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-wide">Model Training</h2>
+                        <p className="text-slate-500 dark:text-slate-400 text-sm">Execute and monitor training pipelines</p>
                     </div>
                 </div>
 
                 <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-black/20 border border-white/5">
-                        <span className="text-gray-400 text-xs uppercase tracking-wider font-bold">Status</span>
-                        {status === 'idle' && <span className="text-gray-400 font-mono text-sm">IDLE</span>}
-                        {status === 'running' && <span className="text-blue-400 font-mono text-sm animate-pulse">RUNNING...</span>}
-                        {status === 'completed' && <span className="text-green-400 font-mono text-sm">COMPLETED</span>}
-                        {status === 'error' && <span className="text-red-400 font-mono text-sm">ERROR</span>}
+                    <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-100 dark:bg-black/20 border border-slate-200 dark:border-white/5">
+                        <span className="text-slate-500 dark:text-gray-400 text-xs uppercase tracking-wider font-bold">Status</span>
+                        {status === 'idle' && <span className="text-slate-500 dark:text-gray-400 font-mono text-sm">IDLE</span>}
+                        {status === 'running' && <span className="text-blue-500 dark:text-blue-400 font-mono text-sm animate-pulse">RUNNING...</span>}
+                        {status === 'completed' && <span className="text-green-500 dark:text-green-400 font-mono text-sm">COMPLETED</span>}
+                        {status === 'error' && <span className="text-red-500 dark:text-red-400 font-mono text-sm">ERROR</span>}
                     </div>
 
                     <div className="flex gap-2">
@@ -110,7 +110,7 @@ export const Training = () => {
                             <select
                                 value={selectedExperiment}
                                 onChange={(e) => setSelectedExperiment(e.target.value)}
-                                className="w-full bg-[#0B0C10] border border-gray-800 rounded-lg p-3 text-white focus:outline-none focus:border-blue-500/50 transition-all text-sm"
+                                className="w-full bg-slate-50 dark:bg-[#0B0C10] border border-slate-200 dark:border-gray-800 rounded-lg p-3 text-slate-900 dark:text-white focus:outline-none focus:border-blue-500/50 transition-all text-sm"
                             >
                                 <option value="">Select Experiment</option>
                                 {experiments.map(e => <option key={e.id} value={e.id}>{e.name}</option>)}
@@ -120,7 +120,7 @@ export const Training = () => {
                             <select
                                 value={selectedConfig}
                                 onChange={(e) => setSelectedConfig(e.target.value)}
-                                className="w-full bg-[#0B0C10] border border-gray-800 rounded-lg p-3 text-white focus:outline-none focus:border-blue-500/50 transition-all text-sm"
+                                className="w-full bg-slate-50 dark:bg-[#0B0C10] border border-slate-200 dark:border-gray-800 rounded-lg p-3 text-slate-900 dark:text-white focus:outline-none focus:border-blue-500/50 transition-all text-sm"
                             >
                                 <option value="">Select Config</option>
                                 {configs.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
@@ -131,7 +131,7 @@ export const Training = () => {
                     <button
                         onClick={startTraining}
                         disabled={status === 'running' || !selectedConfig}
-                        className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white px-8 py-3 rounded-lg font-bold shadow-lg shadow-blue-500/20 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                        className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white px-8 py-3 rounded-lg font-bold shadow-lg shadow-blue-500/20 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                     >
                         {status === 'running' ? (
                             <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white" />
@@ -144,13 +144,14 @@ export const Training = () => {
             </div>
 
             {/* Console Output */}
-            <div className="flex-1 glass-card flex flex-col overflow-hidden relative">
-                <div className="absolute top-0 left-0 right-0 h-10 bg-gradient-to-b from-[#0B0C10] to-transparent z-10 pointer-events-none" />
+            <div className="flex-1 glass-card flex flex-col overflow-hidden relative bg-slate-900 dark:bg-[#050505]">
+                {/* Always dark terminal for "corporate hacker" vibe, or maybe just standard terminal look */}
+                <div className="absolute top-0 left-0 right-0 h-10 bg-gradient-to-b from-slate-900 dark:from-[#0B0C10] to-transparent z-10 pointer-events-none" />
 
-                <div className="p-4 border-b border-white/5 flex items-center justify-between bg-black/20">
+                <div className="p-4 border-b border-slate-700 dark:border-white/5 flex items-center justify-between bg-white/5">
                     <div className="flex items-center gap-2">
-                        <Terminal size={16} className="text-gray-400" />
-                        <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Live Logs</span>
+                        <Terminal size={16} className="text-slate-400" />
+                        <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Live Logs</span>
                     </div>
                     <div className="flex gap-1.5">
                         <div className="w-2.5 h-2.5 rounded-full bg-red-500/20 border border-red-500/50" />
@@ -159,16 +160,19 @@ export const Training = () => {
                     </div>
                 </div>
 
-                <div className="flex-1 overflow-y-auto p-6 font-mono text-sm space-y-1 bg-[#050505]/50">
+                <div className="flex-1 overflow-y-auto p-6 font-mono text-sm space-y-1 bg-slate-50 dark:bg-[#050505]/50">
+                    {/* Note: Terminals usually stay dark regardless of theme, but user asked for light mode. 
+                        A light terminal is readable if text is dark. 
+                        I'll make the terminal follow the theme: Light Terminal (Paper) vs Dark Terminal (Matrix) */}
                     {logs.length === 0 ? (
-                        <div className="h-full flex flex-col items-center justify-center text-gray-600 gap-4">
+                        <div className="h-full flex flex-col items-center justify-center text-slate-400 dark:text-gray-600 gap-4">
                             <Terminal size={48} className="opacity-20" />
                             <p>Ready to initialize training sequence...</p>
                         </div>
                     ) : (
                         logs.map((log, i) => (
-                            <div key={i} className="text-gray-300 hover:bg-white/5 px-2 py-0.5 rounded transition-colors border-l-2 border-transparent hover:border-blue-500/50">
-                                <span className="text-gray-600 mr-3 select-none">{(i + 1).toString().padStart(3, '0')}</span>
+                            <div key={i} className="text-slate-600 dark:text-gray-300 hover:bg-black/5 dark:hover:bg-white/5 px-2 py-0.5 rounded transition-colors border-l-2 border-transparent hover:border-blue-500/50">
+                                <span className="text-slate-400 dark:text-gray-600 mr-3 select-none">{(i + 1).toString().padStart(3, '0')}</span>
                                 {log}
                             </div>
                         ))

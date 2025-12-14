@@ -10,13 +10,13 @@ const StatCard = ({ title, value, icon: Icon, color, subValue }: any) => (
         </div>
         <div className="relative z-10">
             <div className="flex items-center gap-3 mb-2">
-                <div className={`p-2 rounded-lg bg-white/5 ${color.text} shadow-[0_0_10px_rgba(0,0,0,0.2)]`}>
+                <div className={`p-2 rounded-lg bg-brand-50 dark:bg-white/5 ${color.text} shadow-sm`}>
                     <Icon size={20} />
                 </div>
-                <h3 className="text-gray-400 font-medium text-sm uppercase tracking-wider">{title}</h3>
+                <h3 className="text-slate-500 dark:text-slate-400 font-medium text-sm uppercase tracking-wider">{title}</h3>
             </div>
-            <div className="text-3xl font-bold text-white mb-1 tracking-tight">{value}</div>
-            {subValue && <div className="text-xs text-gray-500 font-mono">{subValue}</div>}
+            <div className="text-3xl font-bold text-slate-900 dark:text-white mb-1 tracking-tight">{value}</div>
+            {subValue && <div className="text-xs text-slate-500 dark:text-slate-500 font-mono">{subValue}</div>}
         </div>
     </div>
 );
@@ -29,6 +29,7 @@ export const Dashboard = () => {
 
     useEffect(() => {
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        // Fallback or Mock if WS fails/not present in dev
         const wsUrl = `${protocol}//${window.location.host}/api/system/ws/stats`;
         const ws = new WebSocket(wsUrl);
 
@@ -56,13 +57,12 @@ export const Dashboard = () => {
     return (
         <div className="space-y-8">
             {/* Hero Section */}
-            <div className="glass p-8 rounded-2xl border-l-4 border-blue-500 relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-transparent pointer-events-none" />
+            <div className="glass p-8 rounded-2xl border-l-4 border-brand-500 relative overflow-hidden bg-white dark:bg-slate-800 shadow-sm">
                 <div className="relative z-10">
-                    <h1 className="text-4xl font-bold text-white mb-2 tracking-tight">
-                        <span className="neon-text">NEC</span> Orchestrating a brighter world
+                    <h1 className="text-4xl font-bold text-slate-900 dark:text-white mb-2 tracking-tight">
+                        <span className="brand-text">NEC</span> Orchestrating a brighter world
                     </h1>
-                    <p className="text-gray-400 text-lg max-w-2xl leading-relaxed">
+                    <p className="text-slate-600 dark:text-slate-400 text-lg max-w-2xl leading-relaxed">
                         MLOps and Pipeline Command Center. Monitor infrastructure, manage training workflows, and deploy models with precision.
                     </p>
                 </div>
@@ -75,28 +75,28 @@ export const Dashboard = () => {
                     value={`${currentCpu.toFixed(1)}%`}
                     subValue="8 Cores Active"
                     icon={Cpu}
-                    color={{ text: 'text-blue-400' }}
+                    color={{ text: 'text-blue-500 dark:text-blue-400' }}
                 />
                 <StatCard
                     title="Memory Usage"
                     value={`${currentRam.toFixed(1)}%`}
                     subValue="32GB Total"
                     icon={Activity}
-                    color={{ text: 'text-purple-400' }}
+                    color={{ text: 'text-purple-500 dark:text-purple-400' }}
                 />
                 <StatCard
                     title="Active Models"
                     value="3"
                     subValue="Production Ready"
                     icon={Layers}
-                    color={{ text: 'text-green-400' }}
+                    color={{ text: 'text-emerald-500 dark:text-emerald-400' }}
                 />
                 <StatCard
                     title="Database"
                     value="Connected"
                     subValue="Latency: 12ms"
                     icon={Database}
-                    color={{ text: 'text-orange-400' }}
+                    color={{ text: 'text-orange-500 dark:text-orange-400' }}
                 />
             </div>
 
@@ -105,13 +105,13 @@ export const Dashboard = () => {
                 {/* Real-time Chart */}
                 <div className="lg:col-span-2 glass-card p-6">
                     <div className="flex items-center justify-between mb-6">
-                        <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                            <Activity className="text-blue-400" size={20} />
+                        <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                            <Activity className="text-brand-500" size={20} />
                             System Performance
                         </h3>
                         <div className="flex gap-2">
-                            <span className="flex items-center gap-1 text-xs text-blue-400"><div className="w-2 h-2 rounded-full bg-blue-400" /> CPU</span>
-                            <span className="flex items-center gap-1 text-xs text-purple-400"><div className="w-2 h-2 rounded-full bg-purple-400" /> RAM</span>
+                            <span className="flex items-center gap-1 text-xs text-blue-500"><div className="w-2 h-2 rounded-full bg-blue-500" /> CPU</span>
+                            <span className="flex items-center gap-1 text-xs text-purple-500"><div className="w-2 h-2 rounded-full bg-purple-500" /> RAM</span>
                         </div>
                     </div>
                     <div className="h-[350px] w-full" style={{ height: 350 }}>
@@ -127,12 +127,12 @@ export const Dashboard = () => {
                                         <stop offset="95%" stopColor="#a855f7" stopOpacity={0} />
                                     </linearGradient>
                                 </defs>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
-                                <XAxis dataKey="time" stroke="#666" tick={{ fill: '#666', fontSize: 12 }} tickLine={false} axisLine={false} />
-                                <YAxis stroke="#666" tick={{ fill: '#666', fontSize: 12 }} tickLine={false} axisLine={false} />
+                                <CartesianGrid strokeDasharray="3 3" stroke="#94a3b8" vertical={false} opacity={0.3} />
+                                <XAxis dataKey="time" stroke="#94a3b8" tick={{ fill: '#94a3b8', fontSize: 12 }} tickLine={false} axisLine={false} />
+                                <YAxis stroke="#94a3b8" tick={{ fill: '#94a3b8', fontSize: 12 }} tickLine={false} axisLine={false} />
                                 <Tooltip
-                                    contentStyle={{ backgroundColor: '#0B0C10', border: '1px solid #333', borderRadius: '8px' }}
-                                    itemStyle={{ color: '#fff' }}
+                                    contentStyle={{ backgroundColor: '#fff', borderColor: '#e2e8f0', borderRadius: '8px', color: '#1e293b' }}
+                                    itemStyle={{ color: '#1e293b' }}
                                 />
                                 <Area type="monotone" dataKey="cpu" stroke="#3b82f6" strokeWidth={2} fillOpacity={1} fill="url(#colorCpu)" />
                                 <Area type="monotone" dataKey="ram" stroke="#a855f7" strokeWidth={2} fillOpacity={1} fill="url(#colorRam)" />
@@ -144,62 +144,55 @@ export const Dashboard = () => {
                 {/* Quick Actions / Info */}
                 <div className="space-y-6">
                     <div className="glass-card p-6">
-                        <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                            <Zap className="text-yellow-400" size={20} />
+                        <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                            <Zap className="text-yellow-500" size={20} />
                             Quick Actions
                         </h3>
                         <div className="space-y-3">
                             <button
                                 onClick={() => navigate('/experiments/new')}
-                                className="w-full p-3 rounded-lg bg-white/5 hover:bg-white/10 border border-white/5 text-left text-sm text-gray-300 hover:text-white transition-colors flex items-center justify-between group"
+                                className="w-full p-3 rounded-lg bg-slate-50 dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 border border-slate-200 dark:border-white/5 text-left text-sm text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors flex items-center justify-between group"
                             >
                                 <span>New Experiment</span>
-                                <span className="text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity">→</span>
+                                <span className="text-brand-500 opacity-0 group-hover:opacity-100 transition-opacity">→</span>
                             </button>
                             <button
                                 onClick={() => navigate('/inference')}
-                                className="w-full p-3 rounded-lg bg-white/5 hover:bg-white/10 border border-white/5 text-left text-sm text-gray-300 hover:text-white transition-colors flex items-center justify-between group"
+                                className="w-full p-3 rounded-lg bg-slate-50 dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 border border-slate-200 dark:border-white/5 text-left text-sm text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors flex items-center justify-between group"
                             >
                                 <span>Deploy Model</span>
-                                <span className="text-purple-400 opacity-0 group-hover:opacity-100 transition-opacity">→</span>
-                            </button>
-                            <button
-                                onClick={() => navigate('/scheduler')}
-                                className="w-full p-3 rounded-lg bg-white/5 hover:bg-white/10 border border-white/5 text-left text-sm text-gray-300 hover:text-white transition-colors flex items-center justify-between group"
-                            >
-                                <span>View Logs</span>
-                                <span className="text-green-400 opacity-0 group-hover:opacity-100 transition-opacity">→</span>
+                                <span className="text-purple-500 opacity-0 group-hover:opacity-100 transition-opacity">→</span>
                             </button>
                             <button
                                 onClick={() => window.open('/mlflow/', '_blank')}
-                                className="w-full p-3 rounded-lg bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 text-left text-sm text-blue-300 hover:text-blue-200 transition-colors flex items-center justify-between group"
+                                className="w-full p-3 rounded-lg bg-brand-50 dark:bg-brand-900/20 hover:bg-brand-100 dark:hover:bg-brand-900/40 border border-brand-200 dark:border-brand-500/30 text-left text-sm text-brand-700 dark:text-brand-300 hover:text-brand-900 dark:hover:text-brand-100 transition-colors flex items-center justify-between group"
                             >
                                 <span className="flex items-center gap-2">
                                     <ExternalLink size={14} />
                                     Open MLflow UI
                                 </span>
-                                <span className="text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity">→</span>
+                                <span className="text-brand-500 opacity-0 group-hover:opacity-100 transition-opacity">→</span>
                             </button>
                         </div>
                     </div>
 
                     <div className="glass-card p-6">
-                        <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                            <Info className="text-gray-400" size={20} />
+                        <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                            <Info className="text-slate-400" size={20} />
                             System Info
                         </h3>
                         <div className="space-y-4 text-sm">
-                            <div className="flex justify-between border-b border-white/5 pb-2">
-                                <span className="text-gray-500">Version</span>
-                                <span className="text-white font-mono">v2.4.0-beta</span>
+                            <div className="flex justify-between border-b border-slate-200 dark:border-white/5 pb-2">
+                                <span className="text-slate-500 dark:text-slate-400">Version</span>
+                                <span className="text-slate-700 dark:text-white font-mono">v2.4.0-beta</span>
                             </div>
-                            <div className="flex justify-between border-b border-white/5 pb-2">
-                                <span className="text-gray-500">Environment</span>
-                                <span className="text-green-400">Production</span>
+                            <div className="flex justify-between border-b border-slate-200 dark:border-white/5 pb-2">
+                                <span className="text-slate-500 dark:text-slate-400">Environment</span>
+                                <span className="text-emerald-500 font-medium">Production</span>
                             </div>
                             <div className="flex justify-between">
-                                <span className="text-gray-500">Uptime</span>
-                                <span className="text-white font-mono">4d 12h 30m</span>
+                                <span className="text-slate-500 dark:text-slate-400">Uptime</span>
+                                <span className="text-slate-700 dark:text-white font-mono">4d 12h 30m</span>
                             </div>
                         </div>
                     </div>

@@ -10,36 +10,18 @@
     scrollbar-width: none;
   }
 
+  /* Corporate Glass Effect - Subtle and Clean */
   .glass {
-    background-color: rgba(255, 255, 255, 0.05);
-    border-color: rgba(255, 255, 255, 0.1);
-    @apply backdrop-blur-lg border shadow-xl;
+    @apply bg-white/70 dark:bg-slate-900/70 backdrop-blur-md border border-slate-200 dark:border-slate-700 shadow-sm;
   }
 
   .glass-card {
-    background-color: rgba(26, 26, 26, 0.6);
-    border-color: rgba(255, 255, 255, 0.05);
-    @apply backdrop-blur-md border rounded-xl transition-all duration-300 hover:shadow-2xl;
+    @apply bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl transition-all duration-300 shadow-sm hover:shadow-md;
   }
 
-  .glass-card:hover {
-    border-color: rgba(255, 255, 255, 0.1);
-    box-shadow: 0 0 15px rgba(59, 130, 246, 0.05);
-  }
-
-  .neon-text {
-    background: linear-gradient(to right, #60a5fa, #c084fc);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.5));
-  }
-
-  .neon-border {
-    border-color: rgba(59, 130, 246, 0.3);
-    border-width: 1px;
-    border-style: solid;
-    box-shadow: 0 0 15px rgba(59, 130, 246, 0.15);
+  /* Subtle Gradient Text for specialized headings */
+  .brand-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-brand-600 to-brand-800 dark:from-brand-400 dark:to-brand-200;
   }
 }
 
@@ -48,46 +30,35 @@
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: dark;
-  color: #e2e8f0;
-  background-color: #0B0C10;
-  /* Deep Space Dark */
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  color-scheme: light dark;
 }
 
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background: radial-gradient(circle at 50% 0%, #1f2833 0%, #0B0C10 100%);
-  background-attachment: fixed;
+  @apply bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-300;
 }
 
-/* Custom Scrollbar */
+/* Custom Scrollbar - refined for corporate */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0B0C10;
+  @apply bg-transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #45A29E;
-  border-radius: 4px;
+  @apply bg-slate-300 dark:bg-slate-700 rounded-full;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #66FCF1;
+  @apply bg-slate-400 dark:bg-slate-600;
 }
 
 /* Global Selection */
 ::selection {
-  background: rgba(69, 162, 158, 0.3);
-  color: #66FCF1;
+  @apply bg-brand-500/30 text-brand-900 dark:text-brand-100;
 }
