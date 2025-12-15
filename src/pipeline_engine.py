@@ -140,12 +140,9 @@ class StepExecutor:
         # Use the actual step order from the loaded/mocked step to find the PREVIOUS step's cache
         current_order = step.order
         context = {}
-        if current_order > 1: # 1-based index in DB usually, but let's check. 
-            # If orders are 1, 2, 3... 
-            # If current is 1 (Extraction), prev is 0 (None).
-            # If current is 2, prev is 1.
-            # My logic below uses step_order - 1. 
-            # If steps are 1-indexed integers.
+        if current_order > 0: # 0-indexed system confirmed 
+            # If orders are 0, 1, 2... 
+            # If current is 1 (Preprocessing), prev is 0 (Extraction).
             prev_cache = self._get_cache_path(current_order - 1)
             if os.path.exists(prev_cache):
                 context = joblib.load(prev_cache)
