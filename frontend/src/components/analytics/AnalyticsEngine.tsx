@@ -172,7 +172,8 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
                     if (rawVal === null || rawVal === undefined || rawVal === '') return;
 
                     const val = Number(rawVal);
-                    if (!isNaN(val)) {
+                    // Treat 0 as missing data (sensor dropout) to prevent skewing average
+                    if (!isNaN(val) && val !== 0) {
                         grouped[key][c] += val;
                         counts[key][c]++;
                     }
