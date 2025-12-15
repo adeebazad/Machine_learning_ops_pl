@@ -137,42 +137,54 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
 
 
         // Time Grain Aggregation (only if datetime axis)
-        if (xAxisCol && /date|time|timestamp/i.test(xAxisCol) && timeGrain !== 'raw') {
+        if (xAxisCol && /date|time|timestamp|utc/i.test(xAxisCol) && timeGrain !== 'raw') {
             const grouped: { [key: string]: any } = {};
-            const counts: { [key: string]: number } = {};
+            const counts: { [key: string]: { [col: string]: number } } = {};
 
             res.forEach(row => {
                 const d = new Date(row[xAxisCol]);
                 if (isNaN(d.getTime())) return;
 
                 let key = '';
-                if (timeGrain === 'hour') key = d.toISOString().substring(0, 13) + ':00:00'; // YYYY-MM-DDTHH:00:00
-                else if (timeGrain === 'day') key = d.toISOString().substring(0, 10); // YYYY-MM-DD
-                else if (timeGrain === 'month') key = d.toISOString().substring(0, 7); // YYYY-MM
+                if (timeGrain === 'hour') key = d.toISOString().substring(0, 13) + ':00:00';
+                else if (timeGrain === 'day') key = d.toISOString().substring(0, 10);
+                else if (timeGrain === 'month') key = d.toISOString().substring(0, 7);
                 else if (timeGrain === 'week') {
-                    const day = d.getDay(), diff = d.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is sunday
+                    const day = d.getDay(), diff = d.getDate() - day + (day === 0 ? -6 : 1);
                     const monday = new Date(d.setDate(diff));
                     key = monday.toISOString().substring(0, 10);
                 }
 
                 if (!grouped[key]) {
                     grouped[key] = { [xAxisCol]: key };
-                    counts[key] = 0;
-                    yAxisCols.forEach(c => grouped[key][c] = 0);
+                    counts[key] = {};
+                    yAxisCols.forEach(c => {
+                        grouped[key][c] = 0;
+                        counts[key][c] = 0;
+                    });
                 }
 
-                counts[key]++;
                 yAxisCols.forEach(c => {
-                    const val = Number(row[c]);
-                    if (!isNaN(val)) grouped[key][c] += val;
+                    const rawVal = row[c];
+                    // STRICT CHECK: Ignore null, undefined, empty string to avoid dragging down average
+                    if (rawVal === null || rawVal === undefined || rawVal === '') return;
+
+                    const val = Number(rawVal);
+                    if (!isNaN(val)) {
+                        grouped[key][c] += val;
+                        counts[key][c]++;
+                    }
                 });
             });
 
-            // Average
+            // Average using per-column counts
             res = Object.keys(grouped).map(key => {
                 const row = grouped[key];
                 yAxisCols.forEach(c => {
-                    row[c] = row[c] / counts[key];
+                    const count = counts[key][c];
+                    row[c] = count > 0 ? row[c] / count : 0; // Avoid divide by zero, default to 0 (or null?)
+                    // Precision fix
+                    row[c] = Math.round(row[c] * 1000) / 1000;
                 });
                 return row;
             }).sort((a, b) => a[xAxisCol].localeCompare(b[xAxisCol]));
