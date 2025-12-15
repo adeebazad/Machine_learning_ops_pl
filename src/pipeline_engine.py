@@ -117,7 +117,12 @@ class StepExecutor:
             raise ValueError("Pipeline not found")
         
         step = None
-        if step_override:
+        if step_override and step_override.get('id'):
+            # If ID is provided, finding the specific step in the pipeline
+            target_id = int(step_override['id'])
+            step = next((s for s in pipeline.steps if s.id == target_id), None)
+            
+        elif step_override:
             # Create a mock step object from the override
             step = SimpleNamespace(
                 name=step_override.get('name', 'Test Step'),
@@ -132,12 +137,20 @@ class StepExecutor:
             raise ValueError("Step not found")
 
         # Load context from previous step
+        # Use the actual step order from the loaded/mocked step to find the PREVIOUS step's cache
+        current_order = step.order
         context = {}
-        if step_order > 0:
-            prev_cache = self._get_cache_path(step_order - 1)
+        if current_order > 1: # 1-based index in DB usually, but let's check. 
+            # If orders are 1, 2, 3... 
+            # If current is 1 (Extraction), prev is 0 (None).
+            # If current is 2, prev is 1.
+            # My logic below uses step_order - 1. 
+            # If steps are 1-indexed integers.
+            prev_cache = self._get_cache_path(current_order - 1)
             if os.path.exists(prev_cache):
                 context = joblib.load(prev_cache)
             else:
+                self._log(f"Warning: Previous cache not found at {prev_cache}")
                 # If previous cache doesn't exist, maybe we can try to load from -2? 
                 # For now, strict dependency.
                 if step.step_type != "extraction": # Extraction doesn't need input
