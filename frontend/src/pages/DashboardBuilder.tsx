@@ -207,7 +207,7 @@ const DashboardBuilder: React.FC = () => {
                             ) : (
                                 <div className="grid grid-cols-1 gap-6">
                                     {selectedDashboard.charts?.map((chart: any) => (
-                                        <div key={chart.id} className="h-[500px] border border-gray-800 rounded-xl overflow-hidden flex flex-col bg-gray-900 relative group">
+                                        <div key={chart.id} className="min-h-[800px] border border-gray-800 rounded-xl overflow-hidden flex flex-col bg-gray-900 relative group">
                                             <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
                                                 <button
                                                     onClick={() => deleteChart(chart.id)}
