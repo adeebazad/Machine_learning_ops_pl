@@ -95,6 +95,8 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
 
     // Auto-select defaults
     useEffect(() => {
+        if (config) return; // BLOCK DEFAULTS if config exists (hydration handles it)
+
         if (xAxisCol === '' && columns.length > 0) {
             // Prefer date/time
             const dateCol = columns.find(c => /date|time|timestamp|utc/i.test(c));
@@ -105,7 +107,7 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
             const target = numericCols.find(c => c !== xAxisCol && !/id|index/i.test(c));
             setYAxisCols([target || numericCols[0]]);
         }
-    }, [columns, numericCols, xAxisCol, yAxisCols]);
+    }, [columns, numericCols, xAxisCol, yAxisCols, config]);
 
 
     // ---- Processed Data ----
