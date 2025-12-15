@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { dashboardService, pipelineService } from '../services/api';
 import AnalyticsEngine from '../components/analytics/AnalyticsEngine';
-import { Plus, LayoutDashboard, Trash2, ExternalLink, Share2, X } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Plus, LayoutDashboard, Trash2, Share2 } from 'lucide-react';
+
 
 const DashboardBuilder: React.FC = () => {
-    const navigate = useNavigate();
     const [dashboards, setDashboards] = useState<any[]>([]);
     const [selectedDashboard, setSelectedDashboard] = useState<any | null>(null);
     const [loading, setLoading] = useState(false);
