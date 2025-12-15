@@ -30,6 +30,14 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
 
     // Set default date range (Last Month)
     useEffect(() => {
+        // Only set default if NO config was loaded (or if config didn't have dateRange)
+        // We check if dateRange is empty, which implies initial state.
+        // However, hydration happens in a separate effect.
+        // To avoid race conditions, we can trust that if config exists, we should probably prefer it.
+        // But this effect runs on `data` change too.
+
+        if (config && config.dateRange) return; // Skip default if config provided
+
         if (data.length > 0 && xAxisCol && /date|time|timestamp/i.test(xAxisCol)) {
             // Find max date
             const dates = data.map(d => new Date(d[xAxisCol]).getTime()).filter(t => !isNaN(t));
@@ -44,7 +52,7 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
                 });
             }
         }
-    }, [data, xAxisCol]);
+    }, [data, xAxisCol, config]);
 
     // Hydrate from config
     useEffect(() => {
@@ -55,6 +63,9 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
             if (config.filters) setFilters(config.filters);
             if (config.showTrendline !== undefined) setShowTrendline(config.showTrendline);
             if (config.annotationMode !== undefined) setAnnotationMode(config.annotationMode);
+            // Hydrate new fields
+            if (config.dateRange) setDateRange(config.dateRange);
+            if (config.timeGrain) setTimeGrain(config.timeGrain);
         }
     }, [config]);
 
@@ -241,6 +252,8 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
                                 filters,
                                 showTrendline,
                                 annotationMode,
+                                dateRange,
+                                timeGrain,
                                 snapshotData: processedData // Save current data view
                             })}
                             className="flex items-center gap-2 px-3 py-1.5 bg-green-600 hover:bg-green-500 rounded-lg text-white text-xs font-medium transition-colors"
