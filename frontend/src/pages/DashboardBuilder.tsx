@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { dashboardService, pipelineService } from '../services/api';
 import AnalyticsEngine from '../components/analytics/AnalyticsEngine';
 import { Plus, LayoutDashboard, Trash2, Share2 } from 'lucide-react';
 
 
 const DashboardBuilder: React.FC = () => {
+    const navigate = useNavigate();
     const [dashboards, setDashboards] = useState<any[]>([]);
     const [selectedDashboard, setSelectedDashboard] = useState<any | null>(null);
     const [loading, setLoading] = useState(false);
@@ -144,12 +146,20 @@ const DashboardBuilder: React.FC = () => {
         <div className="flex h-screen bg-gray-950 text-white font-sans overflow-hidden">
             {/* Sidebar List */}
             <div className="w-64 bg-gray-900 border-r border-gray-800 flex flex-col">
-                <div className="p-4 border-b border-gray-800 flex items-center justify-between">
-                    <h2 className="font-bold text-lg flex items-center gap-2">
-                        <LayoutDashboard size={20} className="text-blue-500" /> Dashboards
-                    </h2>
-                    <button onClick={() => setShowCreateModal(true)} className="p-1 hover:bg-gray-800 rounded text-blue-400">
-                        <Plus size={20} />
+                <div className="p-4 border-b border-gray-800 space-y-3">
+                    <div className="flex items-center justify-between">
+                        <h2 className="font-bold text-lg flex items-center gap-2">
+                            <LayoutDashboard size={20} className="text-blue-500" /> Dashboards
+                        </h2>
+                        <button onClick={() => setShowCreateModal(true)} className="p-1 hover:bg-gray-800 rounded text-blue-400">
+                            <Plus size={20} />
+                        </button>
+                    </div>
+                    <button
+                        onClick={() => navigate('/dashboard/analytics')}
+                        className="w-full flex items-center justify-center gap-2 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-medium transition-colors"
+                    >
+                        <Plus size={16} /> New Analysis
                     </button>
                 </div>
                 <div className="flex-1 overflow-y-auto p-2 space-y-1">
