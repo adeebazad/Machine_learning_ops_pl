@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { pipelineService } from '../services/api';
 import AnalyticsDashboard from '../components/AnalyticsDashboard';
-import { LayoutDashboard, RefreshCw, ChevronLeft, ArrowRight, Layers, Clock, Activity } from 'lucide-react';
+import { LayoutDashboard, RefreshCw, ChevronLeft, ArrowRight, Layers, Clock, Activity, Save, X } from 'lucide-react';
+import { dashboardService } from '../services/api';
 
 const StandAloneAnalytics: React.FC = () => {
     const [pipelines, setPipelines] = useState<any[]>([]);
@@ -11,6 +12,61 @@ const StandAloneAnalytics: React.FC = () => {
     const [stepError, setStepError] = useState<{ [key: number]: string }>({});
     const [loading, setLoading] = useState(false);
     const [running, setRunning] = useState(false);
+
+    // Save Logic
+    const [showSaveModal, setShowSaveModal] = useState(false);
+    const [dashboards, setDashboards] = useState<any[]>([]);
+    const [saveConfig, setSaveConfig] = useState<any>(null);
+    const [targetDashboardId, setTargetDashboardId] = useState<string>('');
+    const [newDashboardName, setNewDashboardName] = useState('');
+    const [chartName, setChartName] = useState('');
+
+    const handleSaveChart = (stepId: any, stepOrder: any, stepType: string, chartConfig: any) => {
+        if (!selectedPipelineId) return;
+        setSaveConfig({
+            ...chartConfig,
+            pipeline_id: parseInt(selectedPipelineId),
+            step_id: stepId,
+            step_order: stepOrder,
+            step_type: stepType
+        });
+        setChartName(stepType === 'comparison' ? 'Model Comparison' : `Analytics Chart`);
+
+        dashboardService.list().then((res: any) => {
+            setDashboards(res);
+            if (res.length > 0) setTargetDashboardId(res[0].id.toString());
+            else setTargetDashboardId('new');
+            setShowSaveModal(true);
+        });
+    };
+
+    const confirmSave = async () => {
+        if (!saveConfig) return;
+
+        try {
+            let dashboardId = targetDashboardId;
+
+            if (targetDashboardId === 'new') {
+                if (!newDashboardName) return alert("Enter dashboard name");
+                const res: any = await dashboardService.create({ name: newDashboardName });
+                dashboardId = res.id.toString();
+            }
+
+            if (!dashboardId) return;
+
+            await dashboardService.addChart(parseInt(dashboardId), {
+                name: chartName,
+                chart_type: saveConfig.chartType,
+                config: saveConfig
+            });
+
+            setShowSaveModal(false);
+            alert("Chart saved to dashboard!");
+        } catch (err) {
+            console.error(err);
+            alert("Failed to save chart");
+        }
+    };
 
     useEffect(() => {
         fetchPipelines();
@@ -243,7 +299,9 @@ const StandAloneAnalytics: React.FC = () => {
                                     <AnalyticsDashboard
                                         steps={steps}
                                         stepResults={stepResults}
+
                                         stepError={stepError}
+                                        onSaveChart={handleSaveChart}
                                     />
                                 </div>
                             </div>
@@ -251,7 +309,64 @@ const StandAloneAnalytics: React.FC = () => {
                     </div>
                 )}
             </div>
-        </div>
+
+
+            {/* Save Modal */}
+            {
+                showSaveModal && (
+                    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+                        <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 w-96 shadow-2xl">
+                            <div className="flex justify-between items-center mb-4">
+                                <h3 className="text-lg font-bold">Save to Dashboard</h3>
+                                <button onClick={() => setShowSaveModal(false)}><X size={20} className="text-gray-500 hover:text-white" /></button>
+                            </div>
+
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-xs text-gray-400 mb-1">Chart Name</label>
+                                    <input
+                                        className="w-full bg-gray-800 border border-gray-700 rounded-lg p-2 text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                                        value={chartName}
+                                        onChange={e => setChartName(e.target.value)}
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-xs text-gray-400 mb-1">Select Dashboard</label>
+                                    <select
+                                        className="w-full bg-gray-800 border border-gray-700 rounded-lg p-2 text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                                        value={targetDashboardId}
+                                        onChange={e => setTargetDashboardId(e.target.value)}
+                                    >
+                                        {dashboards.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
+                                        <option value="new">+ Create New Dashboard</option>
+                                    </select>
+                                </div>
+
+                                {targetDashboardId === 'new' && (
+                                    <div className="animate-in fade-in slide-in-from-top-2">
+                                        <label className="block text-xs text-gray-400 mb-1">New Dashboard Name</label>
+                                        <input
+                                            autoFocus
+                                            className="w-full bg-gray-800 border border-gray-700 rounded-lg p-2 text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                                            value={newDashboardName}
+                                            onChange={e => setNewDashboardName(e.target.value)}
+                                        />
+                                    </div>
+                                )}
+
+                                <button
+                                    onClick={confirmSave}
+                                    className="w-full py-2 bg-blue-600 hover:bg-blue-500 rounded-lg font-medium flex items-center justify-center gap-2 mt-2"
+                                >
+                                    <Save size={16} /> Save Chart
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
+        </div >
     );
 };
 

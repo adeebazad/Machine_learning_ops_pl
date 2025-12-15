@@ -10,7 +10,7 @@ from typing import Dict, Any, List, Optional
 from src.models.train import train
 from src.features.preprocess import DataPreprocessor
 from src.utils.dynamic_loader import load_class_from_file
-from src.routers import config, database, system, files, scheduler, mlflow_router, experiments
+from src.routers import config, database, system, files, scheduler, mlflow_router, experiments, dashboards
 from src.infrastructure.database import get_db, engine
 from src.infrastructure.models import TrainingConfig, TrainingJob, Experiment
 from sqlalchemy.orm import Session
@@ -55,6 +55,7 @@ app.include_router(experiments.router)
 
 from src.routers import pipelines
 app.include_router(pipelines.router)
+app.include_router(dashboards.router)
 
 # Start Scheduler
 from src.scheduler import scheduler as pipeline_scheduler

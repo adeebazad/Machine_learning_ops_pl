@@ -1,16 +1,19 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import ChartRenderer from './ChartRenderer';
 import Toolbar from './Toolbar';
-import { Settings, X, Plus, ChevronDown, BarChart2 } from 'lucide-react';
+import { Settings, X, Plus, ChevronDown, BarChart2, LayoutDashboard, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface AnalyticsEngineProps {
     data: any[];
     title?: string;
+    readOnly?: boolean;
+    onSaveToDashboard?: (config: any) => void;
+    config?: any;
 }
 
 type ChartType = 'line' | 'bar' | 'area' | 'scatter' | 'pie' | 'donut' | 'radar' | 'composed' | 'heatmap';
 
-const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title }) => {
+const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly = false, onSaveToDashboard, config }) => {
     // ---- State ----
     const [chartType, setChartType] = useState<ChartType>('line');
     const [xAxisCol, setXAxisCol] = useState<string>('');
@@ -19,6 +22,22 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title }) => {
     const [showTrendline, setShowTrendline] = useState(false);
     const [annotationMode, setAnnotationMode] = useState(false);
     const [filters, setFilters] = useState<{ col: string, val: string }[]>([]);
+
+    // Hydrate from config
+    useEffect(() => {
+        if (config) {
+            if (config.chartType) setChartType(config.chartType);
+            if (config.xAxisCol) setXAxisCol(config.xAxisCol);
+            if (config.yAxisCols) setYAxisCols(config.yAxisCols);
+            if (config.filters) setFilters(config.filters);
+            if (config.showTrendline !== undefined) setShowTrendline(config.showTrendline);
+            if (config.annotationMode !== undefined) setAnnotationMode(config.annotationMode);
+        }
+    }, [config]);
+
+    // Pagination
+    const [page, setPage] = useState(1);
+    const pageSize = 50;
 
     // ---- Data Analysis (Columns) ----
     const columns = useMemo(() => {
@@ -114,6 +133,14 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title }) => {
                 </div>
 
                 <div className="flex items-center gap-4 w-full sm:w-auto">
+                    {!readOnly && onSaveToDashboard && (
+                        <button
+                            onClick={() => onSaveToDashboard({ chartType, xAxisCol, yAxisCols, filters, showTrendline, annotationMode })}
+                            className="flex items-center gap-2 px-3 py-1.5 bg-green-600 hover:bg-green-500 rounded-lg text-white text-xs font-medium transition-colors"
+                        >
+                            <LayoutDashboard size={14} /> Save to Dashboard
+                        </button>
+                    )}
                     <Toolbar
                         onExportCSV={handleExportCSV}
                         onPrint={handlePrint}
@@ -122,12 +149,14 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title }) => {
                         annotationMode={annotationMode}
                         onToggleAnnotation={() => setAnnotationMode(!annotationMode)}
                     />
-                    <button
-                        onClick={() => setShowSettings(!showSettings)}
-                        className={`p-2 rounded-lg transition-colors border ${showSettings ? 'bg-blue-600 border-blue-500 text-white' : 'border-gray-700 hover:bg-gray-800 text-gray-400'}`}
-                    >
-                        <Settings size={20} />
-                    </button>
+                    {!readOnly && (
+                        <button
+                            onClick={() => setShowSettings(!showSettings)}
+                            className={`p-2 rounded-lg transition-colors border ${showSettings ? 'bg-blue-600 border-blue-500 text-white' : 'border-gray-700 hover:bg-gray-800 text-gray-400'}`}
+                        >
+                            <Settings size={20} />
+                        </button>
+                    )}
                 </div>
             </div>
 
@@ -155,7 +184,7 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title }) => {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-800/50">
-                                    {processedData.slice(0, 50).map((row, i) => (
+                                    {processedData.slice((page - 1) * pageSize, page * pageSize).map((row, i) => (
                                         <tr key={i} className="hover:bg-gray-800/50 transition-colors">
                                             {columns.map(c => (
                                                 <td key={c} className="p-3 whitespace-nowrap max-w-[200px] truncate text-xs font-mono">
@@ -166,6 +195,29 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title }) => {
                                     ))}
                                 </tbody>
                             </table>
+                        </div>
+                        {/* Pagination Controls */}
+                        <div className="flex items-center justify-between mt-4 text-xs text-gray-400">
+                            <div>
+                                Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, processedData.length)} of {processedData.length} entries
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={() => setPage(p => Math.max(1, p - 1))}
+                                    disabled={page === 1}
+                                    className="p-1 rounded hover:bg-gray-800 disabled:opacity-50"
+                                >
+                                    <ChevronLeft size={16} />
+                                </button>
+                                <span className="font-mono">Page {page} of {Math.ceil(processedData.length / pageSize)}</span>
+                                <button
+                                    onClick={() => setPage(p => Math.min(Math.ceil(processedData.length / pageSize), p + 1))}
+                                    disabled={page >= Math.ceil(processedData.length / pageSize)}
+                                    className="p-1 rounded hover:bg-gray-800 disabled:opacity-50"
+                                >
+                                    <ChevronRight size={16} />
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

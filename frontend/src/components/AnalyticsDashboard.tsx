@@ -16,9 +16,10 @@ interface AnalyticsDashboardProps {
     steps: any[];
     stepResults: { [key: number]: StepResult };
     stepError: { [key: number]: string };
+    onSaveChart?: (stepId: any, stepOrder: any, stepType: string, chartConfig: any) => void;
 }
 
-const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ steps, stepResults, stepError }) => {
+const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ steps, stepResults, stepError, onSaveChart }) => {
     const [selectedStepIndex, setSelectedStepIndex] = useState<number>(0);
 
     // Calculate Summary Metrics
@@ -125,7 +126,11 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ steps, stepResu
         // Actually, pure comparison needs specific structure (Actual vs Predicted). 
         // Let's pass the merged data to AnalyticsEngine but it treats them as columns.
         // It's better to use AnalyticsEngine generic capabilities.
-        return <AnalyticsEngine data={comparisonData} title="Model Comparison (Actual vs Predicted)" />;
+        return <AnalyticsEngine
+            data={comparisonData}
+            title="Model Comparison (Actual vs Predicted)"
+            onSaveToDashboard={(cfg) => onSaveChart && onSaveChart(null, null, 'comparison', cfg)}
+        />;
     };
 
     return (
@@ -226,7 +231,11 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ steps, stepResu
                     {selectedStepIndex === -1 ? (
                         renderComparisonChart()
                     ) : activeResult ? (
-                        <AnalyticsEngine data={activeResult.data} title={activeStep.name} />
+                        <AnalyticsEngine
+                            data={activeResult.data}
+                            title={activeStep.name}
+                            onSaveToDashboard={(cfg) => onSaveChart && onSaveChart(activeStep.id, activeStep.order, activeStep.step_type, cfg)}
+                        />
                     ) : (
                         <div className="flex flex-col items-center justify-center h-full bg-gray-900 border border-gray-800 rounded-2xl text-gray-500">
                             <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mb-4">

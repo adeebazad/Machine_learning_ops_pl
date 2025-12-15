@@ -2,6 +2,8 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Layout } from './components/Layout';
 import { Dashboard } from './pages/Dashboard';
+import DashboardBuilder from './pages/DashboardBuilder';
+import EmbedDashboard from './pages/EmbedDashboard';
 
 import { CodeStudio } from './pages/CodeStudio';
 import { Training } from './pages/Training';
@@ -66,9 +68,11 @@ const App: React.FC = () => {
               <Route path="/pipelines" element={<Pipelines />} />
               <Route path="/pipelines/new" element={<PipelineEditor />} />
               <Route path="/pipelines/:id" element={<PipelineEditor />} />
+              <Route path="/dashboards" element={<DashboardBuilder />} />
             </Routes>
           </Layout>
         } />
+        <Route path="/shared/dashboard/:uuid" element={<EmbedDashboard />} />
       </Routes>
     </BrowserRouter>
   );

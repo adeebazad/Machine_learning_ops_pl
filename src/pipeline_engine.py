@@ -162,7 +162,8 @@ class StepExecutor:
                 df = context["data"]
                 # Convert to dict for JSON response
                 # Handle NaN/Infinity for JSON
-                data_preview = json.loads(df.head(5).to_json(orient="records", date_format="iso"))
+                # CRITICAL: Return sufficient data for analytics (5000 rows)
+                data_preview = json.loads(df.head(5000).fillna(0).to_json(orient="records", date_format="iso"))
                 return {
                     "type": "table",
                     "rows": len(df),
@@ -183,7 +184,8 @@ class StepExecutor:
         elif step_type == "prediction":
             if "data" in context:
                 df = context["data"]
-                data_preview = json.loads(df.head(5).to_json(orient="records", date_format="iso"))
+                # CRITICAL: Return sufficient data for analytics (5000 rows)
+                data_preview = json.loads(df.head(5000).fillna(0).to_json(orient="records", date_format="iso"))
                 return {
                     "type": "table",
                     "rows": len(df),

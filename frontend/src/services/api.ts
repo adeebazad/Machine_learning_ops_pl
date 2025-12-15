@@ -70,3 +70,13 @@ export const pipelineService = {
     listPipelineRuns: (id: number) => api.get(`/pipelines/${id}/runs`),
     testStep: (id: number, order: number, stepDef?: any) => api.post(`/pipelines/${id}/steps/${order}/test`, stepDef),
 };
+
+export const dashboardService = {
+    list: () => api.get('/dashboards/'),
+    get: (id: number) => api.get(`/dashboards/${id}`),
+    create: (data: { name: string, description?: string }) => api.post('/dashboards/', data),
+    delete: (id: number) => api.delete(`/dashboards/${id}`),
+    addChart: (id: number, chart: { name: string, chart_type: string, config: any }) => api.post(`/dashboards/${id}/charts`, chart),
+    deleteChart: (id: number, chartId: number) => api.delete(`/dashboards/${id}/charts/${chartId}`),
+    getPublic: (uuid: string) => api.get(`/dashboards/public/${uuid}`),
+};

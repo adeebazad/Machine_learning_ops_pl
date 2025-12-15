@@ -79,3 +79,26 @@ class PipelineRun(Base):
     completed_at = Column(DateTime, nullable=True)
 
     pipeline = relationship("Pipeline", back_populates="runs")
+
+class Dashboard(Base):
+    __tablename__ = "dashboards"
+
+    id = Column(Integer, primary_key=True, index=True)
+    uuid = Column(String, unique=True, index=True, nullable=False)
+    name = Column(String, nullable=False)
+    description = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    charts = relationship("DashboardChart", back_populates="dashboard", cascade="all, delete-orphan")
+
+class DashboardChart(Base):
+    __tablename__ = "dashboard_charts"
+
+    id = Column(Integer, primary_key=True, index=True)
+    dashboard_id = Column(Integer, ForeignKey("dashboards.id"), nullable=False)
+    name = Column(String, nullable=False)
+    chart_type = Column(String, nullable=False)
+    config = Column(JSON, nullable=False)
+    
+    dashboard = relationship("Dashboard", back_populates="charts")
+
