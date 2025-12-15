@@ -146,20 +146,22 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
                 if (isNaN(d.getTime())) return;
 
                 let key = '';
-                if (timeGrain === 'hour') key = d.toISOString().substring(0, 13) + ':00:00';
-                else if (timeGrain === 'day') key = d.toISOString().substring(0, 10);
-                else if (timeGrain === 'month') key = d.toISOString().substring(0, 7);
+                // CRITICAL FIX: Append 'Z' to treat these as UTC ISO strings. 
+                // Otherwise 'YYYY-MM-DDTHH:00:00' is parsed as Local Time, shifting data by Timezone offset.
+                if (timeGrain === 'hour') key = d.toISOString().substring(0, 13) + ':00:00Z';
+                else if (timeGrain === 'day') key = d.toISOString().substring(0, 10) + 'T00:00:00Z';
+                else if (timeGrain === 'month') key = d.toISOString().substring(0, 7) + '-01T00:00:00Z'; // standardize month
                 else if (timeGrain === 'week') {
                     const day = d.getDay(), diff = d.getDate() - day + (day === 0 ? -6 : 1);
                     const monday = new Date(d.setDate(diff));
-                    key = monday.toISOString().substring(0, 10);
+                    key = monday.toISOString().substring(0, 10) + 'T00:00:00Z';
                 }
 
                 if (!grouped[key]) {
                     grouped[key] = { [xAxisCol]: key };
                     counts[key] = {};
                     yAxisCols.forEach(c => {
-                        grouped[key][c] = 0;
+                        grouped[key][c] = 0; // Temp Sum
                         counts[key][c] = 0;
                     });
                 }
@@ -182,9 +184,13 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
                 const row = grouped[key];
                 yAxisCols.forEach(c => {
                     const count = counts[key][c];
-                    row[c] = count > 0 ? row[c] / count : 0; // Avoid divide by zero, default to 0 (or null?)
-                    // Precision fix
-                    row[c] = Math.round(row[c] * 1000) / 1000;
+                    if (count > 0) {
+                        row[c] = row[c] / count;
+                        // Precision fix
+                        row[c] = Math.round(row[c] * 1000) / 1000;
+                    } else {
+                        row[c] = null; // Don't return 0 for missing data
+                    }
                 });
                 return row;
             }).sort((a, b) => a[xAxisCol].localeCompare(b[xAxisCol]));
