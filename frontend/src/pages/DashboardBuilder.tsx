@@ -67,6 +67,12 @@ const DashboardBuilder: React.FC = () => {
 
             // Parallel Fetch
             const chartPromises = (dashboard.charts || []).map(async (chart: any) => {
+                // 1. Try to load from Snapshot (Config)
+                if (chart.config?.snapshotData) {
+                    return { id: chart.id, data: chart.config.snapshotData };
+                }
+
+                // 2. Legacy: Fetch from Pipeline if no snapshot
                 if (chart.config?.pipeline_id && chart.config?.step_id) {
                     try {
                         const res: any = await pipelineService.testStep(
@@ -88,6 +94,7 @@ const DashboardBuilder: React.FC = () => {
                         }
                     } catch (e) {
                         console.error(`Failed to load data for chart ${chart.name}`, e);
+                        return { id: chart.id, error: "Unable to load data" };
                     }
                 }
                 return null;
@@ -96,7 +103,13 @@ const DashboardBuilder: React.FC = () => {
             const results = await Promise.all(chartPromises);
             const newDataMap: any = {};
             results.forEach((res: any) => {
-                if (res) newDataMap[res.id] = res.data;
+                if (res) {
+                    if (res.error) {
+                        newDataMap[res.id] = { error: res.error }; // Store error
+                    } else {
+                        newDataMap[res.id] = res.data;
+                    }
+                }
             });
 
             setChartData(newDataMap);
@@ -205,7 +218,12 @@ const DashboardBuilder: React.FC = () => {
                                                 </button>
                                             </div>
                                             {/* Reuse Analytics Engine in Read-Only Mode */}
-                                            {chartData[chart.id] ? (
+                                            {chartData[chart.id] && (chartData[chart.id] as any).error ? (
+                                                <div className="flex flex-col items-center justify-center h-full text-red-400 bg-red-900/10 gap-2">
+                                                    <span className="font-bold">Error Loading Chart</span>
+                                                    <span className="text-xs text-red-500/70">Source data may be missing</span>
+                                                </div>
+                                            ) : chartData[chart.id] ? (
                                                 <AnalyticsEngine
                                                     data={chartData[chart.id]}
                                                     title={chart.name}

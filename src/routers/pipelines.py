@@ -91,7 +91,12 @@ def create_pipeline(pipeline: PipelineCreate, db: Session = Depends(get_db)):
 
 @router.get("/", response_model=List[PipelineResponse])
 def list_pipelines(db: Session = Depends(get_db)):
-    return db.query(Pipeline).all()
+    try:
+        pipelines = db.query(Pipeline).all()
+        return pipelines
+    except Exception as e:
+        print(f"Error listing pipelines: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/{pipeline_id}", response_model=PipelineDetailResponse)
 def get_pipeline(pipeline_id: int, db: Session = Depends(get_db)):

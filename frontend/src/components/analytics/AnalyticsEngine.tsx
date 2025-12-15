@@ -234,7 +234,15 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
                 <div className="flex items-center gap-4 w-full sm:w-auto">
                     {!readOnly && onSaveToDashboard && (
                         <button
-                            onClick={() => onSaveToDashboard({ chartType, xAxisCol, yAxisCols, filters, showTrendline, annotationMode })}
+                            onClick={() => onSaveToDashboard({
+                                chartType,
+                                xAxisCol,
+                                yAxisCols,
+                                filters,
+                                showTrendline,
+                                annotationMode,
+                                snapshotData: processedData // Save current data view
+                            })}
                             className="flex items-center gap-2 px-3 py-1.5 bg-green-600 hover:bg-green-500 rounded-lg text-white text-xs font-medium transition-colors"
                         >
                             <LayoutDashboard size={14} /> Save to Dashboard
