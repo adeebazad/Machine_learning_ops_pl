@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import ChartRenderer from './ChartRenderer';
 import Toolbar from './Toolbar';
 import { Settings, X, Plus, ChevronDown, BarChart2, LayoutDashboard, ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
+import * as XLSX from 'xlsx';
 
 interface AnalyticsEngineProps {
     data: any[];
@@ -122,18 +123,12 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
 
 
     // ---- Handlers ----
-    const handleExportCSV = () => {
+    const handleExportExcel = () => {
         if (!processedData.length) return;
-        const headers = columns.join(',');
-        const rows = processedData.map(row => columns.map(c => row[c]).join(','));
-        const csvContent = "data:text/csv;charset=utf-8," + [headers, ...rows].join('\n');
-        const encodedUri = encodeURI(csvContent);
-        const link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        link.setAttribute("download", `analytics_export_${Date.now()}.csv`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        const ws = XLSX.utils.json_to_sheet(processedData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Analytics Data");
+        XLSX.writeFile(wb, `analytics_export_${Date.now()}.xlsx`);
     };
 
     const handlePrint = () => {
@@ -192,7 +187,7 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
                     </div>
 
                     <Toolbar
-                        onExportCSV={handleExportCSV}
+                        onExportCSV={handleExportExcel}
                         onPrint={handlePrint}
                         showTrendline={showTrendline}
                         onToggleTrendline={() => setShowTrendline(!showTrendline)}
@@ -213,7 +208,7 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
             <div className="flex flex-1 overflow-hidden relative">
 
                 {/* Main Chart Area */}
-                <div className="flex-1 p-6 overflow-auto bg-gray-950 relative">
+                <div className="flex-1 p-6 overflow-auto bg-gray-950 relative print-area">
                     <div className="h-[600px] w-full bg-gray-900/40 rounded-2xl border border-gray-800/50 p-4 shadow-inner">
                         <ChartRenderer
                             type={chartType}

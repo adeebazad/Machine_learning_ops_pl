@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { pipelineService } from '../services/api';
 import AnalyticsDashboard from '../components/AnalyticsDashboard';
-import { LayoutDashboard, RefreshCw, ChevronLeft, ArrowRight, Layers, Clock, Activity, Save, X } from 'lucide-react';
+import AnalyticsEngine from '../components/analytics/AnalyticsEngine';
+import { LayoutDashboard, RefreshCw, ChevronLeft, ArrowRight, Layers, Clock, Activity, Save, X, Plus, Trash2 } from 'lucide-react';
 import { dashboardService } from '../services/api';
 
 const StandAloneAnalytics: React.FC = () => {
@@ -20,6 +21,19 @@ const StandAloneAnalytics: React.FC = () => {
     const [targetDashboardId, setTargetDashboardId] = useState<string>('');
     const [newDashboardName, setNewDashboardName] = useState('');
     const [chartName, setChartName] = useState('');
+
+    // Sandbox Logic
+    const [sandboxCharts, setSandboxCharts] = useState<{ id: string, stepIndex: number }[]>([]);
+    const [selectedStepForSandbox, setSelectedStepForSandbox] = useState<number>(-1);
+
+    const addSandboxChart = () => {
+        if (selectedStepForSandbox === -1) return;
+        setSandboxCharts([...sandboxCharts, { id: Date.now().toString(), stepIndex: selectedStepForSandbox }]);
+    };
+
+    const removeSandboxChart = (id: string) => {
+        setSandboxCharts(sandboxCharts.filter(c => c.id !== id));
+    };
 
     const handleSaveChart = (stepId: any, stepOrder: any, stepType: string, chartConfig: any) => {
         if (!selectedPipelineId) return;
@@ -303,6 +317,67 @@ const StandAloneAnalytics: React.FC = () => {
                                         stepError={stepError}
                                         onSaveChart={handleSaveChart}
                                     />
+
+                                    {/* Custom Analysis Sandbox */}
+                                    <div className="mt-12 border-t border-gray-800 pt-8 no-print">
+                                        <div className="flex items-center justify-between mb-6">
+                                            <div>
+                                                <h3 className="text-xl font-bold text-white">Custom Analysis Sandbox</h3>
+                                                <p className="text-sm text-gray-500">Add custom charts below to explore data from different steps.</p>
+                                            </div>
+                                            <div className="flex items-center gap-2 bg-gray-900 p-1.5 rounded-lg border border-gray-800">
+                                                <select
+                                                    className="bg-transparent text-sm text-gray-300 outline-none p-1"
+                                                    value={selectedStepForSandbox}
+                                                    onChange={e => setSelectedStepForSandbox(parseInt(e.target.value))}
+                                                >
+                                                    <option value={-1}>Select Step Data...</option>
+                                                    {steps.map((s, idx) => (
+                                                        <option key={s.id} value={idx}>{s.name} ({s.step_type})</option>
+                                                    ))}
+                                                </select>
+                                                <button
+                                                    onClick={addSandboxChart}
+                                                    disabled={selectedStepForSandbox === -1}
+                                                    className="p-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                                                >
+                                                    <Plus size={16} />
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-8">
+                                            {sandboxCharts.map(chart => {
+                                                const step = steps[chart.stepIndex];
+                                                const res = stepResults[chart.stepIndex];
+                                                const data = res?.data || (Array.isArray(res) ? res : []);
+
+                                                return (
+                                                    <div key={chart.id} className="relative group">
+                                                        <div className="absolute -top-3 right-0 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                            <button
+                                                                onClick={() => removeSandboxChart(chart.id)}
+                                                                className="p-1.5 bg-red-900/80 text-red-400 rounded-full border border-red-800 hover:bg-red-900 hover:text-white"
+                                                                title="Remove Chart"
+                                                            >
+                                                                <Trash2 size={14} />
+                                                            </button>
+                                                        </div>
+                                                        <AnalyticsEngine
+                                                            data={data}
+                                                            title={`Custom: ${step.name}`}
+                                                            onSaveToDashboard={(cfg) => handleSaveChart(step.id, step.order, step.step_type, cfg)}
+                                                        />
+                                                    </div>
+                                                );
+                                            })}
+                                            {sandboxCharts.length === 0 && (
+                                                <div className="text-center py-10 bg-gray-900/30 rounded-xl border border-gray-800 border-dashed text-gray-600">
+                                                    Select a step above to add a custom chart.
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         )}
