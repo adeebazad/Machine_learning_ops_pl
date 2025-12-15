@@ -4,8 +4,10 @@ import AnalyticsDashboard from '../components/AnalyticsDashboard';
 import AnalyticsEngine from '../components/analytics/AnalyticsEngine';
 import { LayoutDashboard, RefreshCw, ChevronLeft, ArrowRight, Layers, Clock, Activity, Save, X, Plus, Trash2 } from 'lucide-react';
 import { dashboardService } from '../services/api';
+import { useNavigate } from 'react-router-dom';
 
 const StandAloneAnalytics: React.FC = () => {
+    const navigate = useNavigate();
     const [pipelines, setPipelines] = useState<any[]>([]);
     const [selectedPipelineId, setSelectedPipelineId] = useState<string | null>(null);
     const [steps, setSteps] = useState<any[]>([]);
@@ -250,6 +252,13 @@ const StandAloneAnalytics: React.FC = () => {
                             Refresh Data
                         </button>
                     )}
+                    <button
+                        onClick={() => navigate('/dashboards')}
+                        className="flex items-center gap-2 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-white text-sm font-medium transition-colors"
+                    >
+                        <LayoutDashboard size={16} />
+                        View Saved Dashboards
+                    </button>
                 </div>
             </header>
 
