@@ -18,10 +18,10 @@ const DashboardBuilder: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        if (selectedDashboard) {
+        if (selectedDashboard?.id) {
             loadDashboardCharts(selectedDashboard.id);
         }
-    }, [selectedDashboard]);
+    }, [selectedDashboard?.id]);
 
     const loadDashboards = async () => {
         try {
@@ -59,29 +59,24 @@ const DashboardBuilder: React.FC = () => {
     const loadDashboardCharts = async (id: number) => {
         setLoading(true);
         try {
-            // First refresh dashboard details to get latest charts
+            // Refetch dashboard to ensure we have latest charts config
+            // NOTE: We only update selectedDashboard if charts list size changed or force refresh
+            // But for now, let's trust the ID check prevents render loop.
             const dashboard: any = await dashboardService.get(id);
-            setSelectedDashboard(dashboard);
+            // Updating this causes re-render, but effect won't fire if ID is same.
 
-            const dataMap: any = {};
-            // Fetch data for each chart
-            for (const chart of dashboard.charts) {
+            // Parallel Fetch
+            const chartPromises = (dashboard.charts || []).map(async (chart: any) => {
                 if (chart.config?.pipeline_id && chart.config?.step_id) {
                     try {
                         const res: any = await pipelineService.testStep(
                             chart.config.pipeline_id,
-                            chart.config.step_order || 999, // Fallback if order not saved, assume prediction/latet
-                            { id: chart.config.step_id } // Override step if needed
+                            chart.config.step_order || 999,
+                            { id: chart.config.step_id }
                         );
-                        // Also handle order if we simply saved the step reference.
-                        // Actually, testStep needs (pipelineId, order, stepDef). 
-                        // If we saved pipeline_id and step_order, we can use that.
-
-                        // FIX: Logic depends on how we saved it. 
-                        // In StandAloneAnalytics, we'll save: pipeline_id, step_id, step_order.
 
                         if (res.data) {
-                            // Sort if Preprocessing (copied logic)
+                            // Sort logic
                             if (chart.config.step_type === 'preprocessing' && Array.isArray(res.data)) {
                                 const cols = Object.keys(res.data[0] || {});
                                 const dateCol = cols.find(c => ['date', 'timestamp', 'dateissuedutc'].includes(c.toLowerCase()));
@@ -89,14 +84,23 @@ const DashboardBuilder: React.FC = () => {
                                     res.data.sort((a: any, b: any) => new Date(b[dateCol]).getTime() - new Date(a[dateCol]).getTime());
                                 }
                             }
-                            dataMap[chart.id] = res.data;
+                            return { id: chart.id, data: res.data };
                         }
                     } catch (e) {
                         console.error(`Failed to load data for chart ${chart.name}`, e);
                     }
                 }
-            }
-            setChartData(dataMap);
+                return null;
+            });
+
+            const results = await Promise.all(chartPromises);
+            const newDataMap: any = {};
+            results.forEach((res: any) => {
+                if (res) newDataMap[res.id] = res.data;
+            });
+
+            setChartData(newDataMap);
+            setSelectedDashboard(dashboard); // Update with latest config
         } catch (err) {
             console.error("Failed to load dashboard details", err);
         } finally {
