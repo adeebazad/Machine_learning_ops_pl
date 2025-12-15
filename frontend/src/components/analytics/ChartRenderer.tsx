@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import {
     LineChart, Line, BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
     ScatterChart, Scatter, PieChart, Pie, Cell, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar,
-    ComposedChart
+    ComposedChart, Brush
 } from 'recharts';
 
 interface ChartRendererProps {
@@ -69,7 +69,22 @@ const ChartRenderer: React.FC<ChartRendererProps> = ({
         </>
     );
 
+    const renderBrush = () => (
+        <Brush
+            dataKey={xAxisKey}
+            height={30}
+            stroke="#8884d8"
+            tickFormatter={(val) => {
+                const d = new Date(val);
+                return !isNaN(d.getTime()) && typeof val !== 'number' ?
+                    d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : val;
+            }}
+            fill="#1F2937"
+        />
+    );
+
     if (type === 'line') {
+        const isDense = data.length > 100;
         return (
             <ResponsiveContainer width="100%" height={height}>
                 <LineChart data={sortedData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
@@ -80,11 +95,13 @@ const ChartRenderer: React.FC<ChartRendererProps> = ({
                             type="monotone"
                             dataKey={key}
                             stroke={colors[i % colors.length]}
-                            strokeWidth={2}
-                            dot={data.length < 50} // Hide dots for dense data
-                            activeDot={{ r: 6 }}
+                            strokeWidth={isDense ? 1.5 : 2}
+                            dot={false} // Always false for cleaner look or only simple dots if sparse
+                            activeDot={{ r: 4 }}
+                            connectNulls
                         />
                     ))}
+                    {data.length > 50 && renderBrush()}
                 </LineChart>
             </ResponsiveContainer>
         );
@@ -95,17 +112,19 @@ const ChartRenderer: React.FC<ChartRendererProps> = ({
             <ResponsiveContainer width="100%" height={height}>
                 <AreaChart data={sortedData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                     <CommonAxis />
+                    <Tooltip contentStyle={{ backgroundColor: '#1F2937', color: '#fff', border: '1px solid #374151' }} />
                     {dataKeys.map((key, i) => (
                         <Area
                             key={key}
                             type="monotone"
                             dataKey={key}
-                            stackId="1" // Stack by default for area? Or make optional. Let's stack.
+                            stackId="1"
                             stroke={colors[i % colors.length]}
                             fill={colors[i % colors.length]}
                             fillOpacity={0.6}
                         />
                     ))}
+                    {data.length > 50 && renderBrush()}
                 </AreaChart>
             </ResponsiveContainer>
         );
@@ -116,6 +135,7 @@ const ChartRenderer: React.FC<ChartRendererProps> = ({
             <ResponsiveContainer width="100%" height={height}>
                 <BarChart data={sortedData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                     <CommonAxis />
+                    <Tooltip contentStyle={{ backgroundColor: '#1F2937', color: '#fff', border: '1px solid #374151' }} cursor={{ fill: 'rgba(255,255,255,0.05)' }} />
                     {dataKeys.map((key, i) => (
                         <Bar
                             key={key}
@@ -124,13 +144,14 @@ const ChartRenderer: React.FC<ChartRendererProps> = ({
                             radius={[4, 4, 0, 0]}
                         />
                     ))}
+                    {data.length > 50 && renderBrush()}
                 </BarChart>
             </ResponsiveContainer>
         );
     }
 
     if (type === 'composed') {
-        // First key is Bar, Second is Line, etc. simple logic
+        const isDense = data.length > 100;
         return (
             <ResponsiveContainer width="100%" height={height}>
                 <ComposedChart data={sortedData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
@@ -138,8 +159,9 @@ const ChartRenderer: React.FC<ChartRendererProps> = ({
                     {dataKeys.map((key, i) => (
                         i === 0 ?
                             <Bar key={key} dataKey={key} fill={colors[i % colors.length]} radius={[4, 4, 0, 0]} barSize={20} /> :
-                            <Line key={key} type="monotone" dataKey={key} stroke={colors[i % colors.length]} strokeWidth={3} dot={false} />
+                            <Line key={key} type="monotone" dataKey={key} stroke={colors[i % colors.length]} strokeWidth={isDense ? 1.5 : 3} dot={false} connectNulls />
                     ))}
+                    {data.length > 50 && renderBrush()}
                 </ComposedChart>
             </ResponsiveContainer>
         );

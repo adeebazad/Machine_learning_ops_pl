@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import ChartRenderer from './ChartRenderer';
 import Toolbar from './Toolbar';
-import { Settings, X, Plus, ChevronDown, BarChart2, LayoutDashboard, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Settings, X, Plus, ChevronDown, BarChart2, LayoutDashboard, ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 
 interface AnalyticsEngineProps {
     data: any[];
@@ -22,6 +22,27 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
     const [showTrendline, setShowTrendline] = useState(false);
     const [annotationMode, setAnnotationMode] = useState(false);
     const [filters, setFilters] = useState<{ col: string, val: string }[]>([]);
+
+    // Date Range Filter
+    const [dateRange, setDateRange] = useState<{ start: string, end: string }>({ start: '', end: '' });
+
+    // Set default date range (Last Month)
+    useEffect(() => {
+        if (data.length > 0 && xAxisCol && /date|time|timestamp/i.test(xAxisCol)) {
+            // Find max date
+            const dates = data.map(d => new Date(d[xAxisCol]).getTime()).filter(t => !isNaN(t));
+            if (dates.length > 0) {
+                const maxDate = new Date(Math.max(...dates));
+                const minDate = new Date(maxDate);
+                minDate.setMonth(minDate.getMonth() - 1);
+
+                setDateRange({
+                    start: minDate.toISOString().split('T')[0],
+                    end: maxDate.toISOString().split('T')[0]
+                });
+            }
+        }
+    }, [data, xAxisCol]);
 
     // Hydrate from config
     useEffect(() => {
@@ -85,8 +106,19 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
                 return cv.includes(f.val.toLowerCase());
             });
         });
+        // Apply Date Range
+        if (xAxisCol && (dateRange.start || dateRange.end) && /date|time|timestamp/i.test(xAxisCol)) {
+            const start = dateRange.start ? new Date(dateRange.start).getTime() : -Infinity;
+            const end = dateRange.end ? new Date(dateRange.end).getTime() + 86400000 : Infinity; // Include end date
+
+            res = res.filter(row => {
+                const d = new Date(row[xAxisCol]).getTime();
+                return !isNaN(d) && d >= start && d < end;
+            });
+        }
+
         return res;
-    }, [data, filters]);
+    }, [data, filters, dateRange, xAxisCol]);
 
 
     // ---- Handlers ----
@@ -141,6 +173,24 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
                             <LayoutDashboard size={14} /> Save to Dashboard
                         </button>
                     )}
+                    {/* Date Filter Inputs */}
+                    <div className="flex items-center gap-2 bg-gray-900 border border-gray-700 rounded-lg px-2 py-1 mx-2">
+                        <Calendar size={14} className="text-gray-500" />
+                        <input
+                            type="date"
+                            className="bg-transparent text-xs text-white outline-none w-24"
+                            value={dateRange.start}
+                            onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
+                        />
+                        <span className="text-gray-600">-</span>
+                        <input
+                            type="date"
+                            className="bg-transparent text-xs text-white outline-none w-24"
+                            value={dateRange.end}
+                            onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
+                        />
+                    </div>
+
                     <Toolbar
                         onExportCSV={handleExportCSV}
                         onPrint={handlePrint}
