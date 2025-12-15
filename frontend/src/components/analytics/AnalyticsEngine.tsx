@@ -187,6 +187,12 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
         return res;
     }, [data, filters, dateRange, xAxisCol, timeGrain, chartType, yAxisCols]);
 
+    // Dynamic Columns for Table (based on processed/aggregated data)
+    const displayColumns = useMemo(() => {
+        if (!processedData || processedData.length === 0) return [];
+        return Object.keys(processedData[0]);
+    }, [processedData]);
+
 
     // ---- Handlers ----
     const handleExportExcel = () => {
@@ -309,13 +315,13 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
                             <table className="w-full text-left text-sm text-gray-400">
                                 <thead className="bg-gray-800/80 text-gray-200 sticky top-0 backdrop-blur-md">
                                     <tr>
-                                        {columns.map(k => <th key={k} className="p-3 font-semibold whitespace-nowrap">{k}</th>)}
+                                        {displayColumns.map(k => <th key={k} className="p-3 font-semibold whitespace-nowrap">{k}</th>)}
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-800/50">
                                     {processedData.slice((page - 1) * pageSize, page * pageSize).map((row, i) => (
                                         <tr key={i} className="hover:bg-gray-800/50 transition-colors">
-                                            {columns.map(c => (
+                                            {displayColumns.map(c => (
                                                 <td key={c} className="p-3 whitespace-nowrap max-w-[200px] truncate text-xs font-mono">
                                                     {typeof row[c] === 'object' ? JSON.stringify(row[c]) : String(row[c])}
                                                 </td>
