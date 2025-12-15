@@ -97,11 +97,18 @@ body {
     top: 0;
     width: 100%;
     margin: 0;
-    padding: 20px;
-    background: white;
+    padding: 0;
+    background: white !important;
     /* Force white background for saving ink */
-    color: black;
+    color: black !important;
     border: none;
+    height: 100vh !important;
+    overflow: visible !important;
+  }
+
+  .print-area .recharts-responsive-container {
+    height: 600px !important;
+    width: 100% !important;
   }
 
   /* Hide specific UI clutter even inside print-area if needed */

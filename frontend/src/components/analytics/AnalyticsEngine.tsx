@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import ChartRenderer from './ChartRenderer';
 import Toolbar from './Toolbar';
-import { Settings, X, Plus, ChevronDown, BarChart2, LayoutDashboard, ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
+import { Settings, X, Plus, ChevronDown, BarChart2, LayoutDashboard, ChevronLeft, ChevronRight, Calendar, Clock } from 'lucide-react';
 import * as XLSX from 'xlsx';
 
 interface AnalyticsEngineProps {
@@ -24,8 +24,9 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
     const [annotationMode, setAnnotationMode] = useState(false);
     const [filters, setFilters] = useState<{ col: string, val: string }[]>([]);
 
-    // Date Range Filter
+    // Date Range Filter & Time Grain
     const [dateRange, setDateRange] = useState<{ start: string, end: string }>({ start: '', end: '' });
+    const [timeGrain, setTimeGrain] = useState<'raw' | 'hour' | 'day' | 'week' | 'month'>('raw');
 
     // Set default date range (Last Month)
     useEffect(() => {
@@ -118,8 +119,73 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
             });
         }
 
+
+        // Time Grain Aggregation (only if datetime axis)
+        if (xAxisCol && /date|time|timestamp/i.test(xAxisCol) && timeGrain !== 'raw') {
+            const grouped: { [key: string]: any } = {};
+            const counts: { [key: string]: number } = {};
+
+            res.forEach(row => {
+                const d = new Date(row[xAxisCol]);
+                if (isNaN(d.getTime())) return;
+
+                let key = '';
+                if (timeGrain === 'hour') key = d.toISOString().substring(0, 13) + ':00:00'; // YYYY-MM-DDTHH:00:00
+                else if (timeGrain === 'day') key = d.toISOString().substring(0, 10); // YYYY-MM-DD
+                else if (timeGrain === 'month') key = d.toISOString().substring(0, 7); // YYYY-MM
+                else if (timeGrain === 'week') {
+                    const day = d.getDay(), diff = d.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is sunday
+                    const monday = new Date(d.setDate(diff));
+                    key = monday.toISOString().substring(0, 10);
+                }
+
+                if (!grouped[key]) {
+                    grouped[key] = { [xAxisCol]: key };
+                    counts[key] = 0;
+                    yAxisCols.forEach(c => grouped[key][c] = 0);
+                }
+
+                counts[key]++;
+                yAxisCols.forEach(c => {
+                    const val = Number(row[c]);
+                    if (!isNaN(val)) grouped[key][c] += val;
+                });
+            });
+
+            // Average
+            res = Object.keys(grouped).map(key => {
+                const row = grouped[key];
+                yAxisCols.forEach(c => {
+                    row[c] = row[c] / counts[key];
+                });
+                return row;
+            }).sort((a, b) => a[xAxisCol].localeCompare(b[xAxisCol]));
+        }
+
+        // Pie/Donut Aggregation (Group by Category, Sum Value)
+        if ((chartType === 'pie' || chartType === 'donut') && xAxisCol) {
+            const grouped: { [key: string]: any } = {};
+            const valCol = yAxisCols[0]; // Primary value
+
+            res.forEach(row => {
+                const key = String(row[xAxisCol]);
+                if (!grouped[key]) grouped[key] = { [xAxisCol]: key, [valCol]: 0, count: 0 };
+
+                if (valCol) {
+                    const val = Number(row[valCol]);
+                    if (!isNaN(val)) grouped[key][valCol] += val;
+                } else {
+                    grouped[key].count++; // Just count occurrences if no value col
+                }
+            });
+
+            res = Object.values(grouped).map((r: any) => valCol ? r : ({ ...r, [valCol || 'count']: r.count }));
+            // Pie needs to define the value key if not present
+            if (!valCol && yAxisCols.length === 0) setYAxisCols(['count']);
+        }
+
         return res;
-    }, [data, filters, dateRange, xAxisCol]);
+    }, [data, filters, dateRange, xAxisCol, timeGrain, chartType, yAxisCols]);
 
 
     // ---- Handlers ----
@@ -185,6 +251,24 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
                             onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
                         />
                     </div>
+
+                    {/* Time Grain Selector */}
+                    {xAxisCol && /date|time|timestamp/i.test(xAxisCol) && (
+                        <div className="flex items-center gap-2 bg-gray-900 border border-gray-700 rounded-lg px-2 py-1 mx-2">
+                            <Clock size={14} className="text-gray-500" />
+                            <select
+                                className="bg-transparent text-xs text-white outline-none"
+                                value={timeGrain}
+                                onChange={(e) => setTimeGrain(e.target.value as any)}
+                            >
+                                <option value="raw">Raw Data</option>
+                                <option value="hour">Hourly</option>
+                                <option value="day">Daily</option>
+                                <option value="week">Weekly</option>
+                                <option value="month">Monthly</option>
+                            </select>
+                        </div>
+                    )}
 
                     <Toolbar
                         onExportCSV={handleExportExcel}
