@@ -1,6 +1,6 @@
 import { useState, useEffect, type ReactNode, type ElementType } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Code, PlayCircle, Activity, Terminal, Layers, Sun, Moon } from 'lucide-react';
+import { LayoutDashboard, Code, PlayCircle, Activity, Terminal, Layers, Sun, Moon, BarChart, Settings } from 'lucide-react';
 import clsx from 'clsx';
 
 const NavItem = ({ to, icon: Icon, label }: { to: string; icon: ElementType; label: string }) => {
@@ -76,6 +76,9 @@ export const Layout = ({ children }: { children: ReactNode }) => {
                         <NavItem to="/pipelines" icon={Layers} label="Pipelines" />
                         <NavItem to="/training" icon={PlayCircle} label="Training" />
                         <NavItem to="/inference" icon={Activity} label="Inference" />
+                        <NavItem to="/dashboards" icon={BarChart} label="Analytics" />
+                        <div className="h-4 w-px bg-slate-200 dark:bg-white/10 mx-1" />
+                        <NavItem to="/routes" icon={Settings} label="System" />
                     </nav>
                 </div>
 

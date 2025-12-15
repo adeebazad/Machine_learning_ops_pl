@@ -83,7 +83,10 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
         if (!data || data.length === 0) return [];
         return columns.filter(c => {
             // Check first 100 rows to find if it holds numeric data (handling nulls)
-            return data.slice(0, 100).some(row => typeof row[c] === 'number');
+            // AND ensure it is NOT a date/time column (timestamps look like numbers but shouldn't be summed)
+            const isNumber = data.slice(0, 100).some(row => typeof row[c] === 'number');
+            const isDate = /date|time|timestamp|utc/i.test(c);
+            return isNumber && !isDate;
         });
     }, [data, columns]);
 
@@ -187,6 +190,7 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
                 if (valCol) {
                     const val = Number(row[valCol]);
                     if (!isNaN(val)) grouped[key][valCol] += val;
+                    grouped[key].count++;
                 } else {
                     grouped[key].count++; // Just count occurrences if no value col
                 }
