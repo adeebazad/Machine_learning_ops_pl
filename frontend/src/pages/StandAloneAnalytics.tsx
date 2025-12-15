@@ -26,6 +26,29 @@ const StandAloneAnalytics: React.FC = () => {
     const [sandboxCharts, setSandboxCharts] = useState<{ id: string, stepIndex: number }[]>([]);
     const [selectedStepForSandbox, setSelectedStepForSandbox] = useState<number>(-1);
 
+    // Load sandbox from local storage when pipeline is selected
+    useEffect(() => {
+        if (selectedPipelineId) {
+            const saved = localStorage.getItem(`sandbox_${selectedPipelineId}`);
+            if (saved) {
+                try {
+                    setSandboxCharts(JSON.parse(saved));
+                } catch (e) {
+                    console.error("Failed to parse saved sandbox charts", e);
+                }
+            } else {
+                setSandboxCharts([]);
+            }
+        }
+    }, [selectedPipelineId]);
+
+    // Save sandbox to local storage on change
+    useEffect(() => {
+        if (selectedPipelineId) {
+            localStorage.setItem(`sandbox_${selectedPipelineId}`, JSON.stringify(sandboxCharts));
+        }
+    }, [sandboxCharts, selectedPipelineId]);
+
     const addSandboxChart = () => {
         if (selectedStepForSandbox === -1) return;
         setSandboxCharts([...sandboxCharts, { id: Date.now().toString(), stepIndex: selectedStepForSandbox }]);
@@ -349,6 +372,7 @@ const StandAloneAnalytics: React.FC = () => {
                                         <div className="space-y-8">
                                             {sandboxCharts.map(chart => {
                                                 const step = steps[chart.stepIndex];
+                                                if (!step) return null;
                                                 const res = stepResults[chart.stepIndex];
                                                 const data = res?.data || (Array.isArray(res) ? res : []);
 
