@@ -417,7 +417,8 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
 
                 {/* Main Chart Area */}
                 <div className={`flex-1 p-6 overflow-auto bg-gray-950 relative ${isDashboardItem ? '' : 'print-area'}`}>
-                    <div className={`w-full bg-gray-900/40 rounded-2xl border border-gray-800/50 p-4 shadow-inner ${printMode ? 'h-auto min-h-[400px] border-none bg-white p-0 shadow-none' : 'h-[600px]'}`}>
+                    {/* FIXED HEIGHT FOR PRINT: ResponsiveContainer needs explicit height. h-auto causes collapse (white out). */}
+                    <div className={`w-full bg-gray-900/40 rounded-2xl border border-gray-800/50 p-4 shadow-inner ${printMode ? 'h-[500px] border-none bg-white p-0 shadow-none' : 'h-[600px]'}`}>
                         <ChartRenderer
                             type={correlationMode ? 'bar' : chartType}
                             data={correlationMode ? correlationResults : processedData}
@@ -443,34 +444,33 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
                         />
                     </div>
 
-                    {/* Data Preview Table (Bottom) */}
-                    <div className="mt-8">
-                        <h3 className="text-gray-400 font-bold mb-4 text-sm uppercase tracking-wider">
-                            {printMode ? 'Full Dataset' : 'Data Snapshot (First 50 Rows)'}
-                        </h3>
-                        <div className={`overflow-x-auto border border-gray-800 rounded-xl bg-gray-900/30 ${printMode ? 'border-none bg-white overflow-visible h-auto max-h-none' : 'max-h-96'}`}>
-                            <table className={`w-full text-left text-sm ${printMode ? 'text-black' : 'text-gray-400'}`}>
-                                <thead className="bg-gray-800/80 text-gray-200 sticky top-0 backdrop-blur-md">
-                                    <tr>
-                                        {displayColumns.map(k => <th key={k} className="p-3 font-semibold whitespace-nowrap">{k}</th>)}
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-gray-800/50">
-                                    {/* If Print Mode, Show ALL Data. Else, Show Page */}
-                                    {(printMode ? processedData : processedData.slice((page - 1) * pageSize, page * pageSize)).map((row, i) => (
-                                        <tr key={i} className="hover:bg-gray-800/50 transition-colors">
-                                            {displayColumns.map(c => (
-                                                <td key={c} className="p-3 whitespace-nowrap max-w-[200px] truncate text-xs font-mono">
-                                                    {typeof row[c] === 'object' ? JSON.stringify(row[c]) : String(row[c])}
-                                                </td>
-                                            ))}
+                    {/* Data Preview Table (Bottom) - Hidden in Print Mode per user request */}
+                    {!printMode && (
+                        <div className="mt-8">
+                            <h3 className="text-gray-400 font-bold mb-4 text-sm uppercase tracking-wider">
+                                Data Snapshot (First 50 Rows)
+                            </h3>
+                            <div className="overflow-x-auto border border-gray-800 rounded-xl bg-gray-900/30 max-h-96">
+                                <table className="w-full text-left text-sm text-gray-400">
+                                    <thead className="bg-gray-800/80 text-gray-200 sticky top-0 backdrop-blur-md">
+                                        <tr>
+                                            {displayColumns.map(k => <th key={k} className="p-3 font-semibold whitespace-nowrap">{k}</th>)}
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                        {/* Pagination Controls - Hide in Print Mode */}
-                        {!printMode && (
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-800/50">
+                                        {processedData.slice((page - 1) * pageSize, page * pageSize).map((row, i) => (
+                                            <tr key={i} className="hover:bg-gray-800/50 transition-colors">
+                                                {displayColumns.map(c => (
+                                                    <td key={c} className="p-3 whitespace-nowrap max-w-[200px] truncate text-xs font-mono">
+                                                        {typeof row[c] === 'object' ? JSON.stringify(row[c]) : String(row[c])}
+                                                    </td>
+                                                ))}
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {/* Pagination Controls */}
                             <div className="flex items-center justify-between mt-4 text-xs text-gray-400">
                                 <div>
                                     Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, processedData.length)} of {processedData.length} entries
@@ -493,8 +493,8 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
                                     </button>
                                 </div>
                             </div>
-                        )}
-                    </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* Settings Panel (Sidebar) */}
