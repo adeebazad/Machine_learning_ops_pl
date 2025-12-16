@@ -315,6 +315,7 @@ const DashboardBuilder: React.FC = () => {
                                                     readOnly={false} // Enable interactions
                                                     config={chart.config}
                                                     onSaveToDashboard={(newConfig) => handleUpdateChart(chart.id, newConfig)} // Handle Update
+                                                    isDashboardItem={true} // Prevent Print Overlap
                                                 />
                                             ) : (
                                                 <div className="flex items-center justify-center h-full text-gray-500 text-sm">

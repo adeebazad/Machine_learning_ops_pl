@@ -3,6 +3,7 @@ import ChartRenderer from './ChartRenderer';
 import Toolbar from './Toolbar';
 import { Settings, X, Plus, ChevronDown, BarChart2, LayoutDashboard, ChevronLeft, ChevronRight, Calendar, Clock } from 'lucide-react';
 import * as XLSX from 'xlsx';
+import { calculatePearson } from '../../utils/statistics';
 
 interface AnalyticsEngineProps {
     data: any[];
@@ -10,11 +11,12 @@ interface AnalyticsEngineProps {
     readOnly?: boolean;
     onSaveToDashboard?: (config: any) => void;
     config?: any;
+    isDashboardItem?: boolean; // New prop to prevent print overlap
 }
 
 type ChartType = 'line' | 'bar' | 'area' | 'scatter' | 'pie' | 'donut' | 'radar' | 'composed' | 'heatmap';
 
-const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly = false, onSaveToDashboard, config }) => {
+const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly = false, onSaveToDashboard, config, isDashboardItem = false }) => {
     // ---- State ----
     const [chartType, setChartType] = useState<ChartType>('line');
     const [xAxisCol, setXAxisCol] = useState<string>('');
@@ -28,14 +30,15 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
     const [dateRange, setDateRange] = useState<{ start: string, end: string }>({ start: '', end: '' });
     const [timeGrain, setTimeGrain] = useState<'raw' | 'hour' | 'day' | 'week' | 'month'>('raw');
 
+    // Correlation Mode State
+    const [correlationMode, setCorrelationMode] = useState(false);
+    const [corrBaseCol, setCorrBaseCol] = useState<string>('');
+    const [corrTargetCols, setCorrTargetCols] = useState<string[]>([]);
+    const [groupByCol, setGroupByCol] = useState<string>('');
+
+    // Set default date range (Last Month)
     // Set default date range (Last Month)
     useEffect(() => {
-        // Only set default if NO config was loaded (or if config didn't have dateRange)
-        // We check if dateRange is empty, which implies initial state.
-        // However, hydration happens in a separate effect.
-        // To avoid race conditions, we can trust that if config exists, we should probably prefer it.
-        // But this effect runs on `data` change too.
-
         if (config && config.dateRange) return; // Skip default if config provided
 
         if (data.length > 0 && xAxisCol && /date|time|timestamp/i.test(xAxisCol)) {
@@ -66,6 +69,11 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
             // Hydrate new fields
             if (config.dateRange) setDateRange(config.dateRange);
             if (config.timeGrain) setTimeGrain(config.timeGrain);
+            // Correlation Hydration
+            if (config.correlationMode) setCorrelationMode(config.correlationMode);
+            if (config.corrBaseCol) setCorrBaseCol(config.corrBaseCol);
+            if (config.corrTargetCols) setCorrTargetCols(config.corrTargetCols);
+            if (config.groupByCol) setGroupByCol(config.groupByCol);
         }
     }, [config]);
 
@@ -223,6 +231,43 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
         return res;
     }, [data, filters, dateRange, xAxisCol, timeGrain, chartType, yAxisCols]);
 
+    // ---- Correlation Analysis ----
+    const correlationResults = useMemo(() => {
+        if (!correlationMode || !corrBaseCol || corrTargetCols.length === 0 || !processedData.length) return [];
+
+        const calculateForData = (subset: any[]) => {
+            const baseValues = subset.map(d => Number(d[corrBaseCol]));
+            const results: any = {};
+            corrTargetCols.forEach(target => {
+                const targetValues = subset.map(d => Number(d[target]));
+                results[target] = calculatePearson(baseValues, targetValues);
+            });
+            return results;
+        };
+
+        if (groupByCol) {
+            // Group By Analysis (e.g., Correlation per Location)
+            const groups: { [key: string]: any[] } = {};
+            processedData.forEach(row => {
+                const key = String(row[groupByCol]);
+                if (!groups[key]) groups[key] = [];
+                groups[key].push(row);
+            });
+
+            return Object.keys(groups).map(groupKey => {
+                const scores = calculateForData(groups[groupKey]);
+                return { name: groupKey, ...scores };
+            });
+        } else {
+            // Global Analysis
+            const scores = calculateForData(processedData);
+            return Object.keys(scores).map(feature => ({
+                name: feature,
+                value: scores[feature]
+            }));
+        }
+    }, [processedData, correlationMode, corrBaseCol, corrTargetCols, groupByCol]);
+
     // Dynamic Columns for Table (based on processed/aggregated data)
     const displayColumns = useMemo(() => {
         if (!processedData || processedData.length === 0) return [];
@@ -371,13 +416,13 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
             <div className="flex flex-1 overflow-hidden relative">
 
                 {/* Main Chart Area */}
-                <div className="flex-1 p-6 overflow-auto bg-gray-950 relative print-area">
+                <div className={`flex-1 p-6 overflow-auto bg-gray-950 relative ${isDashboardItem ? '' : 'print-area'}`}>
                     <div className="h-[600px] w-full bg-gray-900/40 rounded-2xl border border-gray-800/50 p-4 shadow-inner">
                         <ChartRenderer
-                            type={chartType}
-                            data={processedData}
-                            xAxisKey={xAxisCol}
-                            dataKeys={yAxisCols}
+                            type={correlationMode ? 'bar' : chartType}
+                            data={correlationMode ? correlationResults : processedData}
+                            xAxisKey={correlationMode ? 'name' : xAxisCol}
+                            dataKeys={correlationMode ? (groupByCol ? corrTargetCols : ['value']) : yAxisCols}
                         />
                     </div>
 
@@ -560,6 +605,71 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
                                 ))}
                                 {filters.length === 0 && <p className="text-xs text-gray-600 italic">No filters applied.</p>}
                             </div>
+                        </div>
+
+                        {/* 4. Correlation Analysis */}
+                        <div className="border-t border-gray-800 pt-4">
+                            <div className="flex items-center justify-between mb-3">
+                                <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider">Correlation Analysis</h4>
+                                <button
+                                    onClick={() => setCorrelationMode(!correlationMode)}
+                                    className={`w-8 h-4 rounded-full transition-colors relative ${correlationMode ? 'bg-blue-600' : 'bg-gray-700'}`}
+                                >
+                                    <div className={`absolute top-0.5 left-0.5 w-3 h-3 bg-white rounded-full transition-transform ${correlationMode ? 'translate-x-4' : 'translate-x-0'}`} />
+                                </button>
+                            </div>
+
+                            {correlationMode && (
+                                <div className="space-y-4 animate-in slide-in-from-top-2 duration-200">
+                                    {/* Base Column */}
+                                    <div>
+                                        <label className="block text-xs text-gray-400 mb-1">Base Variable (Target)</label>
+                                        <select
+                                            value={corrBaseCol}
+                                            onChange={(e) => setCorrBaseCol(e.target.value)}
+                                            className="w-full bg-gray-800 border border-gray-700 text-gray-200 text-xs rounded p-2"
+                                        >
+                                            <option value="">Select Column...</option>
+                                            {numericCols.map(c => <option key={c} value={c}>{c}</option>)}
+                                        </select>
+                                    </div>
+
+                                    {/* Target Columns */}
+                                    <div>
+                                        <label className="block text-xs text-gray-400 mb-1">Correlate With</label>
+                                        <div className="space-y-1 max-h-32 overflow-y-auto pr-1 custom-scrollbar bg-gray-900/50 p-1 rounded border border-gray-800">
+                                            {numericCols.filter(c => c !== corrBaseCol).map(col => (
+                                                <label key={col} className="flex items-center space-x-2 p-1.5 rounded hover:bg-gray-800 cursor-pointer">
+                                                    <input
+                                                        type="checkbox"
+                                                        className="rounded border-gray-600 bg-gray-700 text-blue-600 focus:ring-0"
+                                                        checked={corrTargetCols.includes(col)}
+                                                        onChange={() => {
+                                                            setCorrTargetCols(prev =>
+                                                                prev.includes(col) ? prev.filter(p => p !== col) : [...prev, col]
+                                                            );
+                                                        }}
+                                                    />
+                                                    <span className="text-xs text-gray-300">{col}</span>
+                                                </label>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Group By */}
+                                    <div>
+                                        <label className="block text-xs text-gray-400 mb-1">Group By (Optional)</label>
+                                        <select
+                                            value={groupByCol}
+                                            onChange={(e) => setGroupByCol(e.target.value)}
+                                            className="w-full bg-gray-800 border border-gray-700 text-gray-200 text-xs rounded p-2"
+                                        >
+                                            <option value="">None (Global Analysis)</option>
+                                            {categoricalCols.map(c => <option key={c} value={c}>{c}</option>)}
+                                        </select>
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                     </div>
