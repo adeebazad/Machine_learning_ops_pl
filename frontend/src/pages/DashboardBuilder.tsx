@@ -179,7 +179,7 @@ const DashboardBuilder: React.FC = () => {
     return (
         <div className="flex h-screen bg-gray-950 text-white font-sans overflow-hidden">
             {/* Sidebar List */}
-            <div className="w-64 bg-gray-900 border-r border-gray-800 flex flex-col">
+            <div className="w-64 bg-gray-900 border-r border-gray-800 flex flex-col no-print">
                 <div className="p-4 border-b border-gray-800 space-y-3">
                     <div className="flex items-center justify-between">
                         <h2 className="font-bold text-lg flex items-center gap-2">
@@ -227,7 +227,7 @@ const DashboardBuilder: React.FC = () => {
             <div className="flex-1 flex flex-col h-full overflow-hidden">
                 {selectedDashboard ? (
                     <>
-                        <header className="h-16 border-b border-gray-800 bg-gray-900/50 backdrop-blur px-6 flex items-center justify-between">
+                        <header className="h-16 border-b border-gray-800 bg-gray-900/50 backdrop-blur px-6 flex items-center justify-between no-print">
                             <div>
                                 <h1 className="text-xl font-bold">{selectedDashboard.name}</h1>
                                 {/* Executive Summary / Description */}

@@ -330,7 +330,7 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
     }
 
     return (
-        <div className={`flex flex-col h-full bg-gray-950 rounded-xl overflow-hidden shadow-2xl border border-gray-900 ${printMode ? 'print-chart-block' : ''}`}>
+        <div className={`flex flex-col h-full bg-gray-950 rounded-xl overflow-hidden shadow-2xl border border-gray-900 ${printMode ? 'print-chart-block bg-white text-black border-none shadow-none h-auto' : ''}`}>
             {/* Toolbar */}
             <div className="p-4 border-b border-gray-800 bg-gray-900 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 no-print">
                 <div>
@@ -417,7 +417,7 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
 
                 {/* Main Chart Area */}
                 <div className={`flex-1 p-6 overflow-auto bg-gray-950 relative ${isDashboardItem ? '' : 'print-area'}`}>
-                    <div className="h-[600px] w-full bg-gray-900/40 rounded-2xl border border-gray-800/50 p-4 shadow-inner">
+                    <div className={`w-full bg-gray-900/40 rounded-2xl border border-gray-800/50 p-4 shadow-inner ${printMode ? 'h-auto min-h-[400px] border-none bg-white p-0 shadow-none' : 'h-[600px]'}`}>
                         <ChartRenderer
                             type={correlationMode ? 'bar' : chartType}
                             data={correlationMode ? correlationResults : processedData}
@@ -438,7 +438,7 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
                             placeholder={readOnly ? "No observations recorded." : "Add your analysis observations, key insights, and anomalies detected here..."}
                             className={`w-full bg-gray-900/50 border border-gray-800 rounded-xl p-4 text-sm text-gray-300 outline-none transition-all 
                                 ${readOnly ? 'resize-none' : 'focus:ring-2 focus:ring-blue-500/50 hover:bg-gray-900'}
-                                ${printMode ? 'border-none bg-white text-black p-0 h-auto resize-none overflow-hidden' : 'h-32'}
+                                ${printMode ? 'border-none bg-white text-black p-0 h-auto resize-none overflow-visible min-h-[100px]' : 'h-32'}
                             `}
                         />
                     </div>
@@ -448,8 +448,8 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
                         <h3 className="text-gray-400 font-bold mb-4 text-sm uppercase tracking-wider">
                             {printMode ? 'Full Dataset' : 'Data Snapshot (First 50 Rows)'}
                         </h3>
-                        <div className={`overflow-x-auto border border-gray-800 rounded-xl bg-gray-900/30 ${printMode ? '' : 'max-h-96'}`}>
-                            <table className="w-full text-left text-sm text-gray-400">
+                        <div className={`overflow-x-auto border border-gray-800 rounded-xl bg-gray-900/30 ${printMode ? 'border-none bg-white overflow-visible h-auto max-h-none' : 'max-h-96'}`}>
+                            <table className={`w-full text-left text-sm ${printMode ? 'text-black' : 'text-gray-400'}`}>
                                 <thead className="bg-gray-800/80 text-gray-200 sticky top-0 backdrop-blur-md">
                                     <tr>
                                         {displayColumns.map(k => <th key={k} className="p-3 font-semibold whitespace-nowrap">{k}</th>)}

@@ -86,47 +86,104 @@ body {
     visibility: hidden;
   }
 
+  /* Reset Backgrounds/Colors for Print */
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  /* Force all dark mode backgrounds to white in print */
+  .bg-gray-950,
+  .bg-gray-900,
+  .bg-gray-800,
+  .bg-slate-950,
+  .bg-slate-900 {
+    background: white !important;
+    color: black !important;
+    border-color: #ddd !important;
+    box-shadow: none !important;
+  }
+
+  /* Text Colors */
+  .text-white,
+  .text-gray-200,
+  .text-gray-300,
+  .text-gray-400 {
+    color: black !important;
+  }
+
+  /* Visibility Control */
   .print-area,
   .print-area * {
     visibility: visible;
   }
 
+  /* Main Print Container */
   .print-area {
     position: absolute;
     left: 0;
     top: 0;
     width: 100%;
     margin: 0;
-    padding: 20px;
+    padding: 0;
+    /* Let component handle padding if needed */
     background: white !important;
     color: black !important;
     border: none;
     height: auto !important;
-    /* Allow growth */
+    min-height: 100vh;
     overflow: visible !important;
     display: block !important;
+    z-index: 9999;
   }
 
-  /* Ensure chart container resizes */
+  /* Expand Scrollable Areas */
+  .overflow-auto,
+  .overflow-y-auto,
+  .overflow-x-auto,
+  .scroll-smooth {
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
+  }
+
+  /* Chart Containers */
   .print-area .recharts-responsive-container {
     height: auto !important;
-    min-height: 500px;
+    min-height: 400px;
+    /* Reduced min-height to fit more on page */
+    max-height: none !important;
     width: 100% !important;
-    overflow: visible !important;
   }
 
-  /* Ensure individual charts don't break awkwardly */
+  /* Page Break Management */
   .print-chart-block {
     break-inside: avoid;
     page-break-inside: avoid;
-    margin-bottom: 40px;
-    border: 1px solid #eee;
-    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #eee !important;
+    padding: 20px;
+    display: block !important;
+    height: auto !important;
+  }
+
+  .print-stack {
+    display: block !important;
   }
 
   /* Hide specific UI clutter */
-  .no-print {
+  .no-print,
+  nav,
+  header,
+  aside,
+  .scrollbar,
+  ::-webkit-scrollbar {
     display: none !important;
+  }
+
+  .print-visible {
+    opacity: 1 !important;
+    display: block !important;
   }
 
   .print-only {
