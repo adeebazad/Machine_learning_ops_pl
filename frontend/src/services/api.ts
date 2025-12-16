@@ -75,8 +75,10 @@ export const dashboardService = {
     list: () => api.get('/dashboards/'),
     get: (id: number) => api.get(`/dashboards/${id}`),
     create: (data: { name: string, description?: string }) => api.post('/dashboards/', data),
+    update: (id: number, data: { name?: string, description?: string }) => api.put(`/dashboards/${id}`, data),
     delete: (id: number) => api.delete(`/dashboards/${id}`),
     addChart: (id: number, chart: { name: string, chart_type: string, config: any }) => api.post(`/dashboards/${id}/charts`, chart),
+    updateChart: (id: number, chartId: number, data: { name?: string, config?: any }) => api.put(`/dashboards/${id}/charts/${chartId}`, data),
     deleteChart: (id: number, chartId: number) => api.delete(`/dashboards/${id}/charts/${chartId}`),
     getPublic: (uuid: string) => api.get(`/dashboards/public/${uuid}`),
 };

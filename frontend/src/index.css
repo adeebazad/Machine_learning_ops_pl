@@ -97,22 +97,45 @@ body {
     top: 0;
     width: 100%;
     margin: 0;
-    padding: 0;
+    padding: 20px;
     background: white !important;
-    /* Force white background for saving ink */
     color: black !important;
     border: none;
-    height: 100vh !important;
+    height: auto !important;
+    /* Allow growth */
+    overflow: visible !important;
+    display: block !important;
+  }
+
+  /* Ensure chart container resizes */
+  .print-area .recharts-responsive-container {
+    height: auto !important;
+    min-height: 500px;
+    width: 100% !important;
     overflow: visible !important;
   }
 
-  .print-area .recharts-responsive-container {
-    height: 600px !important;
-    width: 100% !important;
+  /* Ensure individual charts don't break awkwardly */
+  .print-chart-block {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    margin-bottom: 40px;
+    border: 1px solid #eee;
+    padding: 10px;
   }
 
-  /* Hide specific UI clutter even inside print-area if needed */
+  /* Hide specific UI clutter */
   .no-print {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+}
+
+@media screen {
+  .print-only {
     display: none !important;
   }
 }

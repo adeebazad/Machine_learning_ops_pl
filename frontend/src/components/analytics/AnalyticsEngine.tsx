@@ -239,8 +239,34 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
         XLSX.writeFile(wb, `analytics_export_${Date.now()}.xlsx`);
     };
 
+    const [observations, setObservations] = useState(config?.observations || '');
+    const [printMode, setPrintMode] = useState(false);
+
+    useEffect(() => {
+        if (config?.observations) setObservations(config.observations);
+    }, [config]);
+
+    // Handle Global Browser Print (Ctrl+P)
+    useEffect(() => {
+        const handleBeforePrint = () => setPrintMode(true);
+        const handleAfterPrint = () => setPrintMode(false);
+
+        window.addEventListener('beforeprint', handleBeforePrint);
+        window.addEventListener('afterprint', handleAfterPrint);
+
+        return () => {
+            window.removeEventListener('beforeprint', handleBeforePrint);
+            window.removeEventListener('afterprint', handleAfterPrint);
+        };
+    }, []);
+
     const handlePrint = () => {
-        window.print();
+        setPrintMode(true);
+        // Small timeout to allow state update before print dialog
+        setTimeout(() => {
+            window.print();
+            // We rely on afterprint to reset, but explicitly resetting here is also safe
+        }, 500);
     };
 
     const toggleYAxis = (col: string) => {
@@ -259,9 +285,9 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
     }
 
     return (
-        <div className="flex flex-col h-full bg-gray-950 rounded-xl overflow-hidden shadow-2xl border border-gray-900">
+        <div className={`flex flex-col h-full bg-gray-950 rounded-xl overflow-hidden shadow-2xl border border-gray-900 ${printMode ? 'print-chart-block' : ''}`}>
             {/* Toolbar */}
-            <div className="p-4 border-b border-gray-800 bg-gray-900 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="p-4 border-b border-gray-800 bg-gray-900 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 no-print">
                 <div>
                     <h2 className="text-lg font-bold text-white tracking-wide">{title || 'Data Analytics'}</h2>
                     <p className="text-xs text-gray-500">{processedData.length} rows loaded</p>
@@ -279,7 +305,8 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
                                 annotationMode,
                                 dateRange,
                                 timeGrain,
-                                snapshotData: processedData // Save current data view
+                                snapshotData: processedData, // Save current data view
+                                observations // Save observations
                             })}
                             className="flex items-center gap-2 px-3 py-1.5 bg-green-600 hover:bg-green-500 rounded-lg text-white text-xs font-medium transition-colors"
                         >
@@ -354,10 +381,29 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
                         />
                     </div>
 
+                    {/* Observations Section */}
+                    <div className="mt-6 mb-8 group">
+                        <label className="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
+                            Analysis Observations
+                        </label>
+                        <textarea
+                            value={observations}
+                            onChange={(e) => setObservations(e.target.value)}
+                            readOnly={readOnly && !printMode} // Allow editing unless readonly. In print mode, it's just text.
+                            placeholder={readOnly ? "No observations recorded." : "Add your analysis observations, key insights, and anomalies detected here..."}
+                            className={`w-full bg-gray-900/50 border border-gray-800 rounded-xl p-4 text-sm text-gray-300 outline-none transition-all 
+                                ${readOnly ? 'resize-none' : 'focus:ring-2 focus:ring-blue-500/50 hover:bg-gray-900'}
+                                ${printMode ? 'border-none bg-white text-black p-0 h-auto resize-none overflow-hidden' : 'h-32'}
+                            `}
+                        />
+                    </div>
+
                     {/* Data Preview Table (Bottom) */}
                     <div className="mt-8">
-                        <h3 className="text-gray-400 font-bold mb-4 text-sm uppercase tracking-wider">Data Snapshot (First 50 Rows)</h3>
-                        <div className="overflow-x-auto border border-gray-800 rounded-xl bg-gray-900/30 max-h-96">
+                        <h3 className="text-gray-400 font-bold mb-4 text-sm uppercase tracking-wider">
+                            {printMode ? 'Full Dataset' : 'Data Snapshot (First 50 Rows)'}
+                        </h3>
+                        <div className={`overflow-x-auto border border-gray-800 rounded-xl bg-gray-900/30 ${printMode ? '' : 'max-h-96'}`}>
                             <table className="w-full text-left text-sm text-gray-400">
                                 <thead className="bg-gray-800/80 text-gray-200 sticky top-0 backdrop-blur-md">
                                     <tr>
@@ -365,7 +411,8 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-800/50">
-                                    {processedData.slice((page - 1) * pageSize, page * pageSize).map((row, i) => (
+                                    {/* If Print Mode, Show ALL Data. Else, Show Page */}
+                                    {(printMode ? processedData : processedData.slice((page - 1) * pageSize, page * pageSize)).map((row, i) => (
                                         <tr key={i} className="hover:bg-gray-800/50 transition-colors">
                                             {displayColumns.map(c => (
                                                 <td key={c} className="p-3 whitespace-nowrap max-w-[200px] truncate text-xs font-mono">
@@ -377,29 +424,31 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
                                 </tbody>
                             </table>
                         </div>
-                        {/* Pagination Controls */}
-                        <div className="flex items-center justify-between mt-4 text-xs text-gray-400">
-                            <div>
-                                Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, processedData.length)} of {processedData.length} entries
+                        {/* Pagination Controls - Hide in Print Mode */}
+                        {!printMode && (
+                            <div className="flex items-center justify-between mt-4 text-xs text-gray-400">
+                                <div>
+                                    Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, processedData.length)} of {processedData.length} entries
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        onClick={() => setPage(p => Math.max(1, p - 1))}
+                                        disabled={page === 1}
+                                        className="p-1 rounded hover:bg-gray-800 disabled:opacity-50"
+                                    >
+                                        <ChevronLeft size={16} />
+                                    </button>
+                                    <span className="font-mono">Page {page} of {Math.ceil(processedData.length / pageSize)}</span>
+                                    <button
+                                        onClick={() => setPage(p => Math.min(Math.ceil(processedData.length / pageSize), p + 1))}
+                                        disabled={page >= Math.ceil(processedData.length / pageSize)}
+                                        className="p-1 rounded hover:bg-gray-800 disabled:opacity-50"
+                                    >
+                                        <ChevronRight size={16} />
+                                    </button>
+                                </div>
                             </div>
-                            <div className="flex items-center gap-2">
-                                <button
-                                    onClick={() => setPage(p => Math.max(1, p - 1))}
-                                    disabled={page === 1}
-                                    className="p-1 rounded hover:bg-gray-800 disabled:opacity-50"
-                                >
-                                    <ChevronLeft size={16} />
-                                </button>
-                                <span className="font-mono">Page {page} of {Math.ceil(processedData.length / pageSize)}</span>
-                                <button
-                                    onClick={() => setPage(p => Math.min(Math.ceil(processedData.length / pageSize), p + 1))}
-                                    disabled={page >= Math.ceil(processedData.length / pageSize)}
-                                    className="p-1 rounded hover:bg-gray-800 disabled:opacity-50"
-                                >
-                                    <ChevronRight size={16} />
-                                </button>
-                            </div>
-                        </div>
+                        )}
                     </div>
                 </div>
 
