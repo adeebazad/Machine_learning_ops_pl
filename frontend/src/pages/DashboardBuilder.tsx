@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { dashboardService, pipelineService } from '../services/api';
 import AnalyticsEngine from '../components/analytics/AnalyticsEngine';
-import { Plus, LayoutDashboard, Trash2, Share2, X, Edit2 } from 'lucide-react';
+import { Plus, LayoutDashboard, Trash2, Share2, Edit2 } from 'lucide-react';
 
 
 const DashboardBuilder: React.FC = () => {
