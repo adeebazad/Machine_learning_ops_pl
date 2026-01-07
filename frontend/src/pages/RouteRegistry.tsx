@@ -15,6 +15,7 @@ const RouteRegistry: React.FC = () => {
         { path: '/dashboards', name: 'Analytics Dashboards', type: 'Protected', description: 'View and create custom analytics dashboards.' },
         { path: '/dashboard/analytics', name: 'Standalone Analytics', type: 'Protected', description: 'Direct analytics view for specific pipelines.' },
         { path: '/shared/dashboard/:uuid', name: 'Embedded Dashboard', type: 'Public (Iframe Only)', description: 'Secure view for embedding dashboards in external apps.' },
+        { path: '/pearl', name: 'ALP', type: 'Public (Iframe Only)', description: 'Secure view for embedding dashboards in external apps.' },
         { path: '/routes', name: 'Route Registry', type: 'Protected', description: 'Centralized directory of all system routes.' },
     ];
 
@@ -29,19 +30,19 @@ const RouteRegistry: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-950 text-white font-sans p-8">
+        <div className="min-h-screen font-sans p-8 bg-slate-50 dark:bg-gray-950 text-slate-900 dark:text-white transition-colors duration-300">
             <div className="max-w-6xl mx-auto">
-                <div className="mb-8 border-b border-gray-800 pb-6 flex items-end justify-between">
+                <div className="mb-8 border-b border-slate-200 dark:border-gray-800 pb-6 flex items-end justify-between">
                     <div>
-                        <h1 className="text-3xl font-bold mb-2">Route Registry</h1>
-                        <p className="text-gray-400">Centralized management for all application navigation paths and redirection URLs.</p>
+                        <h1 className="text-3xl font-bold mb-2 text-slate-900 dark:text-white">Route Registry</h1>
+                        <p className="text-slate-500 dark:text-gray-400">Centralized management for all application navigation paths and redirection URLs.</p>
                     </div>
                     <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-gray-500" size={18} />
                         <input
                             type="text"
                             placeholder="Search routes..."
-                            className="bg-gray-900 border border-gray-700 rounded-lg pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-blue-600 outline-none w-64"
+                            className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-700 rounded-lg pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-blue-600 outline-none w-64 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-gray-600 transition-colors"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -50,23 +51,23 @@ const RouteRegistry: React.FC = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
                     {/* Quick Stats */}
-                    <div className="bg-gray-900 p-6 rounded-xl border border-gray-800">
-                        <div className="text-gray-500 text-sm mb-1">Total Routes</div>
-                        <div className="text-3xl font-bold">{routes.length}</div>
+                    <div className="bg-white dark:bg-gray-900 p-6 rounded-xl border border-slate-200 dark:border-gray-800 shadow-sm">
+                        <div className="text-slate-500 dark:text-gray-500 text-sm mb-1">Total Routes</div>
+                        <div className="text-3xl font-bold text-slate-900 dark:text-white">{routes.length}</div>
                     </div>
-                    <div className="bg-gray-900 p-6 rounded-xl border border-gray-800">
-                        <div className="text-gray-500 text-sm mb-1">Public / Embedded</div>
-                        <div className="text-3xl font-bold text-green-400">{routes.filter(r => r.type.includes('Public')).length}</div>
+                    <div className="bg-white dark:bg-gray-900 p-6 rounded-xl border border-slate-200 dark:border-gray-800 shadow-sm">
+                        <div className="text-slate-500 dark:text-gray-500 text-sm mb-1">Public / Embedded</div>
+                        <div className="text-3xl font-bold text-green-500 dark:text-green-400">{routes.filter(r => r.type.includes('Public')).length}</div>
                     </div>
-                    <div className="bg-gray-900 p-6 rounded-xl border border-gray-800">
-                        <div className="text-gray-500 text-sm mb-1">Protected</div>
-                        <div className="text-3xl font-bold text-blue-400">{routes.filter(r => r.type === 'Protected').length}</div>
+                    <div className="bg-white dark:bg-gray-900 p-6 rounded-xl border border-slate-200 dark:border-gray-800 shadow-sm">
+                        <div className="text-slate-500 dark:text-gray-500 text-sm mb-1">Protected</div>
+                        <div className="text-3xl font-bold text-blue-500 dark:text-blue-400">{routes.filter(r => r.type === 'Protected').length}</div>
                     </div>
                 </div>
 
-                <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden shadow-xl">
+                <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl overflow-hidden shadow-xl">
                     <table className="w-full text-left border-collapse">
-                        <thead className="bg-gray-800/50 text-gray-400 text-xs uppercase tracking-wider">
+                        <thead className="bg-slate-50 dark:bg-gray-800/50 text-slate-500 dark:text-gray-400 text-xs uppercase tracking-wider border-b border-slate-200 dark:border-gray-800">
                             <tr>
                                 <th className="p-4 font-semibold">Page Name</th>
                                 <th className="p-4 font-semibold">URL Pattern</th>
@@ -75,33 +76,33 @@ const RouteRegistry: React.FC = () => {
                                 <th className="p-4 font-semibold text-right">Actions</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-800">
+                        <tbody className="divide-y divide-slate-200 dark:divide-gray-800">
                             {filteredRoutes.map((route, idx) => (
-                                <tr key={idx} className="hover:bg-gray-800/50 transition-colors">
-                                    <td className="p-4 font-medium text-gray-200">{route.name}</td>
-                                    <td className="p-4 font-mono text-sm text-blue-400">{route.path}</td>
+                                <tr key={idx} className="hover:bg-slate-50 dark:hover:bg-gray-800/50 transition-colors">
+                                    <td className="p-4 font-medium text-slate-700 dark:text-gray-200">{route.name}</td>
+                                    <td className="p-4 font-mono text-sm text-blue-600 dark:text-blue-400">{route.path}</td>
                                     <td className="p-4">
                                         <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${route.type.includes('Public')
-                                            ? 'bg-green-500/10 text-green-400 border-green-500/20'
-                                            : 'bg-blue-500/10 text-blue-400 border-blue-500/20'
+                                            ? 'bg-green-100 dark:bg-green-500/10 text-green-700 dark:text-green-400 border-green-200 dark:border-green-500/20'
+                                            : 'bg-blue-100 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-500/20'
                                             }`}>
                                             {route.type.includes('Public') ? <Globe size={12} /> : <Shield size={12} />}
                                             {route.type}
                                         </span>
                                     </td>
-                                    <td className="p-4 text-gray-500 text-sm">{route.description}</td>
+                                    <td className="p-4 text-slate-500 dark:text-gray-500 text-sm">{route.description}</td>
                                     <td className="p-4 text-right">
                                         <div className="flex items-center justify-end gap-2">
                                             <button
                                                 onClick={() => copyToClipboard(route.path)}
-                                                className="p-2 hover:bg-gray-700 rounded-lg text-gray-400 hover:text-white transition-colors"
+                                                className="p-2 hover:bg-slate-100 dark:hover:bg-gray-700 rounded-lg text-slate-400 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white transition-colors"
                                                 title="Copy Link pattern"
                                             >
                                                 <Copy size={16} />
                                             </button>
                                             {route.type.includes('Iframe') && (
                                                 <button
-                                                    className="p-2 hover:bg-gray-700 rounded-lg text-purple-400 hover:text-purple-300 transition-colors"
+                                                    className="p-2 hover:bg-slate-100 dark:hover:bg-gray-700 rounded-lg text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 transition-colors"
                                                     title="Get Embed Code"
                                                     onClick={() => alert(`Use this generic code:\n<iframe src="${window.location.origin}${route.path.replace(':uuid', 'YOUR_DASHBOARD_UUID')}" width="100%" height="800" frameborder="0"></iframe>`)}
                                                 >
@@ -115,7 +116,7 @@ const RouteRegistry: React.FC = () => {
                         </tbody>
                     </table>
                     {filteredRoutes.length === 0 && (
-                        <div className="p-12 text-center text-gray-500">
+                        <div className="p-12 text-center text-slate-500 dark:text-gray-500">
                             No routes found matching your search.
                         </div>
                     )}

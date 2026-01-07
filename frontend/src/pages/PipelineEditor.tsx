@@ -387,9 +387,9 @@ const PipelineEditor: React.FC = () => {
     };
 
     return (
-        <div className="p-8 max-w-5xl mx-auto pb-24">
+        <div className="p-8 max-w-5xl mx-auto pb-24 transition-colors duration-300">
             <div className="flex justify-between items-center mb-8">
-                <h1 className="text-3xl font-bold text-white">
+                <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
                     {id ? 'Edit Pipeline' : 'New Pipeline'}
                 </h1>
                 <div className="flex gap-3">
@@ -413,18 +413,18 @@ const PipelineEditor: React.FC = () => {
 
             {/* Tab Navigation */}
             <div className="flex justify-center mb-8">
-                <div className="bg-gray-800 p-1 rounded-xl flex gap-1 border border-gray-700">
+                <div className="bg-gray-100 dark:bg-gray-800 p-1 rounded-xl flex gap-1 border border-gray-200 dark:border-gray-700">
                     <button
                         onClick={() => setActiveTab('editor')}
                         className={`flex items-center gap-2 px-6 py-2 rounded-lg text-sm font-medium transition-all duration-200
-                            ${activeTab === 'editor' ? 'bg-blue-600 text-white shadow-lg' : 'text-gray-400 hover:text-white hover:bg-gray-700'}`}
+                            ${activeTab === 'editor' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-700'}`}
                     >
                         <Edit3 size={16} /> Editor
                     </button>
                     <button
                         onClick={() => setActiveTab('analytics')}
                         className={`flex items-center gap-2 px-6 py-2 rounded-lg text-sm font-medium transition-all duration-200
-                            ${activeTab === 'analytics' ? 'bg-blue-600 text-white shadow-lg' : 'text-gray-400 hover:text-white hover:bg-gray-700'}`}
+                            ${activeTab === 'analytics' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-700'}`}
                     >
                         <LayoutDashboard size={16} /> Analytics Dashboard
                     </button>
@@ -438,15 +438,15 @@ const PipelineEditor: React.FC = () => {
                 <>
                     {/* Config Modal */}
                     {showConfigModal && (
-                        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-                            <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 w-96">
-                                <h3 className="text-xl font-bold text-white mb-4">Save Configuration</h3>
+                        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 backdrop-blur-sm">
+                            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 w-96 shadow-2xl">
+                                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4">Save Configuration</h3>
                                 <div className="mb-4">
-                                    <label className="block text-sm text-gray-400 mb-1">Select Experiment</label>
+                                    <label className="block text-sm text-slate-500 dark:text-gray-400 mb-1">Select Experiment</label>
                                     <select
                                         value={selectedExperimentId}
                                         onChange={(e) => setSelectedExperimentId(e.target.value)}
-                                        className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
+                                        className="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded p-2 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
                                     >
                                         {experiments.map(e => (
                                             <option key={e.id} value={e.id}>{e.name}</option>
@@ -454,12 +454,12 @@ const PipelineEditor: React.FC = () => {
                                     </select>
                                 </div>
                                 <div className="mb-6">
-                                    <label className="block text-sm text-gray-400 mb-1">Config Name</label>
+                                    <label className="block text-sm text-slate-500 dark:text-gray-400 mb-1">Config Name</label>
                                     <input
                                         type="text"
                                         value={newConfigName}
                                         onChange={(e) => setNewConfigName(e.target.value)}
-                                        className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
+                                        className="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded p-2 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
                                         placeholder="e.g. V1 Config"
                                     />
                                 </div>
@@ -482,24 +482,24 @@ const PipelineEditor: React.FC = () => {
                     )}
 
                     {/* Basic Info */}
-                    <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-6 mb-8">
+                    <div className="bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl p-6 mb-8 shadow-sm">
                         <div className="grid gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-400 mb-1">Name</label>
+                                <label className="block text-sm font-medium text-slate-500 dark:text-gray-400 mb-1">Name</label>
                                 <input
                                     type="text"
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
-                                    className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                                    className="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
                                     placeholder="My Pipeline"
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-400 mb-1">Description</label>
+                                <label className="block text-sm font-medium text-slate-500 dark:text-gray-400 mb-1">Description</label>
                                 <textarea
                                     value={description}
                                     onChange={(e) => setDescription(e.target.value)}
-                                    className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-blue-500 outline-none h-24"
+                                    className="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none h-24"
                                     placeholder="Describe what this pipeline does..."
                                 />
                             </div>
@@ -507,8 +507,8 @@ const PipelineEditor: React.FC = () => {
                     </div>
 
                     {/* Scheduling */}
-                    <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-6 mb-8">
-                        <h3 className="text-lg font-semibold text-white mb-4">Scheduling</h3>
+                    <div className="bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl p-6 mb-8 shadow-sm">
+                        <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Scheduling</h3>
                         <div className="flex flex-col gap-4">
                             <div className="flex items-center gap-2">
                                 <input
@@ -516,9 +516,9 @@ const PipelineEditor: React.FC = () => {
                                     id="schedule_enabled"
                                     checked={scheduleEnabled}
                                     onChange={(e) => setScheduleEnabled(e.target.checked)}
-                                    className="w-5 h-5 rounded border-gray-700 bg-gray-900 text-blue-600 focus:ring-blue-500"
+                                    className="w-5 h-5 rounded border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-blue-600 focus:ring-blue-500"
                                 />
-                                <label htmlFor="schedule_enabled" className="text-gray-300">Enable Scheduling</label>
+                                <label htmlFor="schedule_enabled" className="text-slate-600 dark:text-gray-300">Enable Scheduling</label>
                             </div>
 
                             {scheduleEnabled && (
@@ -530,9 +530,9 @@ const PipelineEditor: React.FC = () => {
                                             name="schedule_type"
                                             checked={scheduleInterval === 0}
                                             onChange={() => setScheduleInterval(0)}
-                                            className="text-blue-600 bg-gray-900"
+                                            className="text-blue-600 bg-gray-100 dark:bg-gray-900 border-gray-300 dark:border-gray-700"
                                         />
-                                        <label htmlFor="schedule_daily" className="text-gray-400">Run Daily</label>
+                                        <label htmlFor="schedule_daily" className="text-slate-600 dark:text-gray-400">Run Daily</label>
                                     </div>
 
                                     <div className="flex items-center gap-2">
@@ -542,21 +542,21 @@ const PipelineEditor: React.FC = () => {
                                             name="schedule_type"
                                             checked={scheduleInterval > 0}
                                             onChange={() => setScheduleInterval(1)}
-                                            className="text-blue-600 bg-gray-900"
+                                            className="text-blue-600 bg-gray-100 dark:bg-gray-900 border-gray-300 dark:border-gray-700"
                                         />
-                                        <label htmlFor="schedule_interval" className="text-gray-400">Run Interval</label>
+                                        <label htmlFor="schedule_interval" className="text-slate-600 dark:text-gray-400">Run Interval</label>
                                     </div>
                                 </div>
                             )}
 
                             {scheduleEnabled && scheduleInterval === 0 && (
                                 <div className="flex items-center gap-2 ml-6">
-                                    <label className="text-sm text-gray-400">At Time (IST):</label>
+                                    <label className="text-sm text-slate-500 dark:text-gray-400">At Time (IST):</label>
                                     <input
                                         type="time"
                                         value={scheduleTime}
                                         onChange={(e) => setScheduleTime(e.target.value)}
-                                        className="bg-gray-900 border border-gray-700 rounded px-3 py-1 text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                                        className="bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded px-3 py-1 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
                                     />
                                 </div>
                             )}
@@ -581,17 +581,17 @@ const PipelineEditor: React.FC = () => {
                     {/* Steps */}
                     <div className="space-y-4">
                         {steps.map((step, index) => (
-                            <div key={index} className="bg-gray-800 border border-gray-700 rounded-xl p-6 relative group">
+                            <div key={index} className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-6 relative group shadow-sm">
                                 <div className="flex justify-between items-start mb-4">
                                     <div className="flex items-center gap-3">
-                                        <span className="bg-blue-500/20 text-blue-400 px-2 py-1 rounded text-xs uppercase font-bold">
+                                        <span className="bg-blue-500/10 text-blue-600 dark:text-blue-400 px-2 py-1 rounded text-xs uppercase font-bold">
                                             {step.step_type}
                                         </span>
                                         <input
                                             type="text"
                                             value={step.name}
                                             onChange={(e) => updateStep(index, 'name', e.target.value)}
-                                            className="bg-transparent border-b border-transparent hover:border-gray-600 focus:border-blue-500 outline-none text-lg font-semibold text-white"
+                                            className="bg-transparent border-b border-transparent hover:border-gray-300 dark:hover:border-gray-600 focus:border-blue-500 outline-none text-lg font-semibold text-slate-900 dark:text-white"
                                         />
                                     </div>
                                     <div className="flex items-center gap-2">
@@ -606,21 +606,21 @@ const PipelineEditor: React.FC = () => {
                                     {step.step_type === 'extraction' && (
                                         <div className="space-y-3">
                                             <div>
-                                                <label className="block text-xs text-gray-500 mb-1">SQL Query</label>
+                                                <label className="block text-xs text-slate-500 dark:text-gray-500 mb-1">SQL Query</label>
                                                 <textarea
                                                     value={step.config_json.query || ''}
                                                     onChange={(e) => updateStepConfig(index, 'query', e.target.value)}
-                                                    className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white font-mono text-sm h-24"
+                                                    className="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded p-2 text-slate-900 dark:text-white font-mono text-sm h-24 focus:ring-2 focus:ring-blue-500 outline-none"
                                                     placeholder="SELECT * FROM table"
                                                 />
                                             </div>
                                             <div className="grid grid-cols-2 gap-4">
                                                 <div>
-                                                    <label className="block text-xs text-gray-500 mb-1">DB Type</label>
+                                                    <label className="block text-xs text-slate-500 dark:text-gray-500 mb-1">DB Type</label>
                                                     <select
                                                         value={step.config_json.database?.type || 'mysql'}
                                                         onChange={(e) => updateNestedConfig(index, 'database', 'type', e.target.value)}
-                                                        className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
+                                                        className="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded p-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
                                                     >
                                                         <option value="mysql">MySQL</option>
                                                         <option value="postgresql">PostgreSQL</option>
@@ -682,13 +682,13 @@ const PipelineEditor: React.FC = () => {
                                     {step.step_type === 'preprocessing' && (
                                         <div className="space-y-3">
                                             <div>
-                                                <label className="block text-xs text-gray-500 mb-1">Script Path</label>
+                                                <label className="block text-xs text-slate-500 dark:text-gray-500 mb-1">Script Path</label>
                                                 <div className="flex gap-2">
                                                     <input
                                                         type="text"
                                                         value={step.config_json.script_path || ''}
                                                         onChange={(e) => updateStepConfig(index, 'script_path', e.target.value)}
-                                                        className="flex-1 bg-gray-900 border border-gray-700 rounded p-2 text-white"
+                                                        className="flex-1 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded p-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
                                                     />
                                                     <button
                                                         onClick={() => handleLoadScript(index)}
@@ -699,19 +699,19 @@ const PipelineEditor: React.FC = () => {
                                                 </div>
                                             </div>
                                             <div>
-                                                <label className="block text-xs text-gray-500 mb-1">Target Column</label>
+                                                <label className="block text-xs text-slate-500 dark:text-gray-500 mb-1">Target Column</label>
                                                 <input
                                                     type="text"
                                                     value={step.config_json.target_col || ''}
                                                     onChange={(e) => updateStepConfig(index, 'target_col', e.target.value)}
-                                                    className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
+                                                    className="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded p-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
                                                 />
                                             </div>
-                                            <div className="pt-2 border-t border-gray-700 mt-2">
-                                                <label className="block text-xs text-gray-400 font-semibold mb-2">Forecasting (Optional)</label>
+                                            <div className="pt-2 border-t border-gray-200 dark:border-gray-700 mt-2">
+                                                <label className="block text-xs text-slate-500 dark:text-gray-400 font-semibold mb-2">Forecasting (Optional)</label>
                                                 <div className="grid grid-cols-2 gap-4">
                                                     <div>
-                                                        <label className="block text-xs text-gray-500 mb-1">Horizons (comma-sep)</label>
+                                                        <label className="block text-xs text-slate-500 dark:text-gray-500 mb-1">Horizons (comma-sep)</label>
                                                         <input
                                                             type="text"
                                                             value={step.config_json.forecasting?.horizons?.join(',') || ''}
@@ -720,17 +720,17 @@ const PipelineEditor: React.FC = () => {
                                                                 const horizons = val.split(',').map(h => h.trim()).filter(h => h);
                                                                 updateNestedConfig(index, 'forecasting', 'horizons', horizons);
                                                             }}
-                                                            className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
+                                                            className="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded p-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
                                                             placeholder="e.g. 1h, 6h, 1d"
                                                         />
                                                     </div>
                                                     <div>
-                                                        <label className="block text-xs text-gray-500 mb-1">Timestamp Column</label>
+                                                        <label className="block text-xs text-slate-500 dark:text-gray-500 mb-1">Timestamp Column</label>
                                                         <input
                                                             type="text"
                                                             value={step.config_json.forecasting?.timestamp_col || ''}
                                                             onChange={(e) => updateNestedConfig(index, 'forecasting', 'timestamp_col', e.target.value)}
-                                                            className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
+                                                            className="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded p-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
                                                             placeholder="e.g. timestamp"
                                                         />
                                                     </div>
@@ -743,7 +743,7 @@ const PipelineEditor: React.FC = () => {
                                         <div className="space-y-3">
                                             <div className="grid grid-cols-2 gap-4">
                                                 <div>
-                                                    <label className="block text-xs text-gray-500 mb-1">Task Type</label>
+                                                    <label className="block text-xs text-slate-500 dark:text-gray-500 mb-1">Task Type</label>
                                                     <select
                                                         value={step.config_json.model?.task_type || 'classification'}
                                                         onChange={(e) => {
@@ -763,7 +763,7 @@ const PipelineEditor: React.FC = () => {
                                                             };
                                                             setSteps(newSteps);
                                                         }}
-                                                        className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
+                                                        className="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded p-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
                                                     >
                                                         <option value="classification">Classification</option>
                                                         <option value="regression">Regression</option>
@@ -774,7 +774,7 @@ const PipelineEditor: React.FC = () => {
                                                     </select>
                                                 </div>
                                                 <div>
-                                                    <label className="block text-xs text-gray-500 mb-1">Model Name</label>
+                                                    <label className="block text-xs text-slate-500 dark:text-gray-500 mb-1">Model Name</label>
                                                     <select
                                                         value={step.config_json.model?.name || ''}
                                                         onChange={(e) => {
@@ -791,7 +791,7 @@ const PipelineEditor: React.FC = () => {
                                                             };
                                                             setSteps(newSteps);
                                                         }}
-                                                        className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
+                                                        className="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded p-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
                                                     >
                                                         {AVAILABLE_MODELS[step.config_json.model?.task_type as keyof typeof AVAILABLE_MODELS]?.map((model) => (
                                                             <option key={model} value={model}>
@@ -817,11 +817,11 @@ const PipelineEditor: React.FC = () => {
                                         <div className="space-y-3">
                                             <div className="grid grid-cols-2 gap-4">
                                                 <div>
-                                                    <label className="block text-xs text-gray-500 mb-1">DB Type</label>
+                                                    <label className="block text-xs text-slate-500 dark:text-gray-500 mb-1">DB Type</label>
                                                     <select
                                                         value={step.config_json.database?.type || 'mysql'}
                                                         onChange={(e) => updateNestedConfig(index, 'database', 'type', e.target.value)}
-                                                        className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
+                                                        className="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded p-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
                                                     >
                                                         <option value="mysql">MySQL</option>
                                                         <option value="postgresql">PostgreSQL</option>
@@ -830,50 +830,50 @@ const PipelineEditor: React.FC = () => {
                                                     </select>
                                                 </div>
                                                 <div>
-                                                    <label className="block text-xs text-gray-500 mb-1">Host</label>
+                                                    <label className="block text-xs text-slate-500 dark:text-gray-500 mb-1">Host</label>
                                                     <input
                                                         type="text"
                                                         value={step.config_json.database?.host || ''}
                                                         onChange={(e) => updateNestedConfig(index, 'database', 'host', e.target.value)}
-                                                        className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
+                                                        className="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded p-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
                                                         placeholder="localhost"
                                                     />
                                                 </div>
                                                 <div>
-                                                    <label className="block text-xs text-gray-500 mb-1">Port</label>
+                                                    <label className="block text-xs text-slate-500 dark:text-gray-500 mb-1">Port</label>
                                                     <input
                                                         type="text"
                                                         value={step.config_json.database?.port || ''}
                                                         onChange={(e) => updateNestedConfig(index, 'database', 'port', e.target.value)}
-                                                        className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
+                                                        className="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded p-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
                                                         placeholder="3306"
                                                     />
                                                 </div>
                                                 <div>
-                                                    <label className="block text-xs text-gray-500 mb-1">User</label>
+                                                    <label className="block text-xs text-slate-500 dark:text-gray-500 mb-1">User</label>
                                                     <input
                                                         type="text"
                                                         value={step.config_json.database?.user || ''}
                                                         onChange={(e) => updateNestedConfig(index, 'database', 'user', e.target.value)}
-                                                        className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
+                                                        className="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded p-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
                                                     />
                                                 </div>
                                                 <div>
-                                                    <label className="block text-xs text-gray-500 mb-1">Password</label>
+                                                    <label className="block text-xs text-slate-500 dark:text-gray-500 mb-1">Password</label>
                                                     <input
                                                         type="password"
                                                         value={step.config_json.database?.password || ''}
                                                         onChange={(e) => updateNestedConfig(index, 'database', 'password', e.target.value)}
-                                                        className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
+                                                        className="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded p-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
                                                     />
                                                 </div>
                                                 <div>
-                                                    <label className="block text-xs text-gray-500 mb-1">Database Name</label>
+                                                    <label className="block text-xs text-slate-500 dark:text-gray-500 mb-1">Database Name</label>
                                                     <input
                                                         type="text"
                                                         value={step.config_json.database?.database || ''}
                                                         onChange={(e) => updateNestedConfig(index, 'database', 'database', e.target.value)}
-                                                        className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
+                                                        className="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded p-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
                                                     />
                                                 </div>
                                             </div>
@@ -905,7 +905,7 @@ const PipelineEditor: React.FC = () => {
                                         </button>
                                     </div>
                                     {stepError[index] && (
-                                        <div className="mt-2 text-xs text-red-400 bg-red-500/10 p-2 rounded border border-red-500/20">
+                                        <div className="mt-2 text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/10 p-2 rounded border border-red-200 dark:border-red-500/20">
                                             Error: {stepError[index]}
                                         </div>
                                     )}
@@ -927,7 +927,7 @@ const PipelineEditor: React.FC = () => {
                             <button
                                 key={type}
                                 onClick={() => addStep(type as PipelineStep['step_type'])}
-                                className="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-full text-sm text-gray-300 transition-colors capitalize"
+                                className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 rounded-full text-sm text-slate-700 dark:text-gray-300 transition-colors capitalize shadow-sm"
                             >
                                 <Plus size={16} />
                                 {type}
@@ -941,22 +941,22 @@ const PipelineEditor: React.FC = () => {
 
             {/* Script Modal */}
             {editingScriptIndex !== null && (
-                <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-                    <div className="bg-gray-900 w-3/4 h-3/4 flex flex-col rounded-xl border border-gray-700 shadow-2xl">
-                        <div className="flex justify-between items-center p-4 border-b border-gray-700">
-                            <h3 className="text-lg font-bold text-white">Edit Script</h3>
-                            <button onClick={() => setEditingScriptIndex(null)} className="text-gray-400 hover:text-white"><X size={24} /></button>
+                <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 backdrop-blur-sm">
+                    <div className="bg-white dark:bg-gray-900 w-3/4 h-3/4 flex flex-col rounded-xl border border-gray-200 dark:border-gray-700 shadow-2xl">
+                        <div className="flex justify-between items-center p-4 border-b border-gray-200 dark:border-gray-700">
+                            <h3 className="text-lg font-bold text-slate-900 dark:text-white">Edit Script</h3>
+                            <button onClick={() => setEditingScriptIndex(null)} className="text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white"><X size={24} /></button>
                         </div>
                         <div className="flex-1 p-4">
                             <textarea
                                 value={scriptContent}
                                 onChange={(e) => setScriptContent(e.target.value)}
-                                className="w-full h-full bg-black text-green-400 font-mono p-4 rounded border border-gray-800 focus:outline-none resize-none"
+                                className="w-full h-full bg-slate-50 dark:bg-black text-slate-900 dark:text-green-400 font-mono p-4 rounded border border-gray-200 dark:border-gray-800 focus:outline-none resize-none"
                                 spellCheck={false}
                             />
                         </div>
-                        <div className="p-4 border-t border-gray-700 flex justify-end gap-3">
-                            <button onClick={() => setEditingScriptIndex(null)} className="px-4 py-2 text-gray-300 hover:text-white">Cancel</button>
+                        <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3">
+                            <button onClick={() => setEditingScriptIndex(null)} className="px-4 py-2 text-slate-500 hover:text-slate-900 dark:text-gray-300 dark:hover:text-white">Cancel</button>
                             <button onClick={() => handleSaveScript(editingScriptIndex)} disabled={scriptLoading} className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded font-bold">
                                 {scriptLoading ? 'Saving...' : 'Save Script'}
                             </button>
@@ -1019,7 +1019,7 @@ const StepOutput = ({ result, stepConfig }: { result: any, stepConfig?: any }) =
             if (isAnomaly && valueCol) {
                 return (
                     <div className="h-80 w-full mt-4">
-                        <h4 className="text-white mb-2 text-center text-sm">Anomaly Detection (Red = Anomaly)</h4>
+                        <h4 className="text-slate-900 dark:text-white mb-2 text-center text-sm">Anomaly Detection (Red = Anomaly)</h4>
                         <ResponsiveContainer width="100%" height="100%">
                             <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
                                 <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
@@ -1053,10 +1053,10 @@ const StepOutput = ({ result, stepConfig }: { result: any, stepConfig?: any }) =
 
             return (
                 <div className="h-80 w-full mt-4">
-                    <h4 className="text-white mb-2 text-center text-sm">Trend & Forecast</h4>
+                    <h4 className="text-slate-900 dark:text-white mb-2 text-center text-sm">Trend & Forecast</h4>
                     <ResponsiveContainer width="100%" height="100%">
                         <LineChart data={sortedData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                            <CartesianGrid strokeDasharray="3 3" stroke="#9CA3AF" strokeOpacity={0.2} />
                             <XAxis
                                 dataKey={dateCol}
                                 tickFormatter={(str) => {
@@ -1070,7 +1070,7 @@ const StepOutput = ({ result, stepConfig }: { result: any, stepConfig?: any }) =
                                 minTickGap={30}
                             />
                             <YAxis stroke="#9CA3AF" />
-                            <Tooltip contentStyle={{ backgroundColor: '#1F2937', borderColor: '#374151', color: '#fff' }} />
+                            <Tooltip contentStyle={{ backgroundColor: 'rgba(31, 41, 55, 0.95)', borderColor: '#374151', color: '#fff' }} />
                             <Legend />
                             {valueCol && <Line type="monotone" dataKey={valueCol} stroke="#3B82F6" strokeWidth={2} dot={false} name="Actual" />}
                             {predCol && <Line type="monotone" dataKey={predCol} stroke="#10B981" strokeWidth={2} dot={false} strokeDasharray="5 5" name="Predicted" />}
@@ -1092,7 +1092,7 @@ const StepOutput = ({ result, stepConfig }: { result: any, stepConfig?: any }) =
 
             return (
                 <div className="h-80 w-full mt-4">
-                    <h4 className="text-white mb-2 text-center text-sm">Class/Cluster Distribution</h4>
+                    <h4 className="text-slate-900 dark:text-white mb-2 text-center text-sm">Class/Cluster Distribution</h4>
                     <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                             <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
@@ -1116,17 +1116,17 @@ const StepOutput = ({ result, stepConfig }: { result: any, stepConfig?: any }) =
     if (result.type === 'dataframe' || result.type === 'table') {
         const columns = result.columns || Object.keys(result.data[0] || {});
         return (
-            <div className="mt-4 bg-gray-900 rounded-lg overflow-hidden border border-gray-700">
-                <div className="flex border-b border-gray-700">
+            <div className="mt-4 bg-white dark:bg-gray-900 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 shadow-sm">
+                <div className="flex border-b border-gray-200 dark:border-gray-700">
                     <button
                         onClick={() => setViewMode('table')}
-                        className={`px-4 py-2 text-sm font-medium transition-colors ${viewMode === 'table' ? 'bg-gray-800 text-white' : 'text-gray-400 hover:text-white'}`}
+                        className={`px-4 py-2 text-sm font-medium transition-colors ${viewMode === 'table' ? 'bg-gray-100 dark:bg-gray-800 text-blue-600 dark:text-white' : 'text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white'}`}
                     >
                         Table
                     </button>
                     <button
                         onClick={() => setViewMode('chart')}
-                        className={`px-4 py-2 text-sm font-medium transition-colors ${viewMode === 'chart' ? 'bg-gray-800 text-white' : 'text-gray-400 hover:text-white'}`}
+                        className={`px-4 py-2 text-sm font-medium transition-colors ${viewMode === 'chart' ? 'bg-gray-100 dark:bg-gray-800 text-blue-600 dark:text-white' : 'text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white'}`}
                     >
                         Chart
                     </button>
@@ -1134,17 +1134,17 @@ const StepOutput = ({ result, stepConfig }: { result: any, stepConfig?: any }) =
 
                 {viewMode === 'table' ? (
                     <div className="overflow-x-auto">
-                        <table className="w-full text-left text-xs text-gray-400">
-                            <thead className="bg-gray-800 text-gray-200 uppercase font-bold">
+                        <table className="w-full text-left text-xs text-slate-600 dark:text-gray-400">
+                            <thead className="bg-gray-50 dark:bg-gray-800 text-slate-700 dark:text-gray-200 uppercase font-bold">
                                 <tr>
-                                    {columns.map((col: string) => <th key={col} className="p-2 border-b border-gray-700">{col}</th>)}
+                                    {columns.map((col: string) => <th key={col} className="p-2 border-b border-gray-200 dark:border-gray-700">{col}</th>)}
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-gray-800">
+                            <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
                                 {result.data.slice(0, 50).map((row: any, i: number) => (
-                                    <tr key={i} className="hover:bg-gray-800/50">
+                                    <tr key={i} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
                                         {columns.map((col: string) => (
-                                            <td key={`${i}-${col}`} className="p-2 border-b border-gray-800 font-mono whitespace-nowrap max-w-xs truncate" title={typeof row[col] === 'object' ? JSON.stringify(row[col]) : String(row[col])}>
+                                            <td key={`${i}-${col}`} className="p-2 border-b border-gray-100 dark:border-gray-800 font-mono whitespace-nowrap max-w-xs truncate" title={typeof row[col] === 'object' ? JSON.stringify(row[col]) : String(row[col])}>
                                                 {typeof row[col] === 'object' ? JSON.stringify(row[col]) : String(row[col])}
                                             </td>
                                         ))}
@@ -1152,10 +1152,10 @@ const StepOutput = ({ result, stepConfig }: { result: any, stepConfig?: any }) =
                                 ))}
                             </tbody>
                         </table>
-                        {result.data.length > 50 && <div className="p-2 text-center text-gray-500 text-xs italic">Showing first 50 rows only</div>}
+                        {result.data.length > 50 && <div className="p-2 text-center text-slate-500 dark:text-gray-500 text-xs italic">Showing first 50 rows only</div>}
                     </div>
                 ) : (
-                    <div className="p-4 bg-gray-900">
+                    <div className="p-4 bg-white dark:bg-gray-900">
                         {renderChart(result.data)}
                     </div>
                 )}
@@ -1165,14 +1165,14 @@ const StepOutput = ({ result, stepConfig }: { result: any, stepConfig?: any }) =
 
     if (result.type === 'json') {
         return (
-            <div className="mt-4 bg-black/30 rounded-lg border border-gray-700 p-4 font-mono text-xs text-green-400">
+            <div className="mt-4 bg-slate-900/5 dark:bg-black/30 rounded-lg border border-gray-200 dark:border-gray-700 p-4 font-mono text-xs text-slate-700 dark:text-green-400">
                 <pre>{JSON.stringify(result.data, null, 2)}</pre>
             </div>
         );
     }
 
     return (
-        <div className="mt-4 p-3 bg-gray-800/50 rounded-lg text-sm text-gray-300">
+        <div className="mt-4 p-3 bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-slate-700 dark:text-gray-300">
             {typeof result.data === 'object' ? JSON.stringify(result.data, null, 2) : String(result.data)}
         </div>
     );

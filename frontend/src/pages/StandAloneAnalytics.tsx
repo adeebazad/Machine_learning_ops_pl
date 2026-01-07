@@ -207,26 +207,26 @@ const StandAloneAnalytics: React.FC = () => {
     };
 
     return (
-        <div className="bg-gray-950 min-h-screen text-white flex flex-col font-sans">
+        <div className="bg-gray-50 dark:bg-gray-950 min-h-screen text-slate-900 dark:text-white flex flex-col font-sans transition-colors duration-300">
             {/* Header */}
-            <header className="h-16 border-b border-gray-800 bg-gray-900/80 backdrop-blur px-6 flex items-center justify-between sticky top-0 z-50 shadow-md">
+            <header className="h-16 border-b border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-900/80 backdrop-blur px-6 flex items-center justify-between sticky top-0 z-50 shadow-sm dark:shadow-md">
                 <div className="flex items-center gap-4">
                     {selectedPipelineId ? (
                         <button
                             onClick={handleBack}
-                            className="p-2 hover:bg-gray-800 rounded-full transition-colors text-gray-400 hover:text-white"
+                            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white"
                             title="Back to Pipelines"
                         >
                             <ChevronLeft size={24} />
                         </button>
                     ) : (
-                        <div className="p-2 bg-blue-600/20 rounded-lg text-blue-400">
+                        <div className="p-2 bg-blue-600/10 dark:bg-blue-600/20 rounded-lg text-blue-600 dark:text-blue-400">
                             <LayoutDashboard size={20} />
                         </div>
                     )}
 
                     <div>
-                        <h1 className="font-bold text-lg tracking-wide text-gray-100">
+                        <h1 className="font-bold text-lg tracking-wide text-slate-800 dark:text-gray-100">
                             {selectedPipelineId
                                 ? pipelines.find(p => p.id.toString() === selectedPipelineId)?.name || 'Pipeline Analytics'
                                 : 'Analytics Dashboard'
@@ -246,7 +246,7 @@ const StandAloneAnalytics: React.FC = () => {
                         <button
                             onClick={() => fetchPipelineDetails(parseInt(selectedPipelineId))}
                             disabled={running}
-                            className="flex items-center gap-2 px-3 py-1.5 bg-gray-800 hover:bg-gray-700 rounded-lg text-gray-300 hover:text-white transition-colors disabled:opacity-50 text-sm font-medium"
+                            className="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg text-slate-600 dark:text-gray-300 hover:text-slate-900 dark:hover:text-white transition-colors disabled:opacity-50 text-sm font-medium border border-gray-200 dark:border-gray-700"
                         >
                             <RefreshCw size={14} className={running ? "animate-spin" : ""} />
                             Refresh Data
@@ -268,14 +268,14 @@ const StandAloneAnalytics: React.FC = () => {
                     // Pipeline Selection Grid
                     <div className="max-w-7xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
                         <div className="mb-8 text-center sm:text-left">
-                            <h2 className="text-3xl font-bold text-white mb-2">Select a Pipeline</h2>
-                            <p className="text-gray-400">Choose a pipeline to view detailed analytics and performance metrics.</p>
+                            <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">Select a Pipeline</h2>
+                            <p className="text-slate-600 dark:text-gray-400">Choose a pipeline to view detailed analytics and performance metrics.</p>
                         </div>
 
                         {pipelines.length === 0 ? (
-                            <div className="text-center py-20 bg-gray-900/50 rounded-2xl border border-gray-800 border-dashed">
-                                <Layers size={48} className="mx-auto text-gray-600 mb-4" />
-                                <p className="text-gray-500 text-lg">No pipelines found.</p>
+                            <div className="text-center py-20 bg-white dark:bg-gray-900/50 rounded-2xl border border-gray-200 dark:border-gray-800 border-dashed">
+                                <Layers size={48} className="mx-auto text-slate-400 dark:text-gray-600 mb-4" />
+                                <p className="text-slate-500 dark:text-gray-500 text-lg">No pipelines found.</p>
                             </div>
                         ) : (
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -283,36 +283,36 @@ const StandAloneAnalytics: React.FC = () => {
                                     <div
                                         key={pipeline.id}
                                         onClick={() => setSelectedPipelineId(pipeline.id.toString())}
-                                        className="group bg-gray-900 hover:bg-gray-800 border border-gray-800 hover:border-blue-500/50 rounded-2xl p-6 cursor-pointer transition-all duration-300 hover:shadow-2xl hover:shadow-blue-900/20 hover:-translate-y-1 relative overflow-hidden"
+                                        className="group bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-800 hover:border-blue-500/50 dark:hover:border-blue-500/50 rounded-2xl p-6 cursor-pointer transition-all duration-300 hover:shadow-2xl hover:shadow-blue-900/10 dark:hover:shadow-blue-900/20 hover:-translate-y-1 relative overflow-hidden"
                                     >
                                         <div className="absolute top-0 right-0 p-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                            <ArrowRight className="text-blue-400" />
+                                            <ArrowRight className="text-blue-500 dark:text-blue-400" />
                                         </div>
 
                                         <div className="flex items-start justify-between mb-4">
-                                            <div className="p-3 bg-blue-500/10 rounded-xl text-blue-400 group-hover:scale-110 transition-transform duration-300">
+                                            <div className="p-3 bg-blue-500/10 rounded-xl text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform duration-300">
                                                 <Layers size={24} />
                                             </div>
                                             {pipeline.schedule_enabled && (
-                                                <div className="px-2 py-1 bg-green-500/10 text-green-400 text-xs rounded-full border border-green-500/20 flex items-center gap-1">
+                                                <div className="px-2 py-1 bg-green-500/10 text-green-600 dark:text-green-400 text-xs rounded-full border border-green-500/20 flex items-center gap-1">
                                                     <Clock size={10} /> Scheduled
                                                 </div>
                                             )}
                                         </div>
 
-                                        <h3 className="text-xl font-bold text-white mb-2 group-hover:text-blue-400 transition-colors">
+                                        <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                                             {pipeline.name}
                                         </h3>
-                                        <p className="text-sm text-gray-500 mb-6 line-clamp-2">
+                                        <p className="text-sm text-slate-500 dark:text-gray-500 mb-6 line-clamp-2">
                                             {pipeline.description || 'No description provided.'}
                                         </p>
 
-                                        <div className="flex items-center justify-between text-xs text-gray-400 border-t border-gray-800 pt-4 mt-auto">
+                                        <div className="flex items-center justify-between text-xs text-slate-400 dark:text-gray-400 border-t border-gray-100 dark:border-gray-800 pt-4 mt-auto">
                                             <div className="flex items-center gap-1">
                                                 <Activity size={12} />
                                                 <span>{pipeline.steps?.length || 0} Steps</span>
                                             </div>
-                                            <span className="group-hover:translate-x-1 transition-transform duration-300 text-blue-400 font-medium">
+                                            <span className="group-hover:translate-x-1 transition-transform duration-300 text-blue-600 dark:text-blue-400 font-medium">
                                                 View Analytics
                                             </span>
                                         </div>
@@ -331,17 +331,17 @@ const StandAloneAnalytics: React.FC = () => {
                         ) : (
                             <div className="flex flex-col h-full">
                                 {/* Pipeline Description Section */}
-                                <div className="bg-gray-900 border-b border-gray-800 p-6">
+                                <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 p-6">
                                     <div className="max-w-7xl mx-auto">
-                                        <h2 className="text-xl font-bold text-white mb-2">
+                                        <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
                                             {pipelines.find(p => p.id.toString() === selectedPipelineId)?.name}
                                         </h2>
-                                        <p className="text-gray-400 text-sm leading-relaxed max-w-3xl">
+                                        <p className="text-slate-500 dark:text-gray-400 text-sm leading-relaxed max-w-3xl">
                                             {pipelines.find(p => p.id.toString() === selectedPipelineId)?.description || 'No description provided for this pipeline.'}
                                         </p>
                                     </div>
                                 </div>
-                                <div className="flex-1 overflow-auto bg-gray-950 p-6">
+                                <div className="flex-1 overflow-auto bg-gray-50 dark:bg-gray-950 p-6">
                                     <AnalyticsDashboard
                                         steps={steps}
                                         stepResults={stepResults}
@@ -351,15 +351,15 @@ const StandAloneAnalytics: React.FC = () => {
                                     />
 
                                     {/* Custom Analysis Sandbox */}
-                                    <div className="mt-12 border-t border-gray-800 pt-8 no-print">
+                                    <div className="mt-12 border-t border-gray-200 dark:border-gray-800 pt-8 no-print">
                                         <div className="flex items-center justify-between mb-6">
                                             <div>
-                                                <h3 className="text-xl font-bold text-white">Custom Analysis Sandbox</h3>
-                                                <p className="text-sm text-gray-500">Add custom charts below to explore data from different steps.</p>
+                                                <h3 className="text-xl font-bold text-slate-900 dark:text-white">Custom Analysis Sandbox</h3>
+                                                <p className="text-sm text-slate-500 dark:text-gray-500">Add custom charts below to explore data from different steps.</p>
                                             </div>
-                                            <div className="flex items-center gap-2 bg-gray-900 p-1.5 rounded-lg border border-gray-800">
+                                            <div className="flex items-center gap-2 bg-white dark:bg-gray-900 p-1.5 rounded-lg border border-gray-200 dark:border-gray-800">
                                                 <select
-                                                    className="bg-transparent text-sm text-gray-300 outline-none p-1"
+                                                    className="bg-transparent text-sm text-slate-700 dark:text-gray-300 outline-none p-1"
                                                     value={selectedStepForSandbox}
                                                     onChange={e => setSelectedStepForSandbox(parseInt(e.target.value))}
                                                 >
@@ -405,7 +405,7 @@ const StandAloneAnalytics: React.FC = () => {
                                                 );
                                             })}
                                             {sandboxCharts.length === 0 && (
-                                                <div className="text-center py-10 bg-gray-900/30 rounded-xl border border-gray-800 border-dashed text-gray-600">
+                                                <div className="text-center py-10 bg-white dark:bg-gray-900/30 rounded-xl border border-gray-200 dark:border-gray-800 border-dashed text-slate-400 dark:text-gray-600">
                                                     Select a step above to add a custom chart.
                                                 </div>
                                             )}
@@ -423,26 +423,26 @@ const StandAloneAnalytics: React.FC = () => {
             {
                 showSaveModal && (
                     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-                        <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 w-96 shadow-2xl">
+                        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-6 w-96 shadow-2xl">
                             <div className="flex justify-between items-center mb-4">
-                                <h3 className="text-lg font-bold">Save to Dashboard</h3>
-                                <button onClick={() => setShowSaveModal(false)}><X size={20} className="text-gray-500 hover:text-white" /></button>
+                                <h3 className="text-lg font-bold text-slate-900 dark:text-white">Save to Dashboard</h3>
+                                <button onClick={() => setShowSaveModal(false)}><X size={20} className="text-slate-400 hover:text-slate-600 dark:text-gray-500 dark:hover:text-white" /></button>
                             </div>
 
                             <div className="space-y-4">
                                 <div>
-                                    <label className="block text-xs text-gray-400 mb-1">Chart Name</label>
+                                    <label className="block text-xs text-slate-500 dark:text-gray-400 mb-1">Chart Name</label>
                                     <input
-                                        className="w-full bg-gray-800 border border-gray-700 rounded-lg p-2 text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                                        className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
                                         value={chartName}
                                         onChange={e => setChartName(e.target.value)}
                                     />
                                 </div>
 
                                 <div>
-                                    <label className="block text-xs text-gray-400 mb-1">Select Dashboard</label>
+                                    <label className="block text-xs text-slate-500 dark:text-gray-400 mb-1">Select Dashboard</label>
                                     <select
-                                        className="w-full bg-gray-800 border border-gray-700 rounded-lg p-2 text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                                        className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
                                         value={targetDashboardId}
                                         onChange={e => setTargetDashboardId(e.target.value)}
                                     >
@@ -453,10 +453,10 @@ const StandAloneAnalytics: React.FC = () => {
 
                                 {targetDashboardId === 'new' && (
                                     <div className="animate-in fade-in slide-in-from-top-2">
-                                        <label className="block text-xs text-gray-400 mb-1">New Dashboard Name</label>
+                                        <label className="block text-xs text-slate-500 dark:text-gray-400 mb-1">New Dashboard Name</label>
                                         <input
                                             autoFocus
-                                            className="w-full bg-gray-800 border border-gray-700 rounded-lg p-2 text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                                            className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
                                             value={newDashboardName}
                                             onChange={e => setNewDashboardName(e.target.value)}
                                         />

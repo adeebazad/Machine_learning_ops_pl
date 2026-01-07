@@ -24,3 +24,5 @@ catboost>=1.2.0
 tensorflow>=2.13.0
 statsmodels>=0.14.0
 prophet>=1.1.0
+reportlab>=4.0.0
+pillow>=10.0.0

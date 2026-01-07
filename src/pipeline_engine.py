@@ -3,6 +3,7 @@ import json
 import os
 import mlflow
 import mlflow.sklearn
+import joblib
 from datetime import datetime
 from sqlalchemy.orm import Session
 from src.infrastructure.database import get_db
@@ -54,10 +55,21 @@ class PipelineEngine:
 
             steps = sorted(pipeline.steps, key=lambda x: x.order)
             
+            # Ensure cache dir exists
+            os.makedirs("cache", exist_ok=True)
+
             for step in steps:
                 self._log(f"Executing step: {step.name} ({step.step_type})")
                 self._execute_step(step)
-            
+                
+                # UPDATE: Save context to cache so Dashboard (StepExecutor) can access valid data
+                # This links "Production Run" data to "Interactive Test" view
+                try:
+                    cache_path = os.path.join("cache", f"pipeline_{self.pipeline_id}_step_{step.order}.joblib")
+                    joblib.dump(self.context, cache_path)
+                except Exception as cache_err:
+                    self._log(f"Warning: Failed to cache step output: {cache_err}")
+
             self.run_record.status = "completed"
             self.run_record.completed_at = datetime.utcnow()
             self._log("Pipeline execution completed successfully.")
@@ -194,8 +206,8 @@ class StepExecutor:
         elif step_type == "prediction":
             if "data" in context:
                 df = context["data"]
-                # CRITICAL: Return sufficient data for analytics (5000 rows)
-                data_preview = json.loads(df.head(5000).fillna(0).to_json(orient="records", date_format="iso"))
+                # CRITICAL: Return sufficient data for analytics (20000 rows)
+                data_preview = json.loads(df.head(20000).fillna(0).to_json(orient="records", date_format="iso"))
                 return {
                     "type": "table",
                     "rows": len(df),

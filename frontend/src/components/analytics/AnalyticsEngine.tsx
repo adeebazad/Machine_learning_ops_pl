@@ -1,9 +1,11 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import ChartRenderer from './ChartRenderer';
 import Toolbar from './Toolbar';
-import { Settings, X, Plus, ChevronDown, BarChart2, LayoutDashboard, ChevronLeft, ChevronRight, Calendar, Clock } from 'lucide-react';
+import { Settings, X, Plus, ChevronDown, BarChart2, LayoutDashboard, ChevronLeft, ChevronRight, Calendar, Clock, Sparkles, Loader2 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { calculatePearson } from '../../utils/statistics';
+import Plot from 'react-plotly.js';
+import { getPearlApiUrl } from '../../config';
 
 interface AnalyticsEngineProps {
     data: any[];
@@ -12,16 +14,20 @@ interface AnalyticsEngineProps {
     onSaveToDashboard?: (config: any) => void;
     config?: any;
     isDashboardItem?: boolean; // New prop to prevent print overlap
+    onDelete?: () => void; // Add onDelete prop for dashboard deletion integration
+    onObservationChange?: (val: string) => void;
+    variant?: 'default' | 'premium';
+    defaultSettingsOpen?: boolean;
 }
 
 type ChartType = 'line' | 'bar' | 'area' | 'scatter' | 'pie' | 'donut' | 'radar' | 'composed' | 'heatmap';
 
-const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly = false, onSaveToDashboard, config, isDashboardItem = false }) => {
+const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly = false, onSaveToDashboard, config, isDashboardItem = false, onDelete, onObservationChange, variant = 'default', defaultSettingsOpen }) => {
     // ---- State ----
     const [chartType, setChartType] = useState<ChartType>('line');
     const [xAxisCol, setXAxisCol] = useState<string>('');
     const [yAxisCols, setYAxisCols] = useState<string[]>([]);
-    const [showSettings, setShowSettings] = useState(!readOnly);
+    const [showSettings, setShowSettings] = useState(defaultSettingsOpen ?? !readOnly);
     const [showTrendline, setShowTrendline] = useState(false);
     const [annotationMode, setAnnotationMode] = useState(false);
     const [filters, setFilters] = useState<{ col: string, val: string }[]>([]);
@@ -37,15 +43,32 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
     const [groupByCol, setGroupByCol] = useState<string>('');
 
     // Set default date range (Last Month)
-    // Set default date range (Last Month)
     useEffect(() => {
-        if (config && config.dateRange) return; // Skip default if config provided
-
         if (data.length > 0 && xAxisCol && /date|time|timestamp/i.test(xAxisCol)) {
             // Find max date
             const dates = data.map(d => new Date(d[xAxisCol]).getTime()).filter(t => !isNaN(t));
             if (dates.length > 0) {
                 const maxDate = new Date(Math.max(...dates));
+
+                // AUTO-EXTEND Logic for Dashboard:
+                // If we have a saved config with a date range, BUT the new data goes significantly beyond it,
+                // we assume the user wants to see the new data (Live View).
+                if (config && config.dateRange && isDashboardItem) {
+                    const savedEnd = new Date(config.dateRange.end).getTime();
+                    // If new data is newer than saved end date (by at least 1 minute to avoid jitter)
+                    if (maxDate.getTime() > savedEnd + 60000) {
+                        // Keep the saved start date, but update end date to new max
+                        setDateRange({
+                            start: config.dateRange.start, // Respect saved start
+                            end: maxDate.toISOString().split('T')[0] // Auto-extend end
+                        });
+                        return;
+                    }
+                }
+
+                if (config && config.dateRange) return; // Respect saved config if no extension needed
+
+                // Default "Last Month" logic for new charts
                 const minDate = new Date(maxDate);
                 minDate.setMonth(minDate.getMonth() - 1);
 
@@ -55,7 +78,7 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
                 });
             }
         }
-    }, [data, xAxisCol, config]);
+    }, [data, xAxisCol, config, isDashboardItem]);
 
     // Hydrate from config
     useEffect(() => {
@@ -84,7 +107,15 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
     // ---- Data Analysis (Columns) ----
     const columns = useMemo(() => {
         if (!data || data.length === 0) return [];
-        return Object.keys(data[0]);
+        // Robust Key Extraction: Scan first 50 rows to find all available keys
+        // (Solves issue where optional fields like 'address' are missing in the first row)
+        const keys = new Set<string>();
+        data.slice(0, 50).forEach(row => {
+            if (row && typeof row === 'object') {
+                Object.keys(row).forEach(k => keys.add(k));
+            }
+        });
+        return Array.from(keys);
     }, [data]);
 
     const numericCols = useMemo(() => {
@@ -249,7 +280,19 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
             // Group By Analysis (e.g., Correlation per Location)
             const groups: { [key: string]: any[] } = {};
             processedData.forEach(row => {
-                const key = String(row[groupByCol]);
+                let rawKey = row[groupByCol];
+                // Handle null/undefined/empty string
+                let key = (rawKey === null || rawKey === undefined || rawKey === '') ? 'Unknown' : String(rawKey);
+
+                // Auto-format Date/Timestamp columns to be human readable
+                if (/date|time|timestamp|utc/i.test(groupByCol)) {
+                    const d = new Date(rawKey);
+                    if (!isNaN(d.getTime())) {
+                        // Format: YYYY-MM-DD HH:mm (Readable & Sortable)
+                        key = d.toISOString().replace('T', ' ').substring(0, 16);
+                    }
+                }
+
                 if (!groups[key]) groups[key] = [];
                 groups[key].push(row);
             });
@@ -271,7 +314,14 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
     // Dynamic Columns for Table (based on processed/aggregated data)
     const displayColumns = useMemo(() => {
         if (!processedData || processedData.length === 0) return [];
-        return Object.keys(processedData[0]);
+        // Robust Key Extraction for Table Headers
+        const keys = new Set<string>();
+        processedData.slice(0, 50).forEach(row => {
+            if (row && typeof row === 'object') {
+                Object.keys(row).forEach(k => keys.add(k));
+            }
+        });
+        return Array.from(keys);
     }, [processedData]);
 
 
@@ -285,7 +335,55 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
     };
 
     const [observations, setObservations] = useState(config?.observations || '');
+    const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [printMode, setPrintMode] = useState(false);
+
+    const handleGenerateAnalysis = async () => {
+        if (!processedData.length) return;
+        setIsAnalyzing(true);
+        setObservations(''); // Clear previous
+
+        try {
+            // Context strategy: Send summarized data to avoid token limits
+            // Take first 5 and last 5 rows to show range, plus some aggregate stats if possible
+            const snippet = processedData.length > 20
+                ? [...processedData.slice(0, 5), ...processedData.slice(-5)]
+                : processedData;
+
+            const query = `
+                You are an AI Data Analyst. Analyze the following dataset (snippet) representing ${title || 'data'}.
+                Columns: ${yAxisCols.join(', ')} over ${xAxisCol}.
+                
+                Data Snippet: ${JSON.stringify(snippet)}
+
+                Identify key trends, anomalies, or insights. Keep it professional, concise (under 80 words), and bulleted.
+            `;
+
+            const payload = {
+                query: query.trim(),
+                stream: false
+            };
+
+            const response = await fetch(getPearlApiUrl(), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) throw new Error('Failed to fetch analysis');
+
+            const resData = await response.json();
+            const analysis = resData.response || "No insights generated.";
+            setObservations(analysis);
+            if (onObservationChange) onObservationChange(analysis);
+
+        } catch (error) {
+            console.error("AI Analysis failed:", error);
+            setObservations("Error: Unable to generate analysis. Please try again.");
+        } finally {
+            setIsAnalyzing(false);
+        }
+    };
 
     useEffect(() => {
         if (config?.observations) setObservations(config.observations);
@@ -322,20 +420,159 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
 
     if (!data || data.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center h-96 text-gray-500 bg-gray-900/50 rounded-xl border border-gray-800 border-dashed">
+            <div className="flex flex-col items-center justify-center h-96 text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-dashed border-gray-300 dark:border-gray-800">
                 <BarChart2 size={48} className="mb-4 opacity-20" />
                 <p>No Data Available for Analysis</p>
             </div>
         );
     }
 
+    // Prepare Plotly Configuration for Correlation
+    const renderPlotlyCorrelation = () => {
+        const isDark = document.documentElement.classList.contains('dark');
+        const bgColor = isDark ? 'rgba(0,0,0,0)' : 'rgba(255,255,255,0)'; // Transparent
+        const textColor = isDark ? '#e2e8f0' : '#1e293b';
+
+        // 1. Heatmap Mode (when correlating multiple targets against a base, or grouped)
+        if (groupByCol || corrTargetCols.length > 1) {
+            // If grouped, we have {name: Group, target1: val, target2: val}
+            // Z needs to be a matrix of values
+            // X axis: Targets
+            // Y axis: Groups (or just 'Global' if not grouped)
+
+            let xLabels = corrTargetCols;
+            let yLabels: string[] = [];
+            let zValues: number[][] = [];
+
+            if (groupByCol) {
+                // correlationResults is array of objects {name: groupKey, target1: score...}
+                correlationResults.forEach((res: any) => {
+                    yLabels.push(res.name);
+                    const row: number[] = [];
+                    xLabels.forEach(t => row.push(res[t] || 0));
+                    zValues.push(row);
+                });
+            } else {
+                // Global Analysis: correlationResults is [{name: target1, value: score}, ...]
+                // This structure from useMemo above is a bit different for global vs grouped. 
+                // Let's re-read useMemo for global:
+                // return Object.keys(scores).map(feature => ({ name: feature, value: scores[feature] }));
+
+                // For global heatmap, it's just 1 row (Global) vs Targets
+                yLabels = ['Global'];
+                const row: number[] = [];
+                // correlationResults has ALL scores, but we only want corrTargetCols
+                // Wait, the hook returns array of {name, value}.
+                // Let's map it back
+                const scoreMap: any = {};
+                correlationResults.forEach((r: any) => scoreMap[r.name] = r.value);
+
+                xLabels.forEach(t => row.push(scoreMap[t] || 0));
+                zValues.push(row);
+            }
+
+            return (
+                <Plot
+                    data={[{
+                        z: zValues,
+                        x: xLabels,
+                        y: yLabels,
+                        type: 'heatmap',
+                        colorscale: 'RdBu',
+                        zmin: -1,
+                        zmax: 1,
+                        colorbar: { title: { text: 'Pearson Coeff' } }
+                    }]}
+                    layout={{
+                        width: undefined, // Responsive
+                        height: 500,
+                        title: { text: `Correlation Heatmap (${corrBaseCol})` },
+                        paper_bgcolor: bgColor,
+                        plot_bgcolor: bgColor,
+                        font: { color: textColor },
+                        xaxis: { title: { text: 'Variables' } },
+                        yaxis: { title: { text: groupByCol || 'Context' } }
+                    }}
+                    useResizeHandler={true}
+                    style={{ width: "100%", height: "100%" }}
+                />
+            );
+        }
+
+        // 2. Scatter Plot Mode (Single Target - Show actual data points!)
+        // If we only have 1 target and NO grouping, user likely wants to see the SCATTER of Base vs Target
+        if (!groupByCol && corrTargetCols.length === 1) {
+            const targetCol = corrTargetCols[0];
+            const xVal = processedData.map(d => Number(d[corrBaseCol]));
+            const yVal = processedData.map(d => Number(d[targetCol]));
+
+            // Calculate Trendline
+            // Simple Linear Regression: y = mx + c
+            const n = xVal.length;
+            const sumX = xVal.reduce((a, b) => a + b, 0);
+            const sumY = yVal.reduce((a, b) => a + b, 0);
+            const sumXY = xVal.reduce((a, b, i) => a + b * yVal[i], 0);
+            const sumXX = xVal.reduce((a, b) => a + b * b, 0);
+
+            const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
+            const intercept = (sumY - slope * sumX) / n;
+
+            const trendX = [Math.min(...xVal), Math.max(...xVal)];
+            const trendY = trendX.map(x => slope * x + intercept);
+
+            return (
+                <Plot
+                    data={[
+                        {
+                            x: xVal,
+                            y: yVal,
+                            mode: 'markers',
+                            type: 'scatter',
+                            name: 'Data Points',
+                            marker: { color: '#3b82f6', opacity: 0.7 }
+                        },
+                        {
+                            x: trendX,
+                            y: trendY,
+                            mode: 'lines',
+                            name: 'Trendline',
+                            line: { color: '#ef4444', width: 2, dash: 'dash' }
+                        }
+                    ]}
+                    layout={{
+                        width: undefined,
+                        height: 500,
+                        title: { text: `${corrBaseCol} vs ${targetCol} (Correlation)` },
+                        paper_bgcolor: bgColor,
+                        plot_bgcolor: bgColor,
+                        font: { color: textColor },
+                        xaxis: { title: { text: corrBaseCol } },
+                        yaxis: { title: { text: targetCol } },
+                        showlegend: true
+                    }}
+                    useResizeHandler={true}
+                    style={{ width: "100%", height: "100%" }}
+                />
+            );
+        }
+
+        // Fallback
+        return (
+            <div className="flex items-center justify-center h-full text-gray-500">
+                <p>Select multiple targets for Heatmap or single target for Scatter Plot.</p>
+            </div>
+        );
+    };
+
     return (
-        <div className={`flex flex-col h-full bg-gray-950 rounded-xl overflow-hidden shadow-2xl border border-gray-900 ${printMode ? 'print-chart-block bg-white text-black border-none shadow-none h-auto' : ''}`}>
+        <div className={`flex flex-col h-full bg-white dark:bg-gray-950 rounded-xl overflow-hidden shadow-sm dark:shadow-2xl border border-gray-200 dark:border-gray-900 ${printMode ? 'print-chart-block bg-white text-black border-none shadow-none h-auto' : ''}`}>
             {/* Toolbar */}
-            <div className="p-4 border-b border-gray-800 bg-gray-900 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 no-print">
+            <div className="p-4 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 no-print">
                 <div>
-                    <h2 className="text-lg font-bold text-white tracking-wide">{title || 'Data Analytics'}</h2>
-                    <p className="text-xs text-gray-500">{processedData.length} rows loaded</p>
+                    <h2 className="text-lg font-bold text-slate-900 dark:text-white tracking-wide">{title || 'Data Analytics'}</h2>
+                    <p className="text-xs text-gray-500">
+                        {new Intl.NumberFormat('en-US').format(processedData.length)} rows loaded
+                    </p>
                 </div>
 
                 <div className="flex items-center gap-4 w-full sm:w-auto">
@@ -359,18 +596,18 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
                         </button>
                     )}
                     {/* Date Filter Inputs */}
-                    <div className="flex items-center gap-2 bg-gray-900 border border-gray-700 rounded-lg px-2 py-1 mx-2">
-                        <Calendar size={14} className="text-gray-500" />
+                    <div className="flex items-center gap-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg px-2 py-1 mx-2">
+                        <Calendar size={14} className="text-gray-400 dark:text-gray-500" />
                         <input
                             type="date"
-                            className="bg-transparent text-xs text-white outline-none w-24"
+                            className="bg-transparent text-xs text-slate-800 dark:text-white outline-none w-24"
                             value={dateRange.start}
                             onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
                         />
-                        <span className="text-gray-600">-</span>
+                        <span className="text-gray-400 dark:text-gray-600">-</span>
                         <input
                             type="date"
-                            className="bg-transparent text-xs text-white outline-none w-24"
+                            className="bg-transparent text-xs text-slate-800 dark:text-white outline-none w-24"
                             value={dateRange.end}
                             onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
                         />
@@ -378,10 +615,10 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
 
                     {/* Time Grain Selector */}
                     {xAxisCol && /date|time|timestamp/i.test(xAxisCol) && (
-                        <div className="flex items-center gap-2 bg-gray-900 border border-gray-700 rounded-lg px-2 py-1 mx-2">
-                            <Clock size={14} className="text-gray-500" />
+                        <div className="flex items-center gap-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg px-2 py-1 mx-2">
+                            <Clock size={14} className="text-gray-400 dark:text-gray-500" />
                             <select
-                                className="bg-transparent text-xs text-white outline-none"
+                                className="bg-transparent text-xs text-slate-800 dark:text-white outline-none"
                                 value={timeGrain}
                                 onChange={(e) => setTimeGrain(e.target.value as any)}
                             >
@@ -401,11 +638,12 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
                         onToggleTrendline={() => setShowTrendline(!showTrendline)}
                         annotationMode={annotationMode}
                         onToggleAnnotation={() => setAnnotationMode(!annotationMode)}
+                        onDelete={onDelete} // Pass delete handler to toolbar
                     />
                     {!readOnly && (
                         <button
                             onClick={() => setShowSettings(!showSettings)}
-                            className={`p-2 rounded-lg transition-colors border ${showSettings ? 'bg-blue-600 border-blue-500 text-white' : 'border-gray-700 hover:bg-gray-800 text-gray-400'}`}
+                            className={`p-2 rounded-lg transition-colors border ${showSettings ? 'bg-blue-600 border-blue-500 text-white' : 'bg-white dark:bg-transparent border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400'}`}
                         >
                             <Settings size={20} />
                         </button>
@@ -416,89 +654,107 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
             <div className="flex flex-1 overflow-hidden relative">
 
                 {/* Main Chart Area */}
-                <div className={`flex-1 p-6 overflow-auto bg-gray-950 relative ${isDashboardItem ? '' : 'print-area'}`}>
+                <div className={`flex-1 p-6 overflow-auto bg-gray-50 dark:bg-gray-950 relative ${isDashboardItem ? '' : 'print-area'}`}>
                     {/* FIXED HEIGHT FOR PRINT: ResponsiveContainer needs explicit height. h-auto causes collapse (white out). */}
-                    <div className={`w-full bg-gray-900/40 rounded-2xl border border-gray-800/50 p-4 shadow-inner ${printMode ? 'h-[500px] border-none bg-white p-0 shadow-none' : 'h-[600px]'}`}>
-                        <ChartRenderer
-                            type={correlationMode ? 'bar' : chartType}
-                            data={correlationMode ? correlationResults : processedData}
-                            xAxisKey={correlationMode ? 'name' : xAxisCol}
-                            dataKeys={correlationMode ? (groupByCol ? corrTargetCols : ['value']) : yAxisCols}
-                        />
+                    <div className={`w-full bg-white dark:bg-gray-900/40 rounded-2xl border border-gray-200 dark:border-gray-800/50 p-4 shadow-sm dark:shadow-inner ${printMode ? 'h-[500px] border-none bg-white p-0 shadow-none' : 'h-[600px]'}`}>
+                        {correlationMode ? (
+                            renderPlotlyCorrelation()
+                        ) : (
+                            <ChartRenderer
+                                type={chartType}
+                                data={processedData}
+                                xAxisKey={xAxisCol}
+                                dataKeys={yAxisCols}
+                                variant={variant}
+                            />
+                        )}
                     </div>
 
                     {/* Observations Section */}
                     <div className="mt-6 mb-8 group">
-                        <label className="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
-                            Analysis Observations
-                        </label>
+                        <div className="flex items-center justify-between mb-2">
+                            <label className="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-wider">
+                                <Sparkles size={14} className="text-indigo-500" />
+                                Analysis Observations
+                            </label>
+                            <button
+                                onClick={handleGenerateAnalysis}
+                                disabled={isAnalyzing || processedData.length === 0}
+                                className="flex items-center gap-1.5 px-2 py-1 bg-indigo-50 dark:bg-indigo-900/30 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 text-indigo-600 dark:text-indigo-300 rounded text-[10px] font-bold uppercase tracking-wide transition-colors disabled:opacity-50"
+                            >
+                                {isAnalyzing ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
+                                {isAnalyzing ? 'Analyzing...' : 'Auto-Generate'}
+                            </button>
+                        </div>
                         <textarea
                             value={observations}
-                            onChange={(e) => setObservations(e.target.value)}
-                            readOnly={readOnly && !printMode} // Allow editing unless readonly. In print mode, it's just text.
+                            onChange={(e) => {
+                                setObservations(e.target.value);
+                                if (onObservationChange) onObservationChange(e.target.value);
+                            }}
+                            readOnly={readOnly && !printMode}
                             placeholder={readOnly ? "No observations recorded." : "Add your analysis observations, key insights, and anomalies detected here..."}
-                            className={`w-full bg-gray-900/50 border border-gray-800 rounded-xl p-4 text-sm text-gray-300 outline-none transition-all 
-                                ${readOnly ? 'resize-none' : 'focus:ring-2 focus:ring-blue-500/50 hover:bg-gray-900'}
+                            className={`w-full bg-white dark:bg-gray-900/50 border border-gray-200 dark:border-gray-800 rounded-xl p-4 text-sm text-slate-800 dark:text-gray-300 outline-none transition-all 
+                                ${readOnly ? 'resize-none' : 'focus:ring-2 focus:ring-blue-500/50 hover:bg-gray-50 dark:hover:bg-gray-900'}
                                 ${printMode ? 'border-none bg-white text-black p-0 h-auto resize-none overflow-visible min-h-[100px]' : 'h-32'}
                             `}
                         />
                     </div>
 
-                    {/* Data Preview Table (Bottom) - Hidden in Print Mode per user request */}
-                    {!printMode && (
-                        <div className="mt-8">
-                            <h3 className="text-gray-400 font-bold mb-4 text-sm uppercase tracking-wider">
-                                Data Snapshot (First 50 Rows)
-                            </h3>
-                            <div className="overflow-x-auto border border-gray-800 rounded-xl bg-gray-900/30 max-h-96">
-                                <table className="w-full text-left text-sm text-gray-400">
-                                    <thead className="bg-gray-800/80 text-gray-200 sticky top-0 backdrop-blur-md">
-                                        <tr>
-                                            {displayColumns.map(k => <th key={k} className="p-3 font-semibold whitespace-nowrap">{k}</th>)}
+                    {/* Data Preview Table (Bottom) - Always visible now for "Report Mode" */}
+                    <div className="mt-8">
+                        <h3 className="text-gray-400 font-bold mb-4 text-sm uppercase tracking-wider">
+                            Data Snapshot (First 50 Rows)
+                        </h3>
+                        <div className="overflow-x-auto border border-gray-200 dark:border-gray-800 rounded-xl bg-white dark:bg-gray-900/30 max-h-96">
+                            <table className="w-full text-left text-sm text-slate-600 dark:text-gray-400">
+                                <thead className="bg-gray-100 dark:bg-gray-800/80 text-slate-700 dark:text-gray-200 sticky top-0 backdrop-blur-md">
+                                    <tr>
+                                        {displayColumns.map(k => <th key={k} className="p-3 font-semibold whitespace-nowrap">{k}</th>)}
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-200 dark:divide-gray-800/50">
+                                    {processedData.slice((page - 1) * pageSize, page * pageSize).map((row, i) => (
+                                        <tr key={i} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                                            {displayColumns.map(c => (
+                                                <td key={c} className="p-3 whitespace-nowrap max-w-[200px] truncate text-xs font-mono">
+                                                    {typeof row[c] === 'object' ? JSON.stringify(row[c]) : String(row[c])}
+                                                </td>
+                                            ))}
                                         </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-gray-800/50">
-                                        {processedData.slice((page - 1) * pageSize, page * pageSize).map((row, i) => (
-                                            <tr key={i} className="hover:bg-gray-800/50 transition-colors">
-                                                {displayColumns.map(c => (
-                                                    <td key={c} className="p-3 whitespace-nowrap max-w-[200px] truncate text-xs font-mono">
-                                                        {typeof row[c] === 'object' ? JSON.stringify(row[c]) : String(row[c])}
-                                                    </td>
-                                                ))}
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                        {/* Pagination Controls */}
+                        <div className="flex items-center justify-between mt-4 text-xs text-gray-400">
+                            <div>
+                                Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, processedData.length)} of {processedData.length} entries
                             </div>
-                            {/* Pagination Controls */}
-                            <div className="flex items-center justify-between mt-4 text-xs text-gray-400">
-                                <div>
-                                    Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, processedData.length)} of {processedData.length} entries
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <button
-                                        onClick={() => setPage(p => Math.max(1, p - 1))}
-                                        disabled={page === 1}
-                                        className="p-1 rounded hover:bg-gray-800 disabled:opacity-50"
-                                    >
-                                        <ChevronLeft size={16} />
-                                    </button>
-                                    <span className="font-mono">Page {page} of {Math.ceil(processedData.length / pageSize)}</span>
-                                    <button
-                                        onClick={() => setPage(p => Math.min(Math.ceil(processedData.length / pageSize), p + 1))}
-                                        disabled={page >= Math.ceil(processedData.length / pageSize)}
-                                        className="p-1 rounded hover:bg-gray-800 disabled:opacity-50"
-                                    >
-                                        <ChevronRight size={16} />
-                                    </button>
-                                </div>
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={() => setPage(p => Math.max(1, p - 1))}
+                                    disabled={page === 1}
+                                    className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50"
+                                >
+                                    <ChevronLeft size={16} />
+                                </button>
+                                <span className="font-mono">Page {page} of {Math.ceil(processedData.length / pageSize)}</span>
+                                <button
+                                    onClick={() => setPage(p => Math.min(Math.ceil(processedData.length / pageSize), p + 1))}
+                                    disabled={page >= Math.ceil(processedData.length / pageSize)}
+                                    className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50"
+                                >
+                                    <ChevronRight size={16} />
+                                </button>
                             </div>
                         </div>
-                    )}
+                    </div>
+
                 </div>
 
                 {/* Settings Panel (Sidebar) */}
-                <div className={`w-80 bg-gray-900 border-l border-gray-800 flex-col overflow-y-auto transition-all duration-300 absolute right-0 h-full z-20 shadow-2xl ${showSettings ? 'translate-x-0' : 'translate-x-full'}`}>
+                <div className={`w-80 bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-800 flex-col overflow-y-auto transition-all duration-300 absolute right-0 h-full z-20 shadow-2xl ${showSettings ? 'translate-x-0' : 'translate-x-full'}`}>
                     <div className="p-6 space-y-8">
 
                         {/* 1. Chart Type */}
@@ -511,8 +767,8 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
                                         onClick={() => setChartType(t as ChartType)}
                                         className={`px-2 py-2 rounded-lg text-xs font-medium capitalize border transition-all
                                             ${chartType === t
-                                                ? 'bg-blue-600/20 text-blue-400 border-blue-500/50'
-                                                : 'bg-gray-800 text-gray-400 border-gray-700 hover:border-gray-600'
+                                                ? 'bg-blue-600/20 text-blue-600 dark:text-blue-400 border-blue-500/50'
+                                                : 'bg-gray-100 dark:bg-gray-800 text-slate-700 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-600'
                                             }`}
                                     >
                                         {t}
@@ -531,7 +787,7 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
                                     <select
                                         value={xAxisCol}
                                         onChange={(e) => setXAxisCol(e.target.value)}
-                                        className="w-full bg-gray-800 border border-gray-700 text-gray-200 text-sm rounded-lg p-2.5 appearance-none focus:ring-1 focus:ring-blue-500 focus:outline-none"
+                                        className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-slate-900 dark:text-gray-200 text-sm rounded-lg p-2.5 appearance-none focus:ring-1 focus:ring-blue-500 focus:outline-none"
                                     >
                                         {categoricalCols.map(c => <option key={c} value={c}>{c}</option>)}
                                     </select>
@@ -543,9 +799,9 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
                                 <label className="block text-xs text-gray-400 mb-1">Y-Axis (Metrics)</label>
                                 <div className="space-y-1 max-h-40 overflow-y-auto pr-1 custom-scrollbar">
                                     {numericCols.map(col => (
-                                        <label key={col} className="flex items-center space-x-2 p-2 rounded hover:bg-gray-800 cursor-pointer group">
+                                        <label key={col} className="flex items-center space-x-2 p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer group">
                                             <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors
-                                                ${yAxisCols.includes(col) ? 'bg-blue-600 border-blue-600' : 'border-gray-600 group-hover:border-gray-500'}`}>
+                                                ${yAxisCols.includes(col) ? 'bg-blue-600 border-blue-600' : 'border-gray-400 dark:border-gray-600 group-hover:border-gray-500'}`}>
                                                 {yAxisCols.includes(col) && <Plus size={10} className="text-white" />}
                                             </div>
                                             <input
@@ -554,7 +810,7 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
                                                 checked={yAxisCols.includes(col)}
                                                 onChange={() => toggleYAxis(col)}
                                             />
-                                            <span className={`text-sm ${yAxisCols.includes(col) ? 'text-white' : 'text-gray-400'}`}>{col}</span>
+                                            <span className={`text-sm ${yAxisCols.includes(col) ? 'text-slate-900 dark:text-white' : 'text-slate-500 dark:text-gray-400'}`}>{col}</span>
                                         </label>
                                     ))}
                                 </div>
@@ -571,7 +827,7 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
                             </h4>
                             <div className="space-y-2">
                                 {filters.map((f, idx) => (
-                                    <div key={idx} className="flex items-center gap-2 bg-gray-800 p-2 rounded-lg border border-gray-700">
+                                    <div key={idx} className="flex items-center gap-2 bg-gray-100 dark:bg-gray-800 p-2 rounded-lg border border-gray-200 dark:border-gray-700">
                                         <div className="flex-1 space-y-1">
                                             <select
                                                 value={f.col}
@@ -580,7 +836,7 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
                                                     newFilters[idx].col = e.target.value;
                                                     setFilters(newFilters);
                                                 }}
-                                                className="w-full bg-transparent text-xs text-gray-300 border-none p-0 focus:ring-0"
+                                                className="w-full bg-transparent text-xs text-slate-700 dark:text-gray-300 border-none p-0 focus:ring-0"
                                             >
                                                 {columns.map(c => <option key={c} value={c}>{c}</option>)}
                                             </select>
@@ -592,7 +848,7 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
                                                     newFilters[idx].val = e.target.value;
                                                     setFilters(newFilters);
                                                 }}
-                                                className="w-full bg-gray-900/50 rounded px-2 py-1 text-xs text-white border border-gray-700 focus:border-blue-500 focus:outline-none"
+                                                className="w-full bg-white dark:bg-gray-900/50 rounded px-2 py-1 text-xs text-slate-900 dark:text-white border border-gray-300 dark:border-gray-700 focus:border-blue-500 focus:outline-none"
                                             />
                                         </div>
                                         <button
@@ -608,12 +864,12 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
                         </div>
 
                         {/* 4. Correlation Analysis */}
-                        <div className="border-t border-gray-800 pt-4">
+                        <div className="border-t border-gray-200 dark:border-gray-800 pt-4">
                             <div className="flex items-center justify-between mb-3">
                                 <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider">Correlation Analysis</h4>
                                 <button
                                     onClick={() => setCorrelationMode(!correlationMode)}
-                                    className={`w-8 h-4 rounded-full transition-colors relative ${correlationMode ? 'bg-blue-600' : 'bg-gray-700'}`}
+                                    className={`w-8 h-4 rounded-full transition-colors relative ${correlationMode ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-700'}`}
                                 >
                                     <div className={`absolute top-0.5 left-0.5 w-3 h-3 bg-white rounded-full transition-transform ${correlationMode ? 'translate-x-4' : 'translate-x-0'}`} />
                                 </button>
@@ -627,7 +883,7 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
                                         <select
                                             value={corrBaseCol}
                                             onChange={(e) => setCorrBaseCol(e.target.value)}
-                                            className="w-full bg-gray-800 border border-gray-700 text-gray-200 text-xs rounded p-2"
+                                            className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-slate-900 dark:text-gray-200 text-xs rounded p-2"
                                         >
                                             <option value="">Select Column...</option>
                                             {numericCols.map(c => <option key={c} value={c}>{c}</option>)}
@@ -637,12 +893,12 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
                                     {/* Target Columns */}
                                     <div>
                                         <label className="block text-xs text-gray-400 mb-1">Correlate With</label>
-                                        <div className="space-y-1 max-h-32 overflow-y-auto pr-1 custom-scrollbar bg-gray-900/50 p-1 rounded border border-gray-800">
+                                        <div className="space-y-1 max-h-32 overflow-y-auto pr-1 custom-scrollbar bg-gray-100 dark:bg-gray-900/50 p-1 rounded border border-gray-200 dark:border-gray-800">
                                             {numericCols.filter(c => c !== corrBaseCol).map(col => (
-                                                <label key={col} className="flex items-center space-x-2 p-1.5 rounded hover:bg-gray-800 cursor-pointer">
+                                                <label key={col} className="flex items-center space-x-2 p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-800 cursor-pointer">
                                                     <input
                                                         type="checkbox"
-                                                        className="rounded border-gray-600 bg-gray-700 text-blue-600 focus:ring-0"
+                                                        className="rounded border-gray-400 dark:border-gray-600 bg-gray-200 dark:bg-gray-700 text-blue-600 focus:ring-0"
                                                         checked={corrTargetCols.includes(col)}
                                                         onChange={() => {
                                                             setCorrTargetCols(prev =>
@@ -650,7 +906,7 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
                                                             );
                                                         }}
                                                     />
-                                                    <span className="text-xs text-gray-300">{col}</span>
+                                                    <span className="text-xs text-slate-700 dark:text-gray-300">{col}</span>
                                                 </label>
                                             ))}
                                         </div>
@@ -662,7 +918,7 @@ const AnalyticsEngine: React.FC<AnalyticsEngineProps> = ({ data, title, readOnly
                                         <select
                                             value={groupByCol}
                                             onChange={(e) => setGroupByCol(e.target.value)}
-                                            className="w-full bg-gray-800 border border-gray-700 text-gray-200 text-xs rounded p-2"
+                                            className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-slate-900 dark:text-gray-200 text-xs rounded p-2"
                                         >
                                             <option value="">None (Global Analysis)</option>
                                             {categoricalCols.map(c => <option key={c} value={c}>{c}</option>)}

@@ -14,6 +14,7 @@ import Pipelines from './pages/Pipelines';
 import PipelineEditor from './pages/PipelineEditor';
 import StandAloneAnalytics from './pages/StandAloneAnalytics';
 import RouteRegistry from './pages/RouteRegistry';
+import TrendAnalysis from './pages/TrendAnalysis';
 
 const App: React.FC = () => {
   // CRITICAL: Block access on port 3000 (raw container)
@@ -70,6 +71,7 @@ const App: React.FC = () => {
               <Route path="/pipelines/new" element={<PipelineEditor />} />
               <Route path="/pipelines/:id" element={<PipelineEditor />} />
               <Route path="/dashboards" element={<DashboardBuilder />} />
+              <Route path="/trends" element={<TrendAnalysis />} />
               <Route path="/routes" element={<RouteRegistry />} />
             </Routes>
           </Layout>

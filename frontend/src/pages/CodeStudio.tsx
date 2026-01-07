@@ -134,7 +134,7 @@ export const CodeStudio = () => {
     return (
         <div className="h-[calc(100vh-140px)] flex flex-col gap-6">
             <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold text-white tracking-tight">Code Studio</h2>
+                <h2 className="text-2xl font-bold text-white tracking-tight">Preprocessing</h2>
 
                 {/* Experiment Selectors */}
                 <div className="flex gap-4">

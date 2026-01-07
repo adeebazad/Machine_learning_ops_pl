@@ -3,6 +3,8 @@ import os
 import yaml
 import mlflow.sklearn
 import pandas as pd
+import io
+from datetime import datetime
 from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -159,6 +161,36 @@ def trigger_training(request: TrainingRequest, background_tasks: BackgroundTasks
     background_tasks.add_task(run_training_task, job.id)
     return {"message": "Training triggered in background", "config_id": request.config_id, "job_id": job.id}
 
+from fastapi.responses import StreamingResponse
+from src.reports.generator import generate_report_bytes
+
+class ReportChart(BaseModel):
+    title: str = "Untitled Chart"
+    type: str = "custom"
+    observations: str = ""
+    image: Optional[str] = None
+    data_snapshot: Optional[List[Dict[str, Any]]] = None
+
+class ReportRequest(BaseModel):
+    title: str = "Dashboard Analysis Report"
+    description: str = ""
+    metrics: List[Dict[str, Any]] = [] # [{"label": "Accuracy", "value": "0.95"}]
+    charts: List[ReportChart] = []
+    observations: str = ""
+
+@app.post("/report/generate")
+def generate_report(request: ReportRequest):
+    try:
+        pdf_bytes = generate_report_bytes(request.dict())
+        return StreamingResponse(
+            io.BytesIO(pdf_bytes),
+            media_type="application/pdf",
+            headers={"Content-Disposition": f"attachment; filename=report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"}
+        )
+    except Exception as e:
+        logger.error(f"Report generation failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 from src.features.preprocess import DataPreprocessor
 
 @app.post("/predict")
@@ -305,6 +337,16 @@ def predict(request: PredictionRequest, db: Session = Depends(get_db)):
         
         # Predict
         predictions = model.predict(processed_data)
+        
+        # Inverse Transform Predictions (if target was scaled during training)
+        if preprocessor and hasattr(preprocessor, 'target_scaler'):
+            try:
+                # Check if scaler is fitted (has mean_) to avoid errors on unsupervised/classification
+                if hasattr(preprocessor.target_scaler, 'mean_'):
+                    predictions = predictions.reshape(-1, 1)
+                    predictions = preprocessor.target_scaler.inverse_transform(predictions).flatten()
+            except Exception as e:
+                logger.warning(f"Could not inverse transform predictions: {e}")
         
         # Save to Database
         try:

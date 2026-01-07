@@ -134,35 +134,35 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ steps, stepResu
     };
 
     return (
-        <div className="bg-gray-950 min-h-screen p-6 animate-in fade-in duration-500">
+        <div className="bg-gray-50 dark:bg-gray-950 min-h-screen p-6 animate-in fade-in duration-500 transition-colors duration-300">
             {/* Summary Cards */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                <div className="bg-gray-900 border border-gray-800 p-6 rounded-2xl flex items-center gap-4 shadow-lg shadow-blue-900/10">
-                    <div className="p-3 bg-blue-500/10 text-blue-400 rounded-xl"><LayoutDashboard size={24} /></div>
+                <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-6 rounded-2xl flex items-center gap-4 shadow-lg shadow-blue-900/10">
+                    <div className="p-3 bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-xl"><LayoutDashboard size={24} /></div>
                     <div>
-                        <p className="text-sm text-gray-400 font-medium">Total Steps</p>
-                        <h3 className="text-2xl font-bold text-white">{summary.totalSteps}</h3>
+                        <p className="text-sm text-slate-500 dark:text-gray-400 font-medium">Total Steps</p>
+                        <h3 className="text-2xl font-bold text-slate-900 dark:text-white">{summary.totalSteps}</h3>
                     </div>
                 </div>
-                <div className="bg-gray-900 border border-gray-800 p-6 rounded-2xl flex items-center gap-4 shadow-lg shadow-green-900/10">
-                    <div className="p-3 bg-green-500/10 text-green-400 rounded-xl"><CheckCircle size={24} /></div>
+                <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-6 rounded-2xl flex items-center gap-4 shadow-lg shadow-green-900/10">
+                    <div className="p-3 bg-green-500/10 text-green-600 dark:text-green-400 rounded-xl"><CheckCircle size={24} /></div>
                     <div>
-                        <p className="text-sm text-gray-400 font-medium">Executed</p>
-                        <h3 className="text-2xl font-bold text-white">{summary.executedStepsOnly}</h3>
+                        <p className="text-sm text-slate-500 dark:text-gray-400 font-medium">Executed</p>
+                        <h3 className="text-2xl font-bold text-slate-900 dark:text-white">{summary.executedStepsOnly}</h3>
                     </div>
                 </div>
-                <div className="bg-gray-900 border border-gray-800 p-6 rounded-2xl flex items-center gap-4 shadow-lg shadow-red-900/10">
-                    <div className="p-3 bg-red-500/10 text-red-400 rounded-xl"><AlertTriangle size={24} /></div>
+                <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-6 rounded-2xl flex items-center gap-4 shadow-lg shadow-red-900/10">
+                    <div className="p-3 bg-red-500/10 text-red-600 dark:text-red-400 rounded-xl"><AlertTriangle size={24} /></div>
                     <div>
-                        <p className="text-sm text-gray-400 font-medium">Failed</p>
-                        <h3 className="text-2xl font-bold text-white">{summary.failedSteps}</h3>
+                        <p className="text-sm text-slate-500 dark:text-gray-400 font-medium">Failed</p>
+                        <h3 className="text-2xl font-bold text-slate-900 dark:text-white">{summary.failedSteps}</h3>
                     </div>
                 </div>
-                <div className="bg-gray-900 border border-gray-800 p-6 rounded-2xl flex items-center gap-4">
-                    <div className="p-3 bg-purple-500/10 text-purple-400 rounded-xl"><Clock size={24} /></div>
+                <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-6 rounded-2xl flex items-center gap-4">
+                    <div className="p-3 bg-purple-500/10 text-purple-600 dark:text-purple-400 rounded-xl"><Clock size={24} /></div>
                     <div>
-                        <p className="text-sm text-gray-400 font-medium">Last Run</p>
-                        <h3 className="text-lg font-bold text-white">Just Now</h3>
+                        <p className="text-sm text-slate-500 dark:text-gray-400 font-medium">Last Run</p>
+                        <h3 className="text-lg font-bold text-slate-900 dark:text-white">Just Now</h3>
                     </div>
                 </div>
             </div>
@@ -178,11 +178,11 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ steps, stepResu
                         className={`w-full text-left p-4 rounded-xl border transition-all duration-200 flex items-center justify-between group
                             ${selectedStepIndex === -1
                                 ? 'bg-gradient-to-r from-purple-600 to-indigo-600 border-purple-500 text-white shadow-lg'
-                                : 'bg-gray-900 border-gray-800 text-gray-400 hover:bg-gray-800 hover:border-gray-700'
+                                : 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 text-slate-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-blue-500/30'
                             }`}
                     >
                         <div className="flex items-center gap-3">
-                            <div className={`p-2 rounded-lg ${selectedStepIndex === -1 ? 'bg-white/20' : 'bg-gray-800'}`}>
+                            <div className={`p-2 rounded-lg ${selectedStepIndex === -1 ? 'bg-white/20' : 'bg-gray-100 dark:bg-gray-800'}`}>
                                 <GitCompare size={16} />
                             </div>
                             <span className="font-medium">Model Comparison</span>
@@ -204,11 +204,11 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ steps, stepResu
                                 className={`w-full text-left p-4 rounded-xl border transition-all duration-200 flex items-center justify-between group
                                     ${isSelected
                                         ? 'bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-500/20'
-                                        : 'bg-gray-900 border-gray-800 text-gray-400 hover:bg-gray-800 hover:border-gray-700'
+                                        : 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 text-slate-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-blue-500/30'
                                     }`}
                             >
                                 <div className="flex items-center gap-3">
-                                    <div className={`p-2 rounded-lg ${isSelected ? 'bg-white/10' : 'bg-gray-800'}`}>
+                                    <div className={`p-2 rounded-lg ${isSelected ? 'bg-white/10' : 'bg-gray-100 dark:bg-gray-800'}`}>
                                         {step.step_type === 'extraction' && <Database size={16} />}
                                         {step.step_type === 'preprocessing' && <FileText size={16} />}
                                         {step.step_type === 'training' && <Brain size={16} />}
@@ -237,11 +237,11 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ steps, stepResu
                             onSaveToDashboard={(cfg) => onSaveChart && onSaveChart(activeStep.id, activeStep.order, activeStep.step_type, cfg)}
                         />
                     ) : (
-                        <div className="flex flex-col items-center justify-center h-full bg-gray-900 border border-gray-800 rounded-2xl text-gray-500">
-                            <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mb-4">
+                        <div className="flex flex-col items-center justify-center h-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl text-slate-500 dark:text-gray-500">
+                            <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4">
                                 <Database size={32} className="opacity-50" />
                             </div>
-                            <h3 className="text-lg font-medium text-white mb-2">No Output Generated</h3>
+                            <h3 className="text-lg font-medium text-slate-900 dark:text-white mb-2">No Output Generated</h3>
                             <p>Run this step to generate analytics data.</p>
                         </div>
                     )}

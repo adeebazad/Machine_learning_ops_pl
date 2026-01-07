@@ -105,7 +105,7 @@ export const Inference = () => {
         <div className="space-y-8">
             <div className="flex justify-between items-end">
                 <div>
-                    <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-2 tracking-tight">Inference Lab</h2>
+                    <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-2 tracking-tight">ALP</h2>
                     <p className="text-slate-500 dark:text-slate-400">Real-time model predictions and forecasting</p>
                 </div>
             </div>

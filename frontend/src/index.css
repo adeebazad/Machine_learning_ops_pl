@@ -138,6 +138,7 @@ body {
   }
 
   /* Expand Scrollable Areas */
+  .overflow-hidden,
   .overflow-auto,
   .overflow-y-auto,
   .overflow-x-auto,
@@ -165,6 +166,10 @@ body {
     padding: 20px;
     display: block !important;
     height: auto !important;
+    min-height: 0 !important;
+    /* Reset any min-height */
+    overflow: visible !important;
+    /* Override overflow-hidden */
   }
 
   .print-stack {

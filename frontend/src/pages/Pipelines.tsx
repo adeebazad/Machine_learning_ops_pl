@@ -74,7 +74,7 @@ const Pipelines: React.FC = () => {
                         <div className="p-2 rounded-lg bg-blue-500/10 text-blue-500">
                             <Layers size={28} />
                         </div>
-                        Automated Pipelines
+                        Automated Work Flows
                     </h1>
                     <p className="text-slate-500 dark:text-slate-400 mt-2 text-lg">Manage and schedule your ML workflows</p>
                 </div>
@@ -99,7 +99,7 @@ const Pipelines: React.FC = () => {
                     <div
                         key={pipeline.id}
                         onClick={() => navigate(`/pipelines/${pipeline.id}`)}
-                        className="glass-card p-6 bg-white dark:bg-[#1a1c23] hover:border-blue-500/50 dark:hover:border-blue-500/50 transition-all cursor-pointer group"
+                        className="glass-card p-6 bg-white dark:bg-gray-900 hover:border-blue-500/50 dark:hover:border-blue-500/50 transition-all cursor-pointer group"
                     >
                         <div className="flex justify-between items-start">
                             <div>

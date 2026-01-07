@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { dashboardService, pipelineService } from '../services/api';
 import AnalyticsEngine from '../components/analytics/AnalyticsEngine';
-import { Plus, LayoutDashboard, Trash2, Share2, Edit2 } from 'lucide-react';
+import { Plus, LayoutDashboard, Trash2, Share2, Edit2, Sparkles, Loader2, RefreshCw } from 'lucide-react';
+import { getPearlApiUrl } from '../config';
 
 
 const DashboardBuilder: React.FC = () => {
@@ -58,19 +59,17 @@ const DashboardBuilder: React.FC = () => {
         }
     };
 
-    const loadDashboardCharts = async (id: number) => {
+    const loadDashboardCharts = async (id: number, forceRefresh = false) => {
         setLoading(true);
         try {
             // Refetch dashboard to ensure we have latest charts config
             // NOTE: We only update selectedDashboard if charts list size changed or force refresh
-            // But for now, let's trust the ID check prevents render loop.
             const dashboard: any = await dashboardService.get(id);
-            // Updating this causes re-render, but effect won't fire if ID is same.
 
             // Parallel Fetch
             const chartPromises = (dashboard.charts || []).map(async (chart: any) => {
-                // 1. Try to load from Snapshot (Config)
-                if (chart.config?.snapshotData) {
+                // 1. Try to load from Snapshot (Config) - SKIP IF FORCE REFRESH
+                if (!forceRefresh && chart.config?.snapshotData) {
                     return { id: chart.id, data: chart.config.snapshotData };
                 }
 
@@ -84,22 +83,28 @@ const DashboardBuilder: React.FC = () => {
                         );
 
                         if (res.data) {
-                            // Sort logic
-                            if (chart.config.step_type === 'preprocessing' && Array.isArray(res.data)) {
+                            // Sort logic for preprocessing
+                            // Sort logic for ALL time-series data
+                            if (Array.isArray(res.data)) {
                                 const cols = Object.keys(res.data[0] || {});
-                                const dateCol = cols.find(c => ['date', 'timestamp', 'dateissuedutc'].includes(c.toLowerCase()));
+                                const dateCol = cols.find(c => ['date', 'timestamp', 'dateissuedutc', 'time'].includes(c.toLowerCase()));
                                 if (dateCol) {
-                                    res.data.sort((a: any, b: any) => new Date(b[dateCol]).getTime() - new Date(a[dateCol]).getTime());
+                                    // Sort Ascending (Oldest -> Newest) for correct chart rendering
+                                    res.data.sort((a: any, b: any) => new Date(a[dateCol]).getTime() - new Date(b[dateCol]).getTime());
                                 }
                             }
                             return { id: chart.id, data: res.data };
+                        } else {
+                            return { id: chart.id, error: "No data returned from pipeline" };
                         }
                     } catch (e) {
                         console.error(`Failed to load data for chart ${chart.name}`, e);
-                        return { id: chart.id, error: "Unable to load data" };
+                        return { id: chart.id, error: "Failed to fetch pipeline data" };
                     }
                 }
-                return null;
+
+                // If we reach here, we have no snapshot (or forced refresh) AND no valid pipeline link
+                return { id: chart.id, error: "Configuration missing or link broken" };
             });
 
             const results = await Promise.all(chartPromises);
@@ -155,10 +160,15 @@ const DashboardBuilder: React.FC = () => {
         }
     };
 
-    const handleUpdateChart = async (chartId: number, config: any) => {
+    const handleUpdateChart = async (chartId: number, newConfig: any) => {
         if (!selectedDashboard) return;
+
+        // Merge with existing config to preserve pipeline_id/step_id
+        const existingChart = selectedDashboard.charts?.find((c: any) => c.id === chartId);
+        const mergedConfig = existingChart ? { ...existingChart.config, ...newConfig } : newConfig;
+
         try {
-            await dashboardService.updateChart(selectedDashboard.id, chartId, { config });
+            await dashboardService.updateChart(selectedDashboard.id, chartId, { config: mergedConfig });
             loadDashboardCharts(selectedDashboard.id);
             alert("Chart updated successfully!");
         } catch (e) {
@@ -170,6 +180,61 @@ const DashboardBuilder: React.FC = () => {
     const [isEditingSummary, setIsEditingSummary] = useState(false);
     const [summaryText, setSummaryText] = useState('');
 
+    // AI Observations State
+    const [observations, setObservations] = useState<string>('');
+    const [isSummarizing, setIsSummarizing] = useState(false);
+
+    const generateObservations = async () => {
+        if (!selectedDashboard || !selectedDashboard.charts?.length) return;
+        setIsSummarizing(true);
+        setObservations('');
+
+        try {
+            // 1. Gather context from charts
+            const summaryData = selectedDashboard.charts.map((chart: any) => {
+                const data = chartData[chart.id];
+                if (!data || (data as any).error || !Array.isArray(data)) return null;
+
+                // Take last 5 points to save context window
+                const recent = data.slice(-5);
+                return {
+                    chart: chart.name,
+                    recentData: recent
+                };
+            }).filter(Boolean);
+
+            const query = `
+                You are an AI Data Analyst. Analyze the following dashboard data (snippet of recent values) and provide a comprehensive summary of trends and insights.
+                Focus on anomalies or interesting patterns. Keep it professional and under 100 words.
+
+                Data: ${JSON.stringify(summaryData)}
+            `;
+
+            // Payload matching askbot.js and Dashboard.tsx
+            const payload = {
+                query: query.trim(),
+                stream: false
+            };
+
+            const response = await fetch(getPearlApiUrl(), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) throw new Error('Failed to fetch summary from Pearl');
+
+            const data = await response.json();
+            setObservations(data.response || "No response content.");
+
+        } catch (error) {
+            console.error("Summarization failed:", error);
+            setObservations("Unable to generate observations. Ensure Pearl AI service is reachable.");
+        } finally {
+            setIsSummarizing(false);
+        }
+    };
+
     useEffect(() => {
         if (selectedDashboard) setSummaryText(selectedDashboard.description || '');
     }, [selectedDashboard]);
@@ -177,15 +242,15 @@ const DashboardBuilder: React.FC = () => {
     // ...
 
     return (
-        <div className="flex h-screen bg-gray-950 text-white font-sans overflow-hidden">
+        <div className="flex h-screen bg-gray-50 dark:bg-gray-950 text-slate-900 dark:text-white font-sans overflow-hidden">
             {/* Sidebar List */}
-            <div className="w-64 bg-gray-900 border-r border-gray-800 flex flex-col no-print">
-                <div className="p-4 border-b border-gray-800 space-y-3">
+            <div className="w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex flex-col no-print">
+                <div className="p-4 border-b border-gray-200 dark:border-gray-800 space-y-3">
                     <div className="flex items-center justify-between">
                         <h2 className="font-bold text-lg flex items-center gap-2">
-                            <LayoutDashboard size={20} className="text-blue-500" /> Dashboards
+                            <LayoutDashboard size={20} className="text-blue-600" /> Dashboards
                         </h2>
-                        <button onClick={() => setShowCreateModal(true)} className="p-1 hover:bg-gray-800 rounded text-blue-400">
+                        <button onClick={() => setShowCreateModal(true)} className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded text-blue-500">
                             <Plus size={20} />
                         </button>
                     </div>
@@ -209,12 +274,12 @@ const DashboardBuilder: React.FC = () => {
                                     setChartData({});
                                 }
                             }}
-                            className={`p-3 rounded-lg cursor-pointer flex justify-between group transition-colors ${selectedDashboard?.id === d.id ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30' : 'hover:bg-gray-800 text-gray-400'}`}
+                            className={`p-3 rounded-lg cursor-pointer flex justify-between group transition-colors ${selectedDashboard?.id === d.id ? 'bg-blue-600/10 text-blue-600 dark:text-blue-400 border border-blue-500/30' : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-slate-600 dark:text-gray-400'}`}
                         >
                             <span className="truncate">{d.name}</span>
                             <button
                                 onClick={(e) => { e.stopPropagation(); deleteDashboard(d.id); }}
-                                className="opacity-0 group-hover:opacity-100 p-1 hover:text-red-400 transition-opacity"
+                                className="opacity-0 group-hover:opacity-100 p-1 hover:text-red-500 transition-opacity"
                             >
                                 <Trash2 size={14} />
                             </button>
@@ -227,27 +292,27 @@ const DashboardBuilder: React.FC = () => {
             <div className="flex-1 flex flex-col h-full overflow-hidden">
                 {selectedDashboard ? (
                     <>
-                        <header className="h-16 border-b border-gray-800 bg-gray-900/50 backdrop-blur px-6 flex items-center justify-between no-print">
+                        <header className="h-16 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/50 backdrop-blur px-6 flex items-center justify-between no-print">
                             <div>
-                                <h1 className="text-xl font-bold">{selectedDashboard.name}</h1>
+                                <h1 className="text-xl font-bold text-slate-900 dark:text-white">{selectedDashboard.name}</h1>
                                 {/* Executive Summary / Description */}
                                 <div className="mt-1">
                                     {isEditingSummary ? (
                                         <div className="flex items-start gap-2">
                                             <textarea
-                                                className="bg-gray-800 border-gray-700 text-xs w-[400px] rounded p-2 outline-none h-16"
+                                                className="bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-xs w-[400px] rounded p-2 outline-none h-16 text-slate-800 dark:text-white"
                                                 value={summaryText}
                                                 onChange={e => setSummaryText(e.target.value)}
                                                 placeholder="Enter Executive Summary..."
                                             />
                                             <div className="flex flex-col gap-1">
-                                                <button onClick={() => { updateDashboardDescription(summaryText); setIsEditingSummary(false); }} className="px-2 py-1 bg-green-600 text-[10px] rounded hover:bg-green-500">Save</button>
-                                                <button onClick={() => setIsEditingSummary(false)} className="px-2 py-1 bg-gray-700 text-[10px] rounded hover:bg-gray-600">Cancel</button>
+                                                <button onClick={() => { updateDashboardDescription(summaryText); setIsEditingSummary(false); }} className="px-2 py-1 bg-green-600 text-[10px] rounded hover:bg-green-500 text-white">Save</button>
+                                                <button onClick={() => setIsEditingSummary(false)} className="px-2 py-1 bg-gray-200 dark:bg-gray-700 text-slate-700 dark:text-gray-300 text-[10px] rounded hover:bg-gray-300 dark:hover:bg-gray-600">Cancel</button>
                                             </div>
                                         </div>
                                     ) : (
                                         <p
-                                            className="text-xs text-gray-500 hover:text-gray-300 cursor-pointer flex items-center gap-2 group print-visible"
+                                            className="text-xs text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 cursor-pointer flex items-center gap-2 group print-visible"
                                             onClick={() => { setSummaryText(selectedDashboard.description || ''); setIsEditingSummary(true); }}
                                         >
                                             {selectedDashboard.description || "Add Executive Summary..."}
@@ -258,14 +323,14 @@ const DashboardBuilder: React.FC = () => {
                             </div>
                             <div className="flex gap-3">
                                 <button
-                                    onClick={() => loadDashboardCharts(selectedDashboard.id)}
-                                    className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 rounded-lg text-sm text-gray-300 transition-colors"
+                                    onClick={() => loadDashboardCharts(selectedDashboard.id, true)}
+                                    className="px-3 py-1.5 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg text-sm text-slate-600 dark:text-gray-300 transition-colors border border-gray-200 dark:border-gray-700"
                                 >
                                     Refresh
                                 </button>
                                 <button
                                     onClick={handleShare}
-                                    className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-500 rounded-lg text-sm font-medium transition-colors"
+                                    className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-500 rounded-lg text-sm font-medium transition-colors text-white"
                                 >
                                     <Share2 size={16} /> Share
                                 </button>
@@ -282,6 +347,40 @@ const DashboardBuilder: React.FC = () => {
                                 </div>
                             </div>
 
+                            {/* AI Observations Section */}
+                            <div className="mb-8 glass-card p-6 rounded-2xl border border-indigo-100 dark:border-indigo-900/30 bg-indigo-50/50 dark:bg-indigo-900/10 no-print">
+                                <div className="flex items-center justify-between mb-4">
+                                    <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                        <Sparkles className="text-indigo-500" size={20} />
+                                        AI Analysis & Observations
+                                    </h3>
+                                    <button
+                                        onClick={generateObservations}
+                                        disabled={isSummarizing || !selectedDashboard.charts?.length}
+                                        className="flex items-center gap-2 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md active:scale-95"
+                                    >
+                                        {isSummarizing ? (
+                                            <><Loader2 size={16} className="animate-spin" /> Analyzing...</>
+                                        ) : (
+                                            <><RefreshCw size={16} /> Generate Observations</>
+                                        )}
+                                    </button>
+                                </div>
+
+                                <div className="bg-white dark:bg-gray-900/50 rounded-xl p-4 min-h-[80px] border border-indigo-200 dark:border-indigo-800/30 relative">
+                                    {observations ? (
+                                        <div className="prose dark:prose-invert max-w-none text-sm text-slate-700 dark:text-gray-300 leading-relaxed">
+                                            {observations}
+                                        </div>
+                                    ) : (
+                                        <div className="h-full flex flex-col items-center justify-center text-gray-400 text-sm gap-2 opacity-70">
+                                            <Sparkles size={24} className="opacity-50" />
+                                            <p>Click "Generate Observations" to identify anomalies and insights across all charts.</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
                             {loading ? (
                                 <div className="text-center py-20 text-gray-500 animate-pulse">Loading Charts...</div>
                             ) : selectedDashboard.charts?.length === 0 ? (
@@ -292,21 +391,14 @@ const DashboardBuilder: React.FC = () => {
                             ) : (
                                 <div className="grid grid-cols-1 gap-6 print-stack">
                                     {selectedDashboard.charts?.map((chart: any) => (
-                                        <div key={chart.id} className="min-h-[800px] border border-gray-800 rounded-xl overflow-hidden flex flex-col bg-gray-900 relative group print-chart-block">
-                                            <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity no-print">
-                                                <button
-                                                    onClick={() => deleteChart(chart.id)}
-                                                    className="p-2 bg-gray-900/80 hover:bg-red-900/80 text-gray-400 hover:text-red-200 rounded-lg backdrop-blur shadow-lg border border-gray-700"
-                                                    title="Remove Chart"
-                                                >
-                                                    <Trash2 size={14} />
-                                                </button>
-                                            </div>
+                                        <div key={chart.id} className="min-h-[800px] border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden flex flex-col bg-white dark:bg-gray-900 relative group print-chart-block shadow-sm">
                                             {/* Analytics Engine with Update Capability */}
                                             {chartData[chart.id] && (chartData[chart.id] as any).error ? (
-                                                <div className="flex flex-col items-center justify-center h-full text-red-400 bg-red-900/10 gap-2">
+                                                <div className="flex flex-col items-center justify-center h-full text-red-500 bg-red-50 dark:bg-red-900/10 gap-2 p-4 text-center">
                                                     <span className="font-bold">Error Loading Chart</span>
-                                                    <span className="text-xs text-red-500/70">Source data may be missing</span>
+                                                    <span className="text-xs text-red-500/70">
+                                                        {(chartData[chart.id] as any).error || "Source data may be missing"}
+                                                    </span>
                                                 </div>
                                             ) : chartData[chart.id] ? (
                                                 <AnalyticsEngine
@@ -316,6 +408,7 @@ const DashboardBuilder: React.FC = () => {
                                                     config={chart.config}
                                                     onSaveToDashboard={(newConfig) => handleUpdateChart(chart.id, newConfig)} // Handle Update
                                                     isDashboardItem={true} // Prevent Print Overlap
+                                                    onDelete={() => deleteChart(chart.id)} // Pass delete handler
                                                 />
                                             ) : (
                                                 <div className="flex items-center justify-center h-full text-gray-500 text-sm">
